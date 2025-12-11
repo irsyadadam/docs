@@ -1,114 +1,57 @@
 {
-  "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mint Starter Kit",
-  "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
-  },
-  "favicon": "/favicon.svg",
-  "navigation": {
-    "tabs": [
+    "$schema": "https://mintlify.com/docs.json",
+    "name": "Standard Model Bio",
+    "theme": "mint",
+    "logo": {
+      "light": "/logo.png",
+      "dark": "/logo.png",
+      "height": 40,
+      "href": "https://www.standardmodel.bio"
+    },
+    "favicon": "/favicon.svg",
+    "colors": {
+      "primary": "#2B3E50",
+      "light": "#FF6B6B",
+      "dark": "#1E2D3D"
+    },
+    "topbarLinks": [
       {
-        "tab": "Guides",
-        "groups": [
-          {
-            "group": "Getting started",
-            "pages": [
-              "index",
-              "quickstart",
-              "development"
-            ]
-          },
-          {
-            "group": "Customization",
-            "pages": [
-              "essentials/settings",
-              "essentials/navigation"
-            ]
-          },
-          {
-            "group": "Writing content",
-            "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "API reference",
-        "groups": [
-          {
-            "group": "API documentation",
-            "pages": [
-              "api-reference/introduction"
-            ]
-          },
-          {
-            "group": "Endpoint examples",
-            "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
-            ]
-          }
-        ]
+        "name": "Blog",
+        "url": "https://blog.standardmodel.bio"
       }
     ],
-    "global": {
-      "anchors": [
+    "topbarCtaButton": {
+      "name": "Contact",
+      "url": "mailto:info@standardmodel.bio"
+    },
+    "navigation": {
+      "tabs": [
         {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+          "tab": "Documentation",
+          "groups": [
+            {
+              "group": "Get Started",
+              "pages": [
+                "get-started/introduction"
+              ]
+            },
+            {
+              "group": "Core Concepts",
+              "pages": [
+                "core-concepts/overview",
+                "core-concepts/embedding-generation"
+              ]
+            }
+          ]
         }
       ]
-    }
-  },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+    },
+    "footer": {
+      "socials": {
+        "website": "https://www.standardmodel.bio"
       }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
-  },
-  "contextual": {
-    "options": [
-      "copy",
-      "view",
-      "chatgpt",
-      "claude",
-      "perplexity",
-      "mcp",
-      "cursor",
-      "vscode"
-    ]
-  },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+    },
+    "modeToggle": {
+      "default": "light"
     }
   }
-}
