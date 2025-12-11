@@ -27,7 +27,7 @@
     "navigation": {
       "tabs": [
         {
-          "tab": "Documentation",
+          "tab": "Guides",
           "groups": [
             {
               "group": "Get Started",
@@ -44,7 +44,31 @@
             }
           ]
         }
-      ]
+      ],
+      "global": {
+        "anchors": [
+          {
+            "anchor": "Blog",
+            "href": "https://blog.standardmodel.bio",
+            "icon": "newspaper"
+          },
+          {
+            "anchor": "Website",
+            "href": "https://www.standardmodel.bio",
+            "icon": "globe"
+          },
+          {
+            "anchor": "GitHub",
+            "href": "https://github.com/standardmodelbio",
+            "icon": "github"
+          },
+          {
+            "anchor": "Hugging Face",
+            "href": "https://huggingface.co/standardmodelbio",
+            "icon": "face-smile"
+          }
+        ]
+      }
     },
     "footer": {
       "socials": {
