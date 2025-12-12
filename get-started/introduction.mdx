@@ -1,16 +1,244 @@
 ---
 title: "Introduction"
-description: "Get started with Standard Model Bio"
+description: "The Standard Model for Biomedicine — a biological world model that predicts patient trajectories, not just tokens"
 ---
 
-# Introduction
+<img
+  src="/images/logo.png"
+  alt="Standard Model Bio"
+  className="block dark:hidden"
+  width="200"
+/>
 
-Welcome to the Standard Model Bio documentation.
+We are building the **Standard Model for Biomedicine** — a biological world model that moves beyond text prediction to model the causal dynamics of human disease.
 
-## Overview
+<Info>
 
-This page is a placeholder for your introduction content.
+**New Release:** [Standard Model v1](/models/standard-model-v1) is now available — our flagship multimodal foundation model for oncology built on Joint-Embedding Predictive Architecture (JEPA).
+
+</Info>
+
+## The Problem with Current AI
+
+For years, the approach to biomedical AI has been simple: take a massive general-purpose model, feed it medical text, and watch it pass licensing exams. But when tested on realistic patient cases requiring actual treatment decisions, GPT-4 achieves just 30.3% completeness.
+
+**The disconnect lies in a single, flawed assumption: that language is a sufficient proxy for disease biology.**
+
+<Warning>
+
+Human biology is not a linguistic problem — it is inherently multimodal. Today's AI models have never "seen" an entire CT volume or "read" a whole-genome sequence; they have only processed text descriptions of them.
+
+</Warning>
+
+## Our Approach: A Biological World Model
+
+The Standard Model represents a paradigm shift:
+
+| Traditional LLMs | Standard Model |
+|------------------|----------------|
+| Predicts **tokens** | Predicts **patient states** |
+| Static snapshots | Dynamic trajectories |
+| Text as proxy | Raw biological signals |
+| Pattern matching | Causal reasoning |
+
+<Frame>
+  <img src="/images/standard-model-architecture.png" alt="Standard Model Architecture" />
+</Frame>
+
+### From Description to Dynamics
+
+A clinician does not simply ask "Is this cancer?" (classification). Rather, they ask:
+
+> "Given the patient's current state *S(t)* and this specific intervention *I*, what will their state be in 6 months *S(t+1)*?"
+
+Our Standard Model answers this question by modeling biological dynamics, not generating text.
+
+## Architecture Overview
+
+The Standard Model is built on **Joint-Embedding Predictive Architecture (JEPA)** — the same paradigm powering advances in robotics and autonomous driving, now applied to human biology.
+
+<Steps>
+
+<Step title="Modality Ingestion">
+
+Raw signals — genomics, proteomics, imaging, EHR data — pass through modality-specific encoders and fuse into a universal latent space.
+
+</Step>
+
+<Step title="State Prediction">
+
+Given the current patient state *S(t)* and an intervention *A(t)*, the model predicts the future state *S(t+1)* in latent space.
+
+</Step>
+
+<Step title="Causal Learning">
+
+Training data is structured as **(Pre-State + Intervention) → (Post-State)**, forcing the model to learn cause-and-effect relationships.
+
+</Step>
+
+<Step title="Hybrid Optimization">
+
+Supervised fine-tuning anchors the model to clinical outcomes while JEPA objectives learn the underlying dynamics.
+
+</Step>
+
+</Steps>
+
+## Core Beliefs
+
+<AccordionGroup>
+
+<Accordion title="Performance Is Everything" icon="chart-line">
+
+Small differences in clinical efficacy relative to standard of care drive billions of dollars in revenue and change millions of lives. Every marginal improvement can define clinical, regulatory, or commercial success.
+
+</Accordion>
+
+<Accordion title="The Patient is Not a Document" icon="user">
+
+Biological signals exist at every scale — from molecular variations in genomic sequences to cellular structures in histopathology slides, to anatomical changes in CT volumes. Language alone cannot capture this complexity.
+
+</Accordion>
+
+<Accordion title="Dynamics Over Description" icon="arrows-spin">
+
+Clinical oncology is not a series of static snapshots; it is an evolving biological trajectory. We model how tumors progress and respond to therapy, not just what they look like at a single moment.
+
+</Accordion>
+
+<Accordion title="Multimodal by Nature" icon="layer-group">
+
+Patient data is inherently multimodal because patients are inherently multimodal. The best foundation models integrate data across modalities and disease areas.
+
+</Accordion>
+
+</AccordionGroup>
+
+## Use Cases
+
+Once the Standard Model learns a patient's biological state, it can power diverse applications:
+
+<CardGroup cols={2}>
+
+<Card title="Treatment Simulation" icon="flask-vial">
+
+Simulate how a tumor would evolve under Treatment A versus Treatment B.
+
+</Card>
+
+<Card title="Digital Twins" icon="users">
+
+Create evolving digital representations for prognosis and intervention planning.
+
+</Card>
+
+<Card title="Clinical Trial Optimization" icon="clipboard-list">
+
+Forecast trials in silico and optimize inclusion/exclusion criteria.
+
+</Card>
+
+<Card title="Progression Prediction" icon="chart-line">
+
+Predict disease trajectories and time-to-event outcomes.
+
+</Card>
+
+<Card title="Response Prediction" icon="heart-pulse">
+
+Model probability of response to specific therapies.
+
+</Card>
+
+<Card title="Toxicity Assessment" icon="triangle-exclamation">
+
+Predict treatment-related adverse events before they occur.
+
+</Card>
+
+</CardGroup>
+
+## Model Family
+
+<CardGroup cols={2}>
+
+<Card title="Standard Model v1" icon="star" href="/models/standard-model-v1">
+
+**1.7B parameters** · Flagship JEPA-based world model for oncology
+
+</Card>
+
+<Card title="SMB-EHR" icon="file-medical" href="/models#smb-ehr">
+
+Foundation models for electronic health records
+
+</Card>
+
+<Card title="SMB-Vision" icon="eye" href="/models#smb-vision">
+
+Medical imaging encoders for radiology and pathology
+
+</Card>
+
+<Card title="SMB-Language" icon="message" href="/models#smb-language">
+
+Biomedical language models for clinical text
+
+</Card>
+
+</CardGroup>
 
 ## Next Steps
 
-Explore our core concepts to learn more about our platform.
+<CardGroup cols={2}>
+
+<Card title="Quickstart" icon="rocket" href="/quickstart">
+
+Get up and running with Standard Model in minutes.
+
+</Card>
+
+<Card title="Models" icon="cube" href="/models">
+
+Explore our full model catalog.
+
+</Card>
+
+<Card title="Research" icon="book" href="/research">
+
+Read our published papers and methodology.
+
+</Card>
+
+<Card title="Blog" icon="newspaper" href="https://blog.standardmodel.bio">
+
+Follow our latest research on Substack.
+
+</Card>
+
+</CardGroup>
+
+## Stay Connected
+
+<CardGroup cols={3}>
+
+<Card title="LinkedIn" icon="linkedin" href="https://www.linkedin.com/company/standardmodel-bio">
+
+Follow for updates
+
+</Card>
+
+<Card title="GitHub" icon="github" href="https://github.com/standardmodelbio">
+
+Open source code
+
+</Card>
+
+<Card title="Twitter/X" icon="x-twitter" href="https://x.com/smbiomedicine">
+
+Latest news
+
+</Card>
+
+</CardGroup>

@@ -24,6 +24,9 @@
       "name": "Contact",
       "url": "mailto:info@standardmodel.bio"
     },
+    "search": {
+      "prompt": "Search documentation..."
+    },
     "navigation": {
       "tabs": [
         {
@@ -32,15 +35,31 @@
             {
               "group": "Get Started",
               "pages": [
-                "get-started/introduction"
+                "get-started/introduction",
+                "get-started/quickstart",
+                "get-started/models"
               ]
             },
             {
-              "group": "Core Concepts",
+              "group": "The Standard Model",
               "pages": [
-                "core-concepts/overview",
-                "core-concepts/embedding-generation"
+                "the-standard-model/overview",
+                "the-standard-model/a-representation-from-ehr",
+                "the-standard-model/generating-a-patient-representation",
+                "the-standard-model/embedding-generation"
               ]
+            },
+            {
+                "group": "Biomedical Encoders",
+                "pages": [
+                  "biomedical-encoders/overview"
+                ]
+            },
+            {
+                "group": "Other Models",
+                "pages": [
+                  "other-models/overview"
+                ]
             }
           ]
         }
@@ -48,14 +67,19 @@
       "global": {
         "anchors": [
           {
+            "anchor": "Website",
+            "href": "https://www.standardmodel.bio",
+            "icon": "globe"
+          },
+          {
             "anchor": "Blog",
             "href": "https://blog.standardmodel.bio",
             "icon": "newspaper"
           },
           {
-            "anchor": "Website",
-            "href": "https://www.standardmodel.bio",
-            "icon": "globe"
+            "anchor": "Hugging Face",
+            "href": "https://huggingface.co/standardmodelbio",
+            "icon": "face-smile"
           },
           {
             "anchor": "GitHub",
@@ -63,9 +87,9 @@
             "icon": "github"
           },
           {
-            "anchor": "Hugging Face",
-            "href": "https://huggingface.co/standardmodelbio",
-            "icon": "face-smile"
+            "anchor": "Documentation",
+            "href": "https://standardmodelbiomedicineinc.mintlify.app",
+            "icon": "book"
           }
         ]
       }
