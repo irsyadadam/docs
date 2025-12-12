@@ -1,59 +1,232 @@
 ---
-title: "Standard Model Bio Documentation"
-description: "The Standard Model for biology. We do for biomedicine what mathematics did for physics."
+title: "Standard Model Bio"
+description: "Foundation models for biomedicine — from molecules to patients"
 ---
 
-# Welcome to Standard Model Bio
+<img
+  src="/images/logo.png"
+  alt="Standard Model Bio"
+  className="block dark:hidden"
+  width="180"
+/>
 
-We are the Standard Model for biology. We do for biomedicine what mathematics did for physics.
+# Foundation Models for Biomedicine
 
-We're a technical team with a history of delivering state-of-the-art foundation models in medical imaging, language, genomics, and pathology for biomedical applications.
+Build the next generation of biomedical AI with our open foundation models. From electronic health records to medical imaging to genomics — we provide the building blocks for clinical AI applications.
 
-## Quick Links
-
-<CardGroup cols={3}>
-  <Card
-    title="Documentation"
-    icon="book"
-    href="/get-started/introduction"
-  >
-    Explore our complete documentation
-  </Card>
-  <Card
-    title="Blog"
-    icon="newspaper"
-    href="https://blog.standardmodel.bio/"
-  >
-    Read our latest articles and updates
-  </Card>
-  <Card
-    title="Standard Model Website"
-    icon="globe"
-    href="https://www.standardmodel.bio"
-  >
-    Visit our main website
-  </Card>
-</CardGroup>
+---
 
 ## Get Started
 
-<CardGroup cols={2}>
-  <Card
-    title="Introduction"
-    icon="rocket"
-    href="/get-started/introduction"
-  >
-    Learn the basics and get up and running quickly.
-  </Card>
-  <Card
-    title="Core Concepts"
-    icon="lightbulb"
-    href="/core-concepts/overview"
-  >
-    Understand the fundamental concepts of our platform.
-  </Card>
+<Card title="Quickstart" icon="rocket" href="/get-started/quickstart">
+
+**Set up your environment in minutes**
+
+Install dependencies, configure CUDA, and download your first model with our automated setup script or step-by-step guide.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/standardmodelbio/quickstart/main/quickstart.sh | bash
+```
+
+</Card>
+
+<CardGroup cols={3}>
+
+<Card title="Introduction" icon="book" href="/get-started/introduction">
+
+Learn about our approach and architecture
+
+</Card>
+
+<Card title="Models" icon="cube" href="/get-started/models">
+
+Explore the full model catalog
+
+</Card>
+
+<Card title="Core Concepts" icon="lightbulb" href="/core-concepts/overview">
+
+Understand JEPA and multimodal fusion
+
+</Card>
+
 </CardGroup>
 
-## A Universal Patient Representation
+---
 
-From any modality to any outcome - our foundation models power the next generation of biomedical AI.
+## Model Families
+
+<CardGroup cols={2}>
+
+<Card title="Standard Model v1" icon="star" href="/get-started/models#standard-model-v1">
+
+**1.7B parameters** · Biological World Model
+
+Our flagship multimodal model that predicts patient trajectories using JEPA architecture. Integrates genomics, imaging, EHR, and proteomics.
+
+```
+standardmodelbio/SMB-v1-1.7B-Structure
+```
+
+</Card>
+
+<Card title="SMB-EHR" icon="file-medical" href="/get-started/models#smb-ehr">
+
+**4B parameters** · Electronic Health Records
+
+Foundation model for clinical event prediction and temporal reasoning over patient records.
+
+```
+standardmodelbio/smb-ehr-4b
+```
+
+</Card>
+
+<Card title="SMB-Vision" icon="eye" href="/get-started/models#smb-vision">
+
+**97M - 600M parameters** · Medical Imaging
+
+Vision encoders for radiology, pathology, and CT imaging tasks. Multiple sizes available.
+
+```
+standardmodelbio/smb-vision-base
+```
+
+</Card>
+
+<Card title="SMB-Language" icon="message" href="/get-started/models#smb-language">
+
+**8B parameters** · Clinical Text
+
+Biomedical language model for sentence similarity, semantic search, and text understanding.
+
+```
+standardmodelbio/model-model-smb-mntp-llama-3.1-8b-v1
+```
+
+</Card>
+
+</CardGroup>
+
+---
+
+## All Available Models
+
+| Model | Parameters | Type | Use Case |
+|-------|------------|------|----------|
+| [SMB-v1-1.7B-Structure](https://huggingface.co/standardmodelbio/SMB-v1-1.7B-Structure) | 1.7B | World Model | Patient trajectory prediction |
+| [smb-ehr-4b](https://huggingface.co/standardmodelbio/smb-ehr-4b) | 4B | EHR | Clinical event prediction |
+| [smb-vision-v0-risk](https://huggingface.co/standardmodelbio/smb-vision-v0-risk) | 0.6B | Vision | Risk assessment |
+| [smb-vision-v0-mim](https://huggingface.co/standardmodelbio/smb-vision-v0-mim) | 0.6B | Vision | Masked image modeling |
+| [smb-vision-large](https://huggingface.co/standardmodelbio/smb-vision-large) | 0.3B | Vision | General encoder |
+| [smb-vision-base](https://huggingface.co/standardmodelbio/smb-vision-base) | 97M | Vision | General encoder |
+| [smb-vision-ct-base-0519](https://huggingface.co/standardmodelbio/smb-vision-ct-base-0519) | 97M | Vision | CT-specific |
+| [smb-mntp-llama-3.1-8b-v1](https://huggingface.co/standardmodelbio/model-model-smb-mntp-llama-3.1-8b-v1) | 8B | Language | Sentence similarity |
+
+---
+
+## Choose Your Model
+
+<AccordionGroup>
+
+<Accordion title="I want to predict patient outcomes over time" icon="chart-line">
+
+Use **Standard Model v1** — our JEPA-based world model that predicts how patients evolve given interventions.
+
+[View Standard Model v1 documentation →](/get-started/models#standard-model-v1)
+
+</Accordion>
+
+<Accordion title="I'm working with electronic health records" icon="file-medical">
+
+Use **SMB-EHR-4B** — trained on longitudinal clinical events for next-event prediction and temporal reasoning.
+
+[View SMB-EHR documentation →](/get-started/models#smb-ehr)
+
+</Accordion>
+
+<Accordion title="I need to analyze medical images" icon="image">
+
+Use **SMB-Vision** models. Start with `smb-vision-base` for general tasks, or `smb-vision-ct-base-0519` for CT scans.
+
+[View SMB-Vision documentation →](/get-started/models#smb-vision)
+
+</Accordion>
+
+<Accordion title="I'm doing clinical text analysis" icon="file-lines">
+
+Use **SMB-Language-8B** for semantic search, sentence similarity, and clinical text embeddings.
+
+[View SMB-Language documentation →](/get-started/models#smb-language)
+
+</Accordion>
+
+</AccordionGroup>
+
+---
+
+## Hardware Requirements
+
+| Model Size | GPU Memory | Examples |
+|------------|------------|----------|
+| ~100M | 4-8 GB | smb-vision-base, smb-vision-ct-base |
+| ~300M-600M | 8-16 GB | smb-vision-large, smb-vision-v0-risk |
+| 1.7B | 16-32 GB | Standard Model v1 |
+| 4B | 24-48 GB | smb-ehr-4b |
+| 8B | 32-80 GB | smb-language |
+
+<Tip>
+
+See the [Quickstart guide](/get-started/quickstart#reducing-memory-usage) for tips on reducing memory with float16 and quantization.
+
+</Tip>
+
+---
+
+## Resources
+
+<CardGroup cols={3}>
+
+<Card title="HuggingFace" icon="face-smile" href="https://huggingface.co/standardmodelbio">
+
+Download models
+
+</Card>
+
+<Card title="GitHub" icon="github" href="https://github.com/standardmodelbio">
+
+Source code
+
+</Card>
+
+<Card title="Blog" icon="newspaper" href="https://blog.standardmodel.bio">
+
+Research updates
+
+</Card>
+
+</CardGroup>
+
+---
+
+## Connect
+
+<CardGroup cols={4}>
+
+<Card title="LinkedIn" icon="linkedin" href="https://www.linkedin.com/company/standardmodel-bio">
+
+</Card>
+
+<Card title="Twitter/X" icon="x-twitter" href="https://x.com/smbiomedicine">
+
+</Card>
+
+<Card title="Website" icon="globe" href="https://www.standardmodel.bio">
+
+</Card>
+
+<Card title="Contact" icon="envelope" href="mailto:info@standardmodel.bio">
+
+</Card>
+
+</CardGroup>
