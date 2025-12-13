@@ -1,6 +1,6 @@
 {
     "$schema": "https://mintlify.com/docs.json",
-    "name": "Standard Model Bio",
+    "name": "Standard Model Biomedicine",
     "theme": "mint",
     "logo": {
       "light": "/logo.png",

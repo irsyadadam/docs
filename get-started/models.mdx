@@ -8,7 +8,7 @@ Our foundation models span multiple scales of human biology — from molecular s
 
 ## Featured: Standard Model v1
 
-<Card title="Standard Model v1" icon="star" href="https://huggingface.co/standardmodelbio/SMB-v1-1.7B-Structure">
+<Card title="Standard Model v1" icon="star" href="/models/standard-model-v1">
 
 **1.7B parameters** · Our flagship biological world model
 
@@ -48,20 +48,6 @@ The Standard Model uses a **Joint-Embedding Predictive Architecture (JEPA)** —
   <img src="/images/standard-model-architecture.png" alt="Standard Model Architecture" />
 </Frame>
 
-
-### Usage
-
-```python
-from transformers import AutoModel, AutoTokenizer
-
-# Load Standard Model v1
-model = AutoModel.from_pretrained("standardmodelbio/SMB-v1-1.7B-Structure")
-tokenizer = AutoTokenizer.from_pretrained("standardmodelbio/SMB-v1-1.7B-Structure")
-
-# The model predicts patient state trajectories
-# See documentation for full API details
-```
-
 <Tip>
 
 **Read the announcement:** [The Patient is Not a Document: Moving from LLMs to a World Model for Oncology](https://blog.standardmodel.bio/p/the-patient-is-not-a-document-moving)
@@ -74,25 +60,25 @@ tokenizer = AutoTokenizer.from_pretrained("standardmodelbio/SMB-v1-1.7B-Structur
 
 <CardGroup cols={2}>
 
-<Card title="SMB-EHR" icon="file-medical" href="#smb-ehr">
+<Card title="SMB-EHR" icon="file-medical" href="/models/smb-ehr">
 
 Electronic health record foundation models for clinical event prediction.
 
 </Card>
 
-<Card title="SMB-Vision" icon="eye" href="#smb-vision">
+<Card title="SMB-Vision" icon="eye" href="/models/smb-vision">
 
 Medical imaging foundation models for radiology and pathology.
 
 </Card>
 
-<Card title="SMB-Language" icon="message" href="#smb-language">
+<Card title="SMB-Language" icon="message" href="/models/smb-language">
 
 Biomedical language models for clinical text understanding.
 
 </Card>
 
-<Card title="Standard Model v1" icon="star" href="#featured-standard-model-v1">
+<Card title="Standard Model v1" icon="star" href="/models/standard-model-v1">
 
 Flagship JEPA-based world model for oncology trajectories.
 
@@ -106,22 +92,13 @@ Flagship JEPA-based world model for oncology trajectories.
 
 Foundation models for electronic health records, trained to predict clinical events and understand patient disease trajectories.
 
-<Card title="smb-ehr-4b" icon="database" href="https://huggingface.co/standardmodelbio/smb-ehr-4b">
+<Card title="smb-ehr-4b" icon="database" href="/models/smb-ehr">
 
 **4B parameters** · EHR Foundation Model
 
 Reframes EHRs as timestamped chains of clinical events and predicts next events to improve temporal reasoning over disease trajectories.
 
 </Card>
-
-### Usage
-
-```python
-from transformers import AutoModel, AutoTokenizer
-
-model = AutoModel.from_pretrained("standardmodelbio/smb-ehr-4b")
-tokenizer = AutoTokenizer.from_pretrained("standardmodelbio/smb-ehr-4b")
-```
 
 <Tip>
 
@@ -135,30 +112,13 @@ Read the paper: [Building the EHR Foundation Model via Next Event Prediction](ht
 
 Medical imaging foundation models trained on radiology and pathology data. These encoders power the vision capabilities of the Standard Model.
 
-### Available Models
+<Card title="smb-vision" icon="eye" href="/models/smb-vision">
 
-| Model | Parameters | Description | Link |
-|-------|------------|-------------|------|
-| **smb-vision-v0-risk** | 0.6B | Risk assessment from medical images | [HuggingFace](https://huggingface.co/standardmodelbio/smb-vision-v0-risk) |
-| **smb-vision-v0-mim** | 0.6B | Masked image modeling | [HuggingFace](https://huggingface.co/standardmodelbio/smb-vision-v0-mim) |
-| **smb-vision-large** | 0.3B | Large vision encoder | [HuggingFace](https://huggingface.co/standardmodelbio/smb-vision-large) |
-| **smb-vision-base** | 97.2M | Base vision encoder | [HuggingFace](https://huggingface.co/standardmodelbio/smb-vision-base) |
-| **smb-vision-ct-base-0519** | 97.2M | CT-specific vision model | [HuggingFace](https://huggingface.co/standardmodelbio/smb-vision-ct-base-0519) |
-| **smb-vision-vjepa2-vitl-384-256** | 0.3B | V-JEPA2 architecture | [HuggingFace](https://huggingface.co/standardmodelbio/smb-vision-vjepa2-vitl-384-256) |
+**97M - 600M parameters** · Medical Imaging Foundation Models
 
-### Usage
+Vision encoders for radiology, pathology, and CT imaging tasks. Multiple sizes available from base (97M) to large (600M) variants.
 
-```python
-from transformers import AutoModel, AutoProcessor
-
-model = AutoModel.from_pretrained("standardmodelbio/smb-vision-base")
-processor = AutoProcessor.from_pretrained("standardmodelbio/smb-vision-base")
-
-# Process an image
-inputs = processor(images=image, return_tensors="pt")
-outputs = model(**inputs)
-embeddings = outputs.last_hidden_state
-```
+</Card>
 
 <Tip>
 
@@ -172,26 +132,13 @@ Read the paper: [Advancing High Resolution Vision-Language Models in Biomedicine
 
 Biomedical language models for clinical text understanding and sentence similarity.
 
-<Card title="smb-mntp-llama-3.1-8b-v1" icon="language" href="https://huggingface.co/standardmodelbio/model-model-smb-mntp-llama-3.1-8b-v1">
+<Card title="smb-mntp-llama-3.1-8b-v1" icon="language" href="/models/smb-language">
 
 **8B parameters** · Sentence Similarity
 
 Fine-tuned Llama 3.1 for biomedical sentence similarity and text understanding.
 
 </Card>
-
-### Usage
-
-```python
-from transformers import AutoModel, AutoTokenizer
-
-model = AutoModel.from_pretrained(
-    "standardmodelbio/model-model-smb-mntp-llama-3.1-8b-v1"
-)
-tokenizer = AutoTokenizer.from_pretrained(
-    "standardmodelbio/model-model-smb-mntp-llama-3.1-8b-v1"
-)
-```
 
 ---
 
