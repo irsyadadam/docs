@@ -41,25 +41,20 @@
               ]
             },
             {
-              "group": "The Standard Model",
+              "group": "Models",
               "pages": [
-                "the-standard-model/overview",
-                "the-standard-model/a-representation-from-ehr",
-                "the-standard-model/generating-a-patient-representation",
-                "the-standard-model/embedding-generation"
+                "models/standard-model-v1",
+                "models/smb-ehr",
+                "models/smb-vision",
+                "models/smb-language"
               ]
             },
             {
-                "group": "Biomedical Encoders",
-                "pages": [
-                  "biomedical-encoders/overview"
-                ]
-            },
-            {
-                "group": "Other Models",
-                "pages": [
-                  "other-models/overview"
-                ]
+              "group": "Guides",
+              "pages": [
+                "guides/embeddings",
+                "guides/linear-probing"
+              ]
             }
           ]
         }

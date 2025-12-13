@@ -1,0 +1,249 @@
+---
+title: "SMB-EHR"
+description: "Foundation model for electronic health records"
+icon: "file-medical"
+---
+
+<Info>
+
+**Model:** `standardmodelbio/smb-ehr-4b`  
+**Parameters:** 4B  
+**Task:** Clinical event prediction, temporal reasoning
+
+</Info>
+
+SMB-EHR is a foundation model trained on longitudinal electronic health records. It reframes EHRs as timestamped chains of clinical events and predicts future events to enable temporal reasoning over disease trajectories.
+
+## Key Features
+
+<CardGroup cols={3}>
+
+<Card title="Next Event Prediction" icon="forward">
+
+Predicts upcoming clinical events based on patient history
+
+</Card>
+
+<Card title="Temporal Reasoning" icon="clock">
+
+Understands time-based relationships between events
+
+</Card>
+
+<Card title="Disease Trajectories" icon="route">
+
+Models how conditions evolve over time
+
+</Card>
+
+</CardGroup>
+
+## Installation
+
+```bash
+pip install transformers torch accelerate
+```
+
+## Quick Start
+
+```python
+from transformers import AutoModel, AutoTokenizer
+import torch
+
+# Load model
+model = AutoModel.from_pretrained("standardmodelbio/smb-ehr-4b")
+tokenizer = AutoTokenizer.from_pretrained("standardmodelbio/smb-ehr-4b")
+
+# Move to GPU
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model = model.to(device)
+model.eval()
+```
+
+## How It Works
+
+SMB-EHR treats electronic health records as sequences of clinical events, each with a timestamp. The model learns to:
+
+1. **Encode clinical history** — Convert sequences of diagnoses, procedures, medications, and labs into embeddings
+2. **Reason temporally** — Understand the timing and order of events
+3. **Predict next events** — Forecast what clinical events are likely to occur next
+
+```
+Patient Timeline:
+─────────────────────────────────────────────────────────►
+   │          │           │            │           │
+   │          │           │            │           │
+ Dx:T2D    Lab:A1C     Rx:Metformin  Lab:A1C    ???
+ t=0       t=30d       t=45d         t=90d      t=180d
+                                                   ▲
+                                          Model predicts
+```
+
+## Extracting Embeddings
+
+Get patient embeddings from clinical history:
+
+```python
+from transformers import AutoModel, AutoTokenizer
+import torch
+
+model = AutoModel.from_pretrained("standardmodelbio/smb-ehr-4b")
+tokenizer = AutoTokenizer.from_pretrained("standardmodelbio/smb-ehr-4b")
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model = model.to(device)
+model.eval()
+
+# Example: encode clinical history
+clinical_history = "DX:E11.9 LAB:A1C:7.2 RX:metformin DX:I10 LAB:BP:142/90"
+
+inputs = tokenizer(
+    clinical_history,
+    return_tensors="pt",
+    padding=True,
+    truncation=True,
+    max_length=2048
+).to(device)
+
+with torch.no_grad():
+    outputs = model(**inputs)
+    embeddings = outputs.last_hidden_state
+    
+    # Pool to get patient embedding
+    patient_embedding = embeddings.mean(dim=1)
+
+print(f"Embedding shape: {patient_embedding.shape}")
+```
+
+## Batch Processing
+
+Process multiple patients efficiently:
+
+```python
+# Multiple patient histories
+patient_histories = [
+    "DX:E11.9 LAB:A1C:7.2 RX:metformin",
+    "DX:I10 DX:I25.10 RX:lisinopril RX:aspirin",
+    "DX:C34.90 PROC:surgical_resection RX:carboplatin"
+]
+
+inputs = tokenizer(
+    patient_histories,
+    return_tensors="pt",
+    padding=True,
+    truncation=True,
+    max_length=2048
+).to(device)
+
+with torch.no_grad():
+    outputs = model(**inputs)
+    embeddings = outputs.last_hidden_state.mean(dim=1)
+
+print(f"Batch embeddings shape: {embeddings.shape}")  # [3, hidden_dim]
+```
+
+## Use Cases
+
+<CardGroup cols={2}>
+
+<Card title="Risk Stratification" icon="chart-simple">
+
+Identify high-risk patients based on their clinical history patterns.
+
+</Card>
+
+<Card title="Event Prediction" icon="calendar">
+
+Predict upcoming hospitalizations, diagnoses, or adverse events.
+
+</Card>
+
+<Card title="Cohort Discovery" icon="users">
+
+Find similar patients based on embedding similarity.
+
+</Card>
+
+<Card title="Clinical Phenotyping" icon="tag">
+
+Automatically classify patients into clinical phenotypes.
+
+</Card>
+
+</CardGroup>
+
+## Memory Optimization
+
+SMB-EHR-4B requires approximately 24GB GPU memory at full precision.
+
+<Tabs>
+
+<Tab title="Float16">
+
+```python
+model = AutoModel.from_pretrained(
+    "standardmodelbio/smb-ehr-4b",
+    torch_dtype=torch.float16,
+    device_map="auto"
+)
+```
+
+**Memory:** ~12GB
+
+</Tab>
+
+<Tab title="8-bit Quantization">
+
+```python
+model = AutoModel.from_pretrained(
+    "standardmodelbio/smb-ehr-4b",
+    load_in_8bit=True,
+    device_map="auto"
+)
+```
+
+**Memory:** ~6GB
+
+</Tab>
+
+</Tabs>
+
+## Hardware Requirements
+
+| Precision | GPU Memory | Recommended GPU |
+|-----------|------------|-----------------|
+| float32 | 24 GB | A100 40GB |
+| float16 | 12 GB | RTX 4090, A10 |
+| 8-bit | 6 GB | RTX 3080, T4 |
+
+## Research
+
+<Card title="Building the EHR Foundation Model via Next Event Prediction" icon="book" href="https://arxiv.org/abs/2509.25591">
+
+Read the paper describing the training methodology and architecture.
+
+</Card>
+
+## Related
+
+<CardGroup cols={3}>
+
+<Card title="Embeddings Guide" icon="code" href="/guides/embeddings">
+
+Extract and use embeddings
+
+</Card>
+
+<Card title="Linear Probing" icon="magnifying-glass" href="/guides/linear-probing">
+
+Train classifiers on embeddings
+
+</Card>
+
+<Card title="All Models" icon="cube" href="/get-started/models">
+
+View full model catalog
+
+</Card>
+
+</CardGroup>

@@ -1,0 +1,293 @@
+---
+title: "Standard Model v1"
+description: "Biological world model for patient trajectory prediction"
+icon: "star"
+---
+
+<Info>
+
+**Model:** `standardmodelbio/SMB-v1-1.7B-Structure`  
+**Parameters:** 1.7B  
+**Architecture:** Joint-Embedding Predictive Architecture (JEPA)
+
+</Info>
+
+Standard Model v1 is our flagship biological world model. Unlike traditional LLMs that predict tokens, it predicts **patient states** — modeling how patients evolve over time given interventions.
+
+## Key Differentiators
+
+<CardGroup cols={3}>
+
+<Card title="State Prediction" icon="brain">
+
+Predicts future patient states in latent space, not text tokens
+
+</Card>
+
+<Card title="Causal Learning" icon="arrows-split-up-and-left">
+
+Learns cause-and-effect: (Pre-State + Intervention) → Post-State
+
+</Card>
+
+<Card title="Multimodal Fusion" icon="layer-group">
+
+Unifies genomics, imaging, EHR, and proteomics
+
+</Card>
+
+</CardGroup>
+
+## Installation
+
+```bash
+pip install transformers torch accelerate
+```
+
+## Quick Start
+
+```python
+from transformers import AutoModel, AutoTokenizer
+import torch
+
+# Load model
+model = AutoModel.from_pretrained("standardmodelbio/SMB-v1-1.7B-Structure")
+tokenizer = AutoTokenizer.from_pretrained("standardmodelbio/SMB-v1-1.7B-Structure")
+
+# Move to GPU
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model = model.to(device)
+model.eval()
+```
+
+## Architecture
+
+The Standard Model uses **Joint-Embedding Predictive Architecture (JEPA)** — treating the patient as a dynamic "world" and treatments as interventions that change that world.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     STANDARD MODEL v1                           │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐        │
+│  │ Genomics │  │ Imaging  │  │   EHR    │  │Proteomics│        │
+│  │ Encoder  │  │ Encoder  │  │ Encoder  │  │ Encoder  │        │
+│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘        │
+│       │             │             │             │               │
+│       └─────────────┴──────┬──────┴─────────────┘               │
+│                            ▼                                    │
+│                   ┌─────────────────┐                           │
+│                   │ Modality Fusion │                           │
+│                   │    Projector    │                           │
+│                   └────────┬────────┘                           │
+│                            ▼                                    │
+│    ┌────────────┐   ┌─────────────┐   ┌────────────────┐       │
+│    │ State S(t) │ + │Intervention │ → │ State Predictor│       │
+│    └────────────┘   │    A(t)     │   └───────┬────────┘       │
+│                     └─────────────┘           ▼                 │
+│                                      ┌────────────────┐         │
+│                                      │ State S(t+1)   │         │
+│                                      │  (Predicted)   │         │
+│                                      └────────────────┘         │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### How It Works
+
+<Steps>
+
+<Step title="Modality Ingestion">
+
+Raw signals — genomics, proteomics, imaging, EHR data — pass through modality-specific encoders. Each encoder is trained to extract meaningful representations from its data type.
+
+</Step>
+
+<Step title="Fusion Layer">
+
+A specialized projector maps these encodings into a universal latent space. This creates a "fused" patient state embedding that retains both high-level semantic context and low-level biological granularity.
+
+</Step>
+
+<Step title="State Prediction">
+
+Given the current patient state *S(t)* and an intervention *A(t)*, the model predicts the future state *S(t+1)* in latent space — not as text, but as a dense embedding.
+
+</Step>
+
+<Step title="Hybrid Optimization">
+
+The model combines supervised fine-tuning (anchoring to clinical outcomes) with JEPA objectives (learning dynamics), preventing training collapse.
+
+</Step>
+
+</Steps>
+
+## Extracting Embeddings
+
+Get patient state embeddings for downstream tasks:
+
+```python
+from transformers import AutoModel, AutoTokenizer
+import torch
+
+model = AutoModel.from_pretrained("standardmodelbio/SMB-v1-1.7B-Structure")
+tokenizer = AutoTokenizer.from_pretrained("standardmodelbio/SMB-v1-1.7B-Structure")
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model = model.to(device)
+model.eval()
+
+# Prepare input
+inputs = tokenizer(
+    "patient clinical data here",
+    return_tensors="pt",
+    padding=True,
+    truncation=True
+).to(device)
+
+# Extract embeddings
+with torch.no_grad():
+    outputs = model(**inputs)
+    embeddings = outputs.last_hidden_state
+    
+    # Pool to get single patient embedding
+    patient_embedding = embeddings.mean(dim=1)  # [batch, hidden_dim]
+
+print(f"Embedding shape: {patient_embedding.shape}")
+```
+
+<Tip>
+
+See the [Embeddings Guide](/guides/embeddings) for advanced embedding extraction and pooling strategies.
+
+</Tip>
+
+## Use Cases
+
+<CardGroup cols={2}>
+
+<Card title="Treatment Simulation" icon="flask-vial">
+
+Simulate how a tumor would evolve under Treatment A versus Treatment B by conditioning on different interventions.
+
+</Card>
+
+<Card title="Trajectory Prediction" icon="chart-line">
+
+Predict disease progression over 3, 6, or 12 month windows.
+
+</Card>
+
+<Card title="Digital Twins" icon="users">
+
+Create evolving patient representations that update as new data arrives.
+
+</Card>
+
+<Card title="Response Prediction" icon="heart-pulse">
+
+Model probability of response to specific therapies.
+
+</Card>
+
+</CardGroup>
+
+## Memory Optimization
+
+Standard Model v1 requires approximately 16GB GPU memory at full precision. Use these techniques to reduce memory:
+
+<Tabs>
+
+<Tab title="Float16">
+
+```python
+model = AutoModel.from_pretrained(
+    "standardmodelbio/SMB-v1-1.7B-Structure",
+    torch_dtype=torch.float16,
+    device_map="auto"
+)
+```
+
+**Memory:** ~8GB
+
+</Tab>
+
+<Tab title="8-bit Quantization">
+
+```python
+# pip install bitsandbytes
+model = AutoModel.from_pretrained(
+    "standardmodelbio/SMB-v1-1.7B-Structure",
+    load_in_8bit=True,
+    device_map="auto"
+)
+```
+
+**Memory:** ~4GB
+
+</Tab>
+
+<Tab title="4-bit Quantization">
+
+```python
+# pip install bitsandbytes
+from transformers import BitsAndBytesConfig
+
+quantization_config = BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_compute_dtype=torch.float16
+)
+
+model = AutoModel.from_pretrained(
+    "standardmodelbio/SMB-v1-1.7B-Structure",
+    quantization_config=quantization_config,
+    device_map="auto"
+)
+```
+
+**Memory:** ~2GB
+
+</Tab>
+
+</Tabs>
+
+## Hardware Requirements
+
+| Precision | GPU Memory | Recommended GPU |
+|-----------|------------|-----------------|
+| float32 | 16 GB | A100, A6000 |
+| float16 | 8 GB | RTX 4090, A10 |
+| 8-bit | 4 GB | RTX 3080, T4 |
+| 4-bit | 2 GB | RTX 3060 |
+
+## Research
+
+<Card title="The Patient is Not a Document" icon="newspaper" href="https://blog.standardmodel.bio/p/the-patient-is-not-a-document-moving">
+
+Read the announcement blog post explaining the motivation and architecture behind Standard Model v1.
+
+</Card>
+
+## Related
+
+<CardGroup cols={3}>
+
+<Card title="Embeddings Guide" icon="code" href="/guides/embeddings">
+
+Extract and use embeddings
+
+</Card>
+
+<Card title="Linear Probing" icon="magnifying-glass" href="/guides/linear-probing">
+
+Train classifiers on embeddings
+
+</Card>
+
+<Card title="All Models" icon="cube" href="/get-started/models">
+
+View full model catalog
+
+</Card>
+
+</CardGroup>

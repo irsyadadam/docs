@@ -1,0 +1,385 @@
+---
+title: "SMB-Language"
+description: "Biomedical language model for clinical text"
+icon: "message"
+---
+
+<Info>
+
+**Model:** `standardmodelbio/model-model-smb-mntp-llama-3.1-8b-v1`  
+**Parameters:** 8B  
+**Base:** Llama 3.1  
+**Task:** Sentence similarity, semantic search, text embeddings
+
+</Info>
+
+SMB-Language is a biomedical language model fine-tuned from Llama 3.1 for clinical text understanding. It excels at sentence similarity, semantic search, and generating high-quality text embeddings for downstream tasks.
+
+## Key Features
+
+<CardGroup cols={3}>
+
+<Card title="Sentence Similarity" icon="equals">
+
+Compare clinical texts for semantic similarity
+
+</Card>
+
+<Card title="Semantic Search" icon="magnifying-glass">
+
+Find relevant documents from clinical corpora
+
+</Card>
+
+<Card title="Text Embeddings" icon="code">
+
+Generate dense embeddings for clinical text
+
+</Card>
+
+</CardGroup>
+
+## Installation
+
+```bash
+pip install transformers torch accelerate
+```
+
+## Quick Start
+
+```python
+from transformers import AutoModel, AutoTokenizer
+import torch
+
+# Load model
+model = AutoModel.from_pretrained(
+    "standardmodelbio/model-model-smb-mntp-llama-3.1-8b-v1"
+)
+tokenizer = AutoTokenizer.from_pretrained(
+    "standardmodelbio/model-model-smb-mntp-llama-3.1-8b-v1"
+)
+
+# Move to GPU
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model = model.to(device)
+model.eval()
+```
+
+## Extracting Embeddings
+
+### Single Text
+
+```python
+from transformers import AutoModel, AutoTokenizer
+import torch
+
+model = AutoModel.from_pretrained(
+    "standardmodelbio/model-model-smb-mntp-llama-3.1-8b-v1"
+)
+tokenizer = AutoTokenizer.from_pretrained(
+    "standardmodelbio/model-model-smb-mntp-llama-3.1-8b-v1"
+)
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model = model.to(device)
+model.eval()
+
+# Clinical text
+text = "Patient presents with acute chest pain radiating to left arm, elevated troponins, and ST-elevation in leads V1-V4."
+
+inputs = tokenizer(
+    text,
+    return_tensors="pt",
+    padding=True,
+    truncation=True,
+    max_length=512
+).to(device)
+
+with torch.no_grad():
+    outputs = model(**inputs)
+    
+    # Mean pooling over tokens
+    attention_mask = inputs["attention_mask"]
+    embeddings = outputs.last_hidden_state
+    
+    # Masked mean pooling
+    mask_expanded = attention_mask.unsqueeze(-1).expand(embeddings.size()).float()
+    sum_embeddings = torch.sum(embeddings * mask_expanded, dim=1)
+    sum_mask = torch.clamp(mask_expanded.sum(dim=1), min=1e-9)
+    text_embedding = sum_embeddings / sum_mask
+
+print(f"Embedding shape: {text_embedding.shape}")
+```
+
+### Batch Processing
+
+```python
+# Multiple clinical texts
+texts = [
+    "Patient presents with acute chest pain and elevated troponins.",
+    "56-year-old male with history of hypertension and diabetes.",
+    "MRI shows 2.3cm mass in right upper lobe concerning for malignancy."
+]
+
+inputs = tokenizer(
+    texts,
+    return_tensors="pt",
+    padding=True,
+    truncation=True,
+    max_length=512
+).to(device)
+
+with torch.no_grad():
+    outputs = model(**inputs)
+    attention_mask = inputs["attention_mask"]
+    embeddings = outputs.last_hidden_state
+    
+    # Masked mean pooling for batch
+    mask_expanded = attention_mask.unsqueeze(-1).expand(embeddings.size()).float()
+    sum_embeddings = torch.sum(embeddings * mask_expanded, dim=1)
+    sum_mask = torch.clamp(mask_expanded.sum(dim=1), min=1e-9)
+    batch_embeddings = sum_embeddings / sum_mask
+
+print(f"Batch embeddings shape: {batch_embeddings.shape}")  # [3, hidden_dim]
+```
+
+## Sentence Similarity
+
+Compare clinical texts using cosine similarity:
+
+```python
+import torch.nn.functional as F
+
+def get_embedding(text, model, tokenizer, device):
+    inputs = tokenizer(
+        text,
+        return_tensors="pt",
+        padding=True,
+        truncation=True,
+        max_length=512
+    ).to(device)
+    
+    with torch.no_grad():
+        outputs = model(**inputs)
+        attention_mask = inputs["attention_mask"]
+        embeddings = outputs.last_hidden_state
+        
+        mask_expanded = attention_mask.unsqueeze(-1).expand(embeddings.size()).float()
+        sum_embeddings = torch.sum(embeddings * mask_expanded, dim=1)
+        sum_mask = torch.clamp(mask_expanded.sum(dim=1), min=1e-9)
+        
+        return sum_embeddings / sum_mask
+
+# Compare two clinical notes
+text1 = "Patient with acute myocardial infarction, STEMI protocol initiated."
+text2 = "Heart attack confirmed, emergency cardiac catheterization performed."
+text3 = "Routine wellness visit, all vitals within normal limits."
+
+emb1 = get_embedding(text1, model, tokenizer, device)
+emb2 = get_embedding(text2, model, tokenizer, device)
+emb3 = get_embedding(text3, model, tokenizer, device)
+
+# Cosine similarity
+sim_1_2 = F.cosine_similarity(emb1, emb2).item()
+sim_1_3 = F.cosine_similarity(emb1, emb3).item()
+
+print(f"Similarity (MI vs heart attack): {sim_1_2:.4f}")  # High
+print(f"Similarity (MI vs wellness): {sim_1_3:.4f}")      # Low
+```
+
+## Semantic Search
+
+Build a simple semantic search over clinical documents:
+
+```python
+import torch.nn.functional as F
+
+class ClinicalSearchIndex:
+    def __init__(self, model, tokenizer, device):
+        self.model = model
+        self.tokenizer = tokenizer
+        self.device = device
+        self.embeddings = None
+        self.documents = []
+    
+    def index(self, documents):
+        """Index a list of clinical documents."""
+        self.documents = documents
+        embeddings = []
+        
+        for doc in documents:
+            emb = self._embed(doc)
+            embeddings.append(emb)
+        
+        self.embeddings = torch.cat(embeddings, dim=0)
+    
+    def search(self, query, top_k=5):
+        """Search for most similar documents."""
+        query_emb = self._embed(query)
+        
+        similarities = F.cosine_similarity(
+            query_emb.expand(self.embeddings.size(0), -1),
+            self.embeddings
+        )
+        
+        top_indices = similarities.argsort(descending=True)[:top_k]
+        
+        results = []
+        for idx in top_indices:
+            results.append({
+                "document": self.documents[idx],
+                "score": similarities[idx].item()
+            })
+        
+        return results
+    
+    def _embed(self, text):
+        inputs = self.tokenizer(
+            text, return_tensors="pt", 
+            padding=True, truncation=True, max_length=512
+        ).to(self.device)
+        
+        with torch.no_grad():
+            outputs = self.model(**inputs)
+            mask = inputs["attention_mask"]
+            emb = outputs.last_hidden_state
+            mask_exp = mask.unsqueeze(-1).expand(emb.size()).float()
+            return (emb * mask_exp).sum(1) / mask_exp.sum(1).clamp(min=1e-9)
+
+# Usage
+index = ClinicalSearchIndex(model, tokenizer, device)
+
+documents = [
+    "Patient admitted with pneumonia, started on antibiotics.",
+    "Cardiac catheterization revealed 90% LAD stenosis.",
+    "Routine colonoscopy, no polyps identified.",
+    "MRI brain shows acute ischemic stroke in left MCA territory.",
+    "Patient with COPD exacerbation requiring supplemental oxygen."
+]
+
+index.index(documents)
+
+results = index.search("heart disease with blocked arteries")
+for r in results[:3]:
+    print(f"Score: {r['score']:.4f} | {r['document']}")
+```
+
+## Use Cases
+
+<CardGroup cols={2}>
+
+<Card title="Clinical Note Similarity" icon="file-medical">
+
+Find similar patient cases based on clinical documentation.
+
+</Card>
+
+<Card title="Literature Search" icon="book">
+
+Search biomedical literature using semantic similarity.
+
+</Card>
+
+<Card title="Phenotype Clustering" icon="diagram-project">
+
+Cluster patients by clinical text similarity.
+
+</Card>
+
+<Card title="Report Classification" icon="tags">
+
+Classify clinical reports using text embeddings.
+
+</Card>
+
+</CardGroup>
+
+## Memory Optimization
+
+SMB-Language-8B requires approximately 32GB GPU memory at full precision.
+
+<Tabs>
+
+<Tab title="Float16">
+
+```python
+model = AutoModel.from_pretrained(
+    "standardmodelbio/model-model-smb-mntp-llama-3.1-8b-v1",
+    torch_dtype=torch.float16,
+    device_map="auto"
+)
+```
+
+**Memory:** ~16GB
+
+</Tab>
+
+<Tab title="8-bit Quantization">
+
+```python
+model = AutoModel.from_pretrained(
+    "standardmodelbio/model-model-smb-mntp-llama-3.1-8b-v1",
+    load_in_8bit=True,
+    device_map="auto"
+)
+```
+
+**Memory:** ~8GB
+
+</Tab>
+
+<Tab title="4-bit Quantization">
+
+```python
+from transformers import BitsAndBytesConfig
+
+quantization_config = BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_compute_dtype=torch.float16
+)
+
+model = AutoModel.from_pretrained(
+    "standardmodelbio/model-model-smb-mntp-llama-3.1-8b-v1",
+    quantization_config=quantization_config,
+    device_map="auto"
+)
+```
+
+**Memory:** ~4GB
+
+</Tab>
+
+</Tabs>
+
+## Hardware Requirements
+
+| Precision | GPU Memory | Recommended GPU |
+|-----------|------------|-----------------|
+| float32 | 32 GB | A100 40GB |
+| float16 | 16 GB | A100, A6000 |
+| 8-bit | 8 GB | RTX 4090, A10 |
+| 4-bit | 4 GB | RTX 3080, T4 |
+
+## Related
+
+<CardGroup cols={3}>
+
+<Card title="Embeddings Guide" icon="code" href="/guides/embeddings">
+
+Extract and use embeddings
+
+</Card>
+
+<Card title="Linear Probing" icon="magnifying-glass" href="/guides/linear-probing">
+
+Train classifiers on embeddings
+
+</Card>
+
+<Card title="All Models" icon="cube" href="/get-started/models">
+
+View full model catalog
+
+</Card>
+
+</CardGroup>

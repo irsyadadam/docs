@@ -1,0 +1,274 @@
+---
+title: "SMB-Vision"
+description: "Medical imaging foundation models"
+icon: "eye"
+---
+
+<Info>
+
+**Models:** Multiple sizes from 97M to 600M parameters  
+**Task:** Medical image encoding, feature extraction, risk assessment
+
+</Info>
+
+SMB-Vision is a family of vision encoders trained on medical imaging data including radiology, pathology, and CT scans. These models serve as the visual backbone for multimodal biomedical AI applications.
+
+## Available Models
+
+| Model | Parameters | Specialty | HuggingFace |
+|-------|------------|-----------|-------------|
+| **smb-vision-v0-risk** | 0.6B | Risk assessment | [Link](https://huggingface.co/standardmodelbio/smb-vision-v0-risk) |
+| **smb-vision-v0-mim** | 0.6B | Masked image modeling | [Link](https://huggingface.co/standardmodelbio/smb-vision-v0-mim) |
+| **smb-vision-large** | 0.3B | General encoder | [Link](https://huggingface.co/standardmodelbio/smb-vision-large) |
+| **smb-vision-base** | 97M | General encoder | [Link](https://huggingface.co/standardmodelbio/smb-vision-base) |
+| **smb-vision-ct-base-0519** | 97M | CT-specific | [Link](https://huggingface.co/standardmodelbio/smb-vision-ct-base-0519) |
+| **smb-vision-vjepa2-vitl-384-256** | 0.3B | V-JEPA2 architecture | [Link](https://huggingface.co/standardmodelbio/smb-vision-vjepa2-vitl-384-256) |
+
+## Installation
+
+```bash
+pip install transformers torch accelerate pillow
+```
+
+## Quick Start
+
+```python
+from transformers import AutoModel, AutoProcessor
+from PIL import Image
+import torch
+
+# Load model and processor
+model = AutoModel.from_pretrained("standardmodelbio/smb-vision-base")
+processor = AutoProcessor.from_pretrained("standardmodelbio/smb-vision-base")
+
+# Move to GPU
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model = model.to(device)
+model.eval()
+
+# Load and process image
+image = Image.open("chest_xray.png")
+inputs = processor(images=image, return_tensors="pt").to(device)
+
+# Extract features
+with torch.no_grad():
+    outputs = model(**inputs)
+    features = outputs.last_hidden_state
+
+print(f"Feature shape: {features.shape}")
+```
+
+## Model Selection Guide
+
+<AccordionGroup>
+
+<Accordion title="General medical imaging" icon="image">
+
+Use **smb-vision-base** (97M) for a lightweight encoder or **smb-vision-large** (0.3B) for higher capacity.
+
+```python
+model = AutoModel.from_pretrained("standardmodelbio/smb-vision-base")
+```
+
+</Accordion>
+
+<Accordion title="CT scan analysis" icon="x-ray">
+
+Use **smb-vision-ct-base-0519** — specifically trained on CT imaging data.
+
+```python
+model = AutoModel.from_pretrained("standardmodelbio/smb-vision-ct-base-0519")
+```
+
+</Accordion>
+
+<Accordion title="Risk stratification from images" icon="triangle-exclamation">
+
+Use **smb-vision-v0-risk** — optimized for risk assessment tasks.
+
+```python
+model = AutoModel.from_pretrained("standardmodelbio/smb-vision-v0-risk")
+```
+
+</Accordion>
+
+<Accordion title="Self-supervised pretraining" icon="brain">
+
+Use **smb-vision-v0-mim** — trained with masked image modeling for transfer learning.
+
+```python
+model = AutoModel.from_pretrained("standardmodelbio/smb-vision-v0-mim")
+```
+
+</Accordion>
+
+</AccordionGroup>
+
+## Extracting Embeddings
+
+### Single Image
+
+```python
+from transformers import AutoModel, AutoProcessor
+from PIL import Image
+import torch
+
+model = AutoModel.from_pretrained("standardmodelbio/smb-vision-base")
+processor = AutoProcessor.from_pretrained("standardmodelbio/smb-vision-base")
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model = model.to(device)
+model.eval()
+
+# Load image
+image = Image.open("medical_image.png")
+inputs = processor(images=image, return_tensors="pt").to(device)
+
+with torch.no_grad():
+    outputs = model(**inputs)
+    
+    # Get CLS token embedding (global image representation)
+    cls_embedding = outputs.last_hidden_state[:, 0, :]
+    
+    # Or pool all patch embeddings
+    pooled_embedding = outputs.last_hidden_state.mean(dim=1)
+
+print(f"CLS embedding shape: {cls_embedding.shape}")
+print(f"Pooled embedding shape: {pooled_embedding.shape}")
+```
+
+### Batch Processing
+
+```python
+from pathlib import Path
+
+# Load multiple images
+image_paths = list(Path("images/").glob("*.png"))
+images = [Image.open(p) for p in image_paths]
+
+# Process batch
+inputs = processor(images=images, return_tensors="pt", padding=True).to(device)
+
+with torch.no_grad():
+    outputs = model(**inputs)
+    batch_embeddings = outputs.last_hidden_state[:, 0, :]  # CLS tokens
+
+print(f"Batch embeddings shape: {batch_embeddings.shape}")  # [N, hidden_dim]
+```
+
+## Working with CT Volumes
+
+For 3D CT volumes, process slice by slice and aggregate:
+
+```python
+import numpy as np
+
+def encode_ct_volume(volume, model, processor, device):
+    """
+    Encode a 3D CT volume by processing slices.
+    
+    Args:
+        volume: numpy array of shape (D, H, W) or (D, H, W, C)
+    
+    Returns:
+        Aggregated embedding for the volume
+    """
+    slice_embeddings = []
+    
+    for i in range(volume.shape[0]):
+        # Convert slice to PIL Image
+        slice_img = Image.fromarray(volume[i].astype(np.uint8))
+        
+        inputs = processor(images=slice_img, return_tensors="pt").to(device)
+        
+        with torch.no_grad():
+            outputs = model(**inputs)
+            embedding = outputs.last_hidden_state[:, 0, :]
+            slice_embeddings.append(embedding)
+    
+    # Aggregate slice embeddings
+    volume_embedding = torch.stack(slice_embeddings).mean(dim=0)
+    
+    return volume_embedding
+```
+
+## Use Cases
+
+<CardGroup cols={2}>
+
+<Card title="Image Classification" icon="tags">
+
+Classify medical images by training a linear probe on embeddings.
+
+</Card>
+
+<Card title="Similarity Search" icon="magnifying-glass">
+
+Find similar cases using embedding cosine similarity.
+
+</Card>
+
+<Card title="Multimodal Fusion" icon="layer-group">
+
+Combine with text/EHR embeddings for multimodal models.
+
+</Card>
+
+<Card title="Anomaly Detection" icon="triangle-exclamation">
+
+Detect unusual findings via embedding distance from normal cases.
+
+</Card>
+
+</CardGroup>
+
+## Memory Requirements
+
+| Model | Parameters | GPU Memory (fp32) | GPU Memory (fp16) |
+|-------|------------|-------------------|-------------------|
+| smb-vision-base | 97M | 4 GB | 2 GB |
+| smb-vision-large | 0.3B | 8 GB | 4 GB |
+| smb-vision-v0-risk | 0.6B | 12 GB | 6 GB |
+| smb-vision-v0-mim | 0.6B | 12 GB | 6 GB |
+
+### Float16 Inference
+
+```python
+model = AutoModel.from_pretrained(
+    "standardmodelbio/smb-vision-base",
+    torch_dtype=torch.float16,
+    device_map="auto"
+)
+```
+
+## Research
+
+<Card title="Advancing High Resolution Vision-Language Models in Biomedicine" icon="book" href="https://doi.org/10.48550/arXiv.2406.09454">
+
+Read the paper on our vision-language approach.
+
+</Card>
+
+## Related
+
+<CardGroup cols={3}>
+
+<Card title="Embeddings Guide" icon="code" href="/guides/embeddings">
+
+Extract and use embeddings
+
+</Card>
+
+<Card title="Linear Probing" icon="magnifying-glass" href="/guides/linear-probing">
+
+Train classifiers on embeddings
+
+</Card>
+
+<Card title="All Models" icon="cube" href="/get-started/models">
+
+View full model catalog
+
+</Card>
+
+</CardGroup>
