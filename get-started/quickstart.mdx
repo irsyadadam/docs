@@ -4,15 +4,21 @@ description: "Get up and running with Standard Model in minutes"
 icon: "rocket"
 ---
 
-Get started with Standard Model Bio's biological world model. This guide walks you through setting up your environment and downloading the Standard Model v1.
+Get started with Standard Model Bio's biological world model. This guide walks you through setting up your environment and downloading SMB-v1-Structure.
 
 <Info>
 
-**New:** This quickstart now features [Standard Model v1](https://huggingface.co/standardmodelbio/SMB-v1-1.7B-Structure) — our flagship JEPA-based multimodal foundation model for oncology.
+**New:** This quickstart now features [SMB-v1-Structure](/models/standard-model-v1) — our flagship JEPA-based multimodal foundation model for oncology.
 
 </Info>
 
 ## Prerequisites
+
+<Tip>
+
+GPU support is strongly recommended. SMB-v1-Structure (1.7B parameters) requires approximately 16GB GPU memory for inference.
+
+</Tip>
 
 Before you begin, ensure you have the following installed:
 
@@ -21,11 +27,7 @@ Before you begin, ensure you have the following installed:
 - **CUDA** (recommended) — For GPU acceleration with NVIDIA GPUs
 - **Git** — For cloning repositories
 
-<Tip>
 
-GPU support is strongly recommended. The Standard Model v1 (1.7B parameters) requires approximately 16GB GPU memory for inference.
-
-</Tip>
 
 ## One-Command Setup (Recommended)
 
@@ -97,7 +99,7 @@ pip install transformers datasets accelerate huggingface_hub
 
 </Step>
 
-<Step title="Download Standard Model v1">
+<Step title="Download SMB-v1-Structure">
 
 ```python
 from huggingface_hub import snapshot_download
@@ -111,6 +113,14 @@ snapshot_download(
 </Step>
 
 </Steps>
+## Environment Activation
+
+After setup, activate your environment for usage:
+
+```bash
+source standard_model/bin/activate
+```
+
 
 ## Verify Installation
 
@@ -124,49 +134,22 @@ from transformers import AutoModel, AutoTokenizer
 print(f"PyTorch version: {torch.__version__}")
 print(f"CUDA available: {torch.cuda.is_available()}")
 
-# Load Standard Model v1
+# Load SMB-v1-Structure
 model_path = "./SMB-v1-1.7B-Structure"
 model = AutoModel.from_pretrained(model_path)
 tokenizer = AutoTokenizer.from_pretrained(model_path)
 
-print("Standard Model v1 loaded successfully!")
+print("SMB-v1-Structure loaded successfully!")
 print(f"Model parameters: {sum(p.numel() for p in model.parameters()):,}")
 ```
 
-## Basic Usage
-
-The Standard Model v1 is a biological world model that predicts patient state trajectories:
-
-```python
-from transformers import AutoModel, AutoTokenizer
-import torch
-
-# Load model
-model = AutoModel.from_pretrained("standardmodelbio/SMB-v1-1.7B-Structure")
-tokenizer = AutoTokenizer.from_pretrained("standardmodelbio/SMB-v1-1.7B-Structure")
-
-# Move to GPU if available
-device = "cuda" if torch.cuda.is_available() else "cpu"
-model = model.to(device)
-
-# The Standard Model predicts future patient states
-# given current state S(t) and intervention A(t)
-# See full documentation for trajectory prediction API
-```
 
 <Warning>
 
-The Standard Model v1 is a **world model**, not a text generator. It predicts patient states in latent space, not tokens. See the [Models documentation](/models) for the full API.
+The SMB-v1-Structure is a **world model**, not a text generator. It predicts patient states in latent space, not tokens. See the [Models documentation](/models) for the full API.
 
 </Warning>
 
-## Environment Activation
-
-After setup, activate your environment for future sessions:
-
-```bash
-source standard_model/bin/activate
-```
 
 ## Download Other Models
 
@@ -215,7 +198,7 @@ Ensure NVIDIA drivers are up to date. Run `nvidia-smi` to verify GPU is accessib
 
 <Card title="Out of Memory" icon="memory">
 
-Standard Model v1 requires ~16GB GPU memory. Use `torch.float16` or quantization for smaller GPUs.
+SMB-v1-Structure requires ~16GB GPU memory. Use `torch.float16` or quantization for smaller GPUs.
 
 </Card>
 
@@ -261,7 +244,7 @@ model = AutoModel.from_pretrained(
 
 | Model | Parameters | Min GPU Memory | Recommended |
 |-------|------------|----------------|-------------|
-| Standard Model v1 | 1.7B | 16 GB | 32 GB |
+| SMB-v1-Structure | 1.7B | 16 GB | 32 GB |
 | SMB-EHR-4B | 4B | 24 GB | 48 GB |
 | SMB-Vision-Base | 97.2M | 4 GB | 8 GB |
 | SMB-Language-8B | 8B | 32 GB | 80 GB |

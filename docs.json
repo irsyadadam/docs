@@ -41,7 +41,7 @@
               ]
             },
             {
-              "group": "Models",
+              "group": "Model Families",
               "pages": [
                 "models/standard-model-v1",
                 "models/smb-ehr",

@@ -24,13 +24,16 @@ SMB-Vision is a family of vision encoders trained on medical imaging data includ
 | **smb-vision-ct-base-0519** | 97M | CT-specific | [Link](https://huggingface.co/standardmodelbio/smb-vision-ct-base-0519) |
 | **smb-vision-vjepa2-vitl-384-256** | 0.3B | V-JEPA2 architecture | [Link](https://huggingface.co/standardmodelbio/smb-vision-vjepa2-vitl-384-256) |
 
-## Installation
+## Environment Activation
 
 ```bash
-pip install transformers torch accelerate pillow
+source standard_model/bin/activate
 ```
+<Tip>
+See the [Quickstart Guide](/get-started/quickstart) for environment creation and usage.
+</Tip>
 
-## Quick Start
+## Usage
 
 ```python
 from transformers import AutoModel, AutoProcessor

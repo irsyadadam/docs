@@ -38,13 +38,16 @@ Models how conditions evolve over time
 
 </CardGroup>
 
-## Installation
+## Environment Activation
 
 ```bash
-pip install transformers torch accelerate
+source standard_model/bin/activate
 ```
+<Tip>
+See the [Quickstart Guide](/get-started/quickstart) for environment creation and usage.
+</Tip>
 
-## Quick Start
+## Usage
 
 ```python
 from transformers import AutoModel, AutoTokenizer
@@ -68,16 +71,9 @@ SMB-EHR treats electronic health records as sequences of clinical events, each w
 2. **Reason temporally** — Understand the timing and order of events
 3. **Predict next events** — Forecast what clinical events are likely to occur next
 
-```
-Patient Timeline:
-─────────────────────────────────────────────────────────►
-   │          │           │            │           │
-   │          │           │            │           │
- Dx:T2D    Lab:A1C     Rx:Metformin  Lab:A1C    ???
- t=0       t=30d       t=45d         t=90d      t=180d
-                                                   ▲
-                                          Model predicts
-```
+<Frame>
+  <img src="/images/smb_ehr_architecture.png" alt="SMB-EHR Architecture" />
+</Frame>
 
 ## Extracting Embeddings
 

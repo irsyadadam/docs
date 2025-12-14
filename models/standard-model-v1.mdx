@@ -1,5 +1,5 @@
 ---
-title: "Standard Model v1"
+title: "SMB-v1"
 description: "Biological world model for patient trajectory prediction"
 icon: "star"
 ---
@@ -12,7 +12,7 @@ icon: "star"
 
 </Info>
 
-Standard Model v1 is our flagship biological world model. Unlike traditional LLMs that predict tokens, it predicts **patient states** — modeling how patients evolve over time given interventions.
+SMB-v1-Structure is our flagship biological world model. Unlike traditional LLMs that predict tokens, it predicts **patient states** — modeling how patients evolve over time given interventions.
 
 ## Key Differentiators
 
@@ -38,13 +38,16 @@ Unifies genomics, imaging, EHR, and proteomics
 
 </CardGroup>
 
-## Installation
+## Environment Activation
 
 ```bash
-pip install transformers torch accelerate
+source standard_model/bin/activate
 ```
+<Tip>
+See the [Quickstart Guide](/get-started/quickstart) for environment creation and usage.
+</Tip>
 
-## Quick Start
+## Usage
 
 ```python
 from transformers import AutoModel, AutoTokenizer
@@ -64,33 +67,9 @@ model.eval()
 
 The Standard Model uses **Joint-Embedding Predictive Architecture (JEPA)** — treating the patient as a dynamic "world" and treatments as interventions that change that world.
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     STANDARD MODEL v1                           │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐        │
-│  │ Genomics │  │ Imaging  │  │   EHR    │  │Proteomics│        │
-│  │ Encoder  │  │ Encoder  │  │ Encoder  │  │ Encoder  │        │
-│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘        │
-│       │             │             │             │               │
-│       └─────────────┴──────┬──────┴─────────────┘               │
-│                            ▼                                    │
-│                   ┌─────────────────┐                           │
-│                   │ Modality Fusion │                           │
-│                   │    Projector    │                           │
-│                   └────────┬────────┘                           │
-│                            ▼                                    │
-│    ┌────────────┐   ┌─────────────┐   ┌────────────────┐       │
-│    │ State S(t) │ + │Intervention │ → │ State Predictor│       │
-│    └────────────┘   │    A(t)     │   └───────┬────────┘       │
-│                     └─────────────┘           ▼                 │
-│                                      ┌────────────────┐         │
-│                                      │ State S(t+1)   │         │
-│                                      │  (Predicted)   │         │
-│                                      └────────────────┘         │
-└─────────────────────────────────────────────────────────────────┘
-```
+<Frame>
+  <img src="/images/standard-model-architecture.png" alt="Standard Model Architecture" />
+</Frame>
 
 ### How It Works
 
@@ -194,7 +173,7 @@ Model probability of response to specific therapies.
 
 ## Memory Optimization
 
-Standard Model v1 requires approximately 16GB GPU memory at full precision. Use these techniques to reduce memory:
+SMB-v1-Structure requires approximately 16GB GPU memory at full precision. Use these techniques to reduce memory:
 
 <Tabs>
 
@@ -264,7 +243,7 @@ model = AutoModel.from_pretrained(
 
 <Card title="The Patient is Not a Document" icon="newspaper" href="https://blog.standardmodel.bio/p/the-patient-is-not-a-document-moving">
 
-Read the announcement blog post explaining the motivation and architecture behind Standard Model v1.
+Read the announcement blog post explaining the motivation and architecture behind SMB-v1-Structure.
 
 </Card>
 
