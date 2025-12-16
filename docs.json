@@ -83,7 +83,7 @@
           },
           {
             "anchor": "Documentation",
-            "href": "https://standardmodelbiomedicineinc.mintlify.app",
+            "href": "./index.mdx",
             "icon": "book"
           }
         ]
