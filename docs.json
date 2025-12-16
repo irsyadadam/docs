@@ -83,7 +83,7 @@
           },
           {
             "anchor": "Documentation",
-            "href": "./index.mdx",
+            "href": "/index",
             "icon": "book"
           }
         ]
