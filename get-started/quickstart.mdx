@@ -215,11 +215,11 @@ For GPUs with less memory, use half-precision or quantization:
 import torch
 from transformers import AutoModelForCausalLM
 
-# Load in float16 (half precision)
+# Load in bfloat16 (half precision + f32 range)
 model = AutoModelForCausalLM.from_pretrained(
     "standardmodelbio/SMB-v1-1.7B-Structure",
     trust_remote_code=True,
-    torch_dtype=torch.float16,
+    torch_dtype=torch.bfloat16,
     device_map="auto"
 )
 
