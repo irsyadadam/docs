@@ -27,14 +27,12 @@ Before you begin, ensure you have the following installed:
 - **CUDA** (recommended) — For GPU acceleration with NVIDIA GPUs
 - **Git** — For cloning repositories
 
-
-
 ## One-Command Setup (Recommended)
 
 Run the quickstart script to automatically configure your environment:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/standardmodelbio/quickstart/main/quickstart.sh | bash
+curl -fsSL https://raw.githubusercontent.com/standardmodelbio/quickstart/main/quickstart.sh -o quickstart.sh && source quickstart.sh
 ```
 
 This script will:
@@ -42,7 +40,8 @@ This script will:
 1. Create a Python 3.10 virtual environment named `standard_model`
 2. Install PyTorch with CUDA support (if available)
 3. Install HuggingFace libraries (transformers, datasets, accelerate)
-4. Download the Standard Model to your local machine
+4. Install SMB utilities (`smb-biopan-utils`)
+5. Download the Standard Model to your local machine
 
 ## Manual Installation
 
@@ -91,10 +90,11 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 
 </Step>
 
-<Step title="Install HuggingFace Libraries">
+<Step title="Install Dependencies">
 
 ```bash
-pip install transformers datasets accelerate huggingface_hub
+pip install transformers datasets accelerate huggingface_hub pandas
+pip install git+https://github.com/standardmodelbio/smb-biopan-utils.git
 ```
 
 </Step>
@@ -104,15 +104,13 @@ pip install transformers datasets accelerate huggingface_hub
 ```python
 from huggingface_hub import snapshot_download
 
-snapshot_download(
-    "standardmodelbio/SMB-v1-1.7B-Structure",
-    local_dir="./SMB-v1-1.7B-Structure"
-)
+snapshot_download("standardmodelbio/SMB-v1-1.7B-Structure")
 ```
 
 </Step>
 
 </Steps>
+
 ## Environment Activation
 
 After setup, activate your environment for usage:
@@ -121,32 +119,34 @@ After setup, activate your environment for usage:
 source standard_model/bin/activate
 ```
 
-
 ## Verify Installation
 
 Verify that everything is working correctly:
 
 ```python
 import torch
-from transformers import AutoModel, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 # Check PyTorch and CUDA
 print(f"PyTorch version: {torch.__version__}")
 print(f"CUDA available: {torch.cuda.is_available()}")
 
 # Load SMB-v1-Structure
-model_path = "./SMB-v1-1.7B-Structure"
-model = AutoModel.from_pretrained(model_path)
-tokenizer = AutoTokenizer.from_pretrained(model_path)
+model_id = "standardmodelbio/SMB-v1-1.7B-Structure"
+tokenizer = AutoTokenizer.from_pretrained(model_id)
+model = AutoModelForCausalLM.from_pretrained(
+    model_id,
+    trust_remote_code=True,
+    device_map="auto"
+)
 
 print("SMB-v1-Structure loaded successfully!")
 print(f"Model parameters: {sum(p.numel() for p in model.parameters()):,}")
 ```
 
-
 <Warning>
 
-The SMB-v1-Structure is a **world model**, not a text generator. It predicts patient states in latent space, not tokens. See the [Models documentation](/models) for the full API.
+SMB-v1-Structure is a **world model**, not a text generator. It predicts patient states in latent space, not tokens. See the [Embeddings Guide](/guides/embeddings) for the full workflow.
 
 </Warning>
 
@@ -160,28 +160,19 @@ Download additional models from the Standard Model family:
 ```python SMB-EHR-4B
 from huggingface_hub import snapshot_download
 
-snapshot_download(
-    "standardmodelbio/smb-ehr-4b",
-    local_dir="./smb-ehr-4b"
-)
+snapshot_download("standardmodelbio/smb-ehr-4b")
 ```
 
 ```python SMB-Vision-Base
 from huggingface_hub import snapshot_download
 
-snapshot_download(
-    "standardmodelbio/smb-vision-base",
-    local_dir="./smb-vision-base"
-)
+snapshot_download("standardmodelbio/smb-vision-base")
 ```
 
 ```python SMB-Language-8B
 from huggingface_hub import snapshot_download
 
-snapshot_download(
-    "standardmodelbio/model-model-smb-mntp-llama-3.1-8b-v1",
-    local_dir="./smb-language-8b"
-)
+snapshot_download("standardmodelbio/model-model-smb-mntp-llama-3.1-8b-v1")
 ```
 
 </CodeGroup>
@@ -222,19 +213,21 @@ For GPUs with less memory, use half-precision or quantization:
 
 ```python
 import torch
-from transformers import AutoModel
+from transformers import AutoModelForCausalLM
 
 # Load in float16 (half precision)
-model = AutoModel.from_pretrained(
+model = AutoModelForCausalLM.from_pretrained(
     "standardmodelbio/SMB-v1-1.7B-Structure",
+    trust_remote_code=True,
     torch_dtype=torch.float16,
     device_map="auto"
 )
 
 # Or use 8-bit quantization (requires bitsandbytes)
 # pip install bitsandbytes
-model = AutoModel.from_pretrained(
+model = AutoModelForCausalLM.from_pretrained(
     "standardmodelbio/SMB-v1-1.7B-Structure",
+    trust_remote_code=True,
     load_in_8bit=True,
     device_map="auto"
 )
@@ -253,21 +246,21 @@ model = AutoModel.from_pretrained(
 
 <CardGroup cols={2}>
 
-<Card title="Models" icon="cube" href="/models">
+<Card title="Embeddings" icon="code" href="/guides/embeddings">
+
+Extract patient embeddings with dummy data examples.
+
+</Card>
+
+<Card title="Linear Probing" icon="magnifying-glass" href="/guides/linear-probing">
+
+Train classifiers on embeddings for prediction tasks.
+
+</Card>
+
+<Card title="Models" icon="cube" href="/get-started/models">
 
 Explore the full model catalog and capabilities.
-
-</Card>
-
-<Card title="Architecture" icon="diagram-project" href="/models#featured-standard-model-v1">
-
-Learn how the Standard Model JEPA architecture works.
-
-</Card>
-
-<Card title="Research" icon="book" href="https://blog.standardmodel.bio/p/the-patient-is-not-a-document-moving">
-
-Read the announcement blog post.
 
 </Card>
 

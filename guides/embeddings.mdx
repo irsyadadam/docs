@@ -1,0 +1,380 @@
+---
+title: "Embeddings"
+description: "Extract patient embeddings from SMB-v1-Structure using MEDS-format data"
+icon: "code"
+---
+
+<Info>
+
+**Model:** `standardmodelbio/SMB-v1-1.7B-Structure`  
+**Utility:** `smb-biopan-utils`  
+**Data Format:** MEDS (Medical Event Data Standard)
+
+</Info>
+
+This guide shows how to extract patient embeddings from SMB-v1-Structure using MEDS-format electronic health record data.
+
+## Environment Activation
+
+```bash
+source standard_model/bin/activate
+```
+
+<Tip>
+See the [Quickstart Guide](/get-started/quickstart) for environment creation and installation.
+</Tip>
+
+## Create Dummy MEDS Data
+
+MEDS (Medical Event Data Standard) represents patient data as timestamped clinical events. Each row contains a subject ID, timestamp, clinical code, table type, and optional value.
+
+```python
+import pandas as pd
+
+# Create dummy MEDS-format patient data
+dummy_data = pd.DataFrame({
+    'subject_id': ['patient_001'] * 8 + ['patient_002'] * 6,
+    'time': pd.to_datetime([
+        # Patient 001: Lung cancer journey
+        '2023-01-15', '2023-02-01', '2023-03-10', '2023-04-05',
+        '2023-05-20', '2023-06-15', '2023-07-01', '2023-08-10',
+        # Patient 002: Cardiovascular patient
+        '2023-01-10', '2023-02-15', '2023-03-20', '2023-04-25',
+        '2023-05-30', '2023-06-15'
+    ]),
+    'code': [
+        # Patient 001
+        'ICD10:C34.90',    # Lung cancer
+        'CPT:71260',       # CT chest with contrast
+        'RxNorm:583214',   # Carboplatin
+        'LOINC:2160-0',    # Creatinine
+        'ICD10:J18.9',     # Pneumonia
+        'CPT:99213',       # Office visit
+        'RxNorm:311671',   # Pembrolizumab
+        'LOINC:718-7',     # Hemoglobin
+        # Patient 002
+        'ICD10:I25.10',    # Coronary artery disease
+        'ICD10:I10',       # Hypertension
+        'RxNorm:197361',   # Lisinopril
+        'LOINC:2093-3',    # Total cholesterol
+        'CPT:93000',       # ECG
+        'RxNorm:83367'     # Atorvastatin
+    ],
+    'table': [
+        'condition', 'procedure', 'medication', 'lab',
+        'condition', 'procedure', 'medication', 'lab',
+        'condition', 'condition', 'medication', 'lab',
+        'procedure', 'medication'
+    ],
+    'value': [
+        None, None, None, 1.2,
+        None, None, None, 12.5,
+        None, None, None, 220.0,
+        None, None
+    ]
+})
+
+print(dummy_data)
+```
+
+**Output:**
+
+```
+      subject_id       time           code       table  value
+0    patient_001 2023-01-15   ICD10:C34.90   condition    NaN
+1    patient_001 2023-02-01      CPT:71260   procedure    NaN
+2    patient_001 2023-03-10  RxNorm:583214  medication    NaN
+3    patient_001 2023-04-05   LOINC:2160-0         lab    1.2
+4    patient_001 2023-05-20    ICD10:J18.9   condition    NaN
+...
+```
+
+## Load Model and Tokenizer
+
+```python
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+model_id = "standardmodelbio/SMB-v1-1.7B-Structure"
+
+tokenizer = AutoTokenizer.from_pretrained(model_id)
+model = AutoModelForCausalLM.from_pretrained(
+    model_id,
+    trust_remote_code=True,
+    device_map="auto"
+)
+```
+
+## Process Patient Data
+
+Use `process_ehr_info` from `smb-biopan-utils` to convert MEDS data into the structured text format expected by SMB-v1.
+
+```python
+from smb_biopan_utils import process_ehr_info
+
+# Format data for a single patient
+input_text = process_ehr_info(
+    df=dummy_data,
+    subject_id="patient_001",
+    end_time=pd.Timestamp("2023-09-01")  # Prediction timepoint
+)
+
+print(input_text)
+```
+
+This converts the MEDS DataFrame into a structured text representation with tags like `<conditions>`, `<procedures>`, `<medications>`, and `<labs>`.
+
+## Extract Embeddings
+
+```python
+import torch
+
+# Tokenize input
+inputs = tokenizer(input_text, return_tensors="pt").to(model.device)
+
+# Forward pass with hidden states
+with torch.no_grad():
+    outputs = model(
+        input_ids=inputs.input_ids,
+        output_hidden_states=True,
+        return_dict=True
+    )
+
+# Extract the last hidden state as the patient representation
+patient_embedding = outputs.hidden_states[-1]
+
+print(f"Patient Embedding Shape: {patient_embedding.shape}")
+# Output: torch.Size([1, seq_len, hidden_dim])
+```
+
+## Pooling Strategies
+
+The raw output has shape `[batch, sequence_length, hidden_dim]`. Pool to get a single vector per patient:
+
+<Tabs>
+
+<Tab title="Last Token">
+
+Use the last token's representation (common for causal LMs):
+
+```python
+# Last token pooling
+patient_vector = patient_embedding[:, -1, :]
+print(f"Vector shape: {patient_vector.shape}")  # [1, hidden_dim]
+```
+
+</Tab>
+
+<Tab title="Mean Pooling">
+
+Average across all tokens:
+
+```python
+# Mean pooling
+patient_vector = patient_embedding.mean(dim=1)
+print(f"Vector shape: {patient_vector.shape}")  # [1, hidden_dim]
+```
+
+</Tab>
+
+<Tab title="Max Pooling">
+
+Take the maximum value across tokens:
+
+```python
+# Max pooling
+patient_vector = patient_embedding.max(dim=1).values
+print(f"Vector shape: {patient_vector.shape}")  # [1, hidden_dim]
+```
+
+</Tab>
+
+</Tabs>
+
+## Batch Processing Multiple Patients
+
+Process multiple patients efficiently:
+
+```python
+import torch
+from smb_biopan_utils import process_ehr_info
+
+def get_patient_embeddings(df, patient_ids, end_time, model, tokenizer):
+    """Extract embeddings for multiple patients."""
+    embeddings = []
+    
+    for pid in patient_ids:
+        # Format patient data
+        input_text = process_ehr_info(
+            df=df,
+            subject_id=pid,
+            end_time=end_time
+        )
+        
+        # Tokenize
+        inputs = tokenizer(
+            input_text, 
+            return_tensors="pt",
+            truncation=True,
+            max_length=2048
+        ).to(model.device)
+        
+        # Extract embedding
+        with torch.no_grad():
+            outputs = model(
+                input_ids=inputs.input_ids,
+                output_hidden_states=True,
+                return_dict=True
+            )
+            
+            # Last token pooling
+            emb = outputs.hidden_states[-1][:, -1, :]
+            embeddings.append(emb)
+    
+    return torch.cat(embeddings, dim=0)
+
+# Get embeddings for both patients
+patient_ids = ['patient_001', 'patient_002']
+embeddings = get_patient_embeddings(
+    df=dummy_data,
+    patient_ids=patient_ids,
+    end_time=pd.Timestamp("2023-09-01"),
+    model=model,
+    tokenizer=tokenizer
+)
+
+print(f"Batch embeddings shape: {embeddings.shape}")  # [2, hidden_dim]
+```
+
+## Saving Embeddings
+
+Save embeddings for downstream tasks:
+
+```python
+import numpy as np
+
+# Convert to numpy and save
+embeddings_np = embeddings.cpu().numpy()
+
+# Save as .npy
+np.save("patient_embeddings.npy", embeddings_np)
+
+# Or save with patient IDs as DataFrame
+embedding_df = pd.DataFrame(
+    embeddings_np,
+    index=patient_ids
+)
+embedding_df.to_parquet("patient_embeddings.parquet")
+```
+
+## Memory Optimization
+
+For large cohorts or limited GPU memory:
+
+<Tabs>
+
+<Tab title="Float16">
+
+```python
+model = AutoModelForCausalLM.from_pretrained(
+    model_id,
+    trust_remote_code=True,
+    torch_dtype=torch.float16,
+    device_map="auto"
+)
+```
+
+**Memory:** ~8GB
+
+</Tab>
+
+<Tab title="8-bit Quantization">
+
+```python
+model = AutoModelForCausalLM.from_pretrained(
+    model_id,
+    trust_remote_code=True,
+    load_in_8bit=True,
+    device_map="auto"
+)
+```
+
+**Memory:** ~4GB
+
+</Tab>
+
+</Tabs>
+
+## Full Example
+
+Complete working example:
+
+```python
+import pandas as pd
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from smb_biopan_utils import process_ehr_info
+
+# 1. Create dummy MEDS data
+dummy_data = pd.DataFrame({
+    'subject_id': ['patient_001'] * 8,
+    'time': pd.to_datetime([
+        '2023-01-15', '2023-02-01', '2023-03-10', '2023-04-05',
+        '2023-05-20', '2023-06-15', '2023-07-01', '2023-08-10'
+    ]),
+    'code': [
+        'ICD10:C34.90', 'CPT:71260', 'RxNorm:583214', 'LOINC:2160-0',
+        'ICD10:J18.9', 'CPT:99213', 'RxNorm:311671', 'LOINC:718-7'
+    ],
+    'table': [
+        'condition', 'procedure', 'medication', 'lab',
+        'condition', 'procedure', 'medication', 'lab'
+    ],
+    'value': [None, None, None, 1.2, None, None, None, 12.5]
+})
+
+# 2. Load model
+model_id = "standardmodelbio/SMB-v1-1.7B-Structure"
+tokenizer = AutoTokenizer.from_pretrained(model_id)
+model = AutoModelForCausalLM.from_pretrained(
+    model_id,
+    trust_remote_code=True,
+    device_map="auto"
+)
+
+# 3. Process and embed
+input_text = process_ehr_info(
+    df=dummy_data,
+    subject_id="patient_001",
+    end_time=pd.Timestamp("2023-09-01")
+)
+
+inputs = tokenizer(input_text, return_tensors="pt").to(model.device)
+
+with torch.no_grad():
+    outputs = model(
+        input_ids=inputs.input_ids,
+        output_hidden_states=True,
+        return_dict=True
+    )
+    patient_embedding = outputs.hidden_states[-1][:, -1, :]
+
+print(f"Patient embedding shape: {patient_embedding.shape}")
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+
+<Card title="Linear Probing" icon="magnifying-glass" href="/guides/linear-probing">
+
+Train classifiers on patient embeddings
+
+</Card>
+
+<Card title="All Models" icon="cube" href="/get-started/models">
+
+View full model catalog
+
+</Card>
+
+</CardGroup>

@@ -3,8 +3,8 @@
     "name": "Standard Model Biomedicine",
     "theme": "mint",
     "logo": {
-      "light": "/logo.png",
-      "dark": "/logo.png",
+      "light": "/Brandmark-Isolated-OnLight.png",
+      "dark": "/Brandmark-Isolated-OnLight.png",
       "height": 40,
       "href": "https://www.standardmodel.bio"
     },
@@ -82,8 +82,8 @@
             "icon": "github"
           },
           {
-            "anchor": "Documentation",
-            "href": "/index",
+            "anchor": "Documentation Home",
+            "href": "/",
             "icon": "book"
           }
         ]
