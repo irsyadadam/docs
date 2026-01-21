@@ -28,66 +28,48 @@
       "prompt": "Search documentation..."
     },
     "navigation": {
-      "tabs": [
-        {
-          "tab": "Guides",
-          "groups": [
-            {
-              "group": "Get Started",
-              "pages": [
-                "get-started/introduction",
-                "get-started/quickstart",
-                "get-started/models"
-              ]
-            },
-            {
-              "group": "Model Families",
-              "pages": [
-                "models/standard-model-v1",
-                "models/smb-ehr",
-                "models/smb-vision",
-                "models/smb-language"
-              ]
-            },
-            {
-              "group": "Guides",
-              "pages": [
-                "guides/embeddings",
-                "guides/linear-probing"
-              ]
-            }
-          ]
-        }
-      ],
       "global": {
         "anchors": [
           {
             "anchor": "Website",
-            "href": "https://www.standardmodel.bio",
-            "icon": "globe"
+            "icon": "globe",
+            "href": "https://www.standardmodel.bio"
           },
           {
             "anchor": "Blog",
-            "href": "https://blog.standardmodel.bio",
-            "icon": "newspaper"
+            "icon": "newspaper",
+            "href": "https://blog.standardmodel.bio"
           },
           {
             "anchor": "Hugging Face",
-            "href": "https://huggingface.co/standardmodelbio",
-            "icon": "face-smile"
+            "icon": "face-smile",
+            "href": "https://huggingface.co/standardmodelbio"
           },
           {
             "anchor": "GitHub",
-            "href": "https://github.com/standardmodelbio",
-            "icon": "github"
-          },
-          {
-            "anchor": "Documentation Home",
-            "href": "/",
-            "icon": "book"
+            "icon": "github",
+            "href": "https://github.com/standardmodelbio"
           }
         ]
-      }
+      },
+      "groups": [
+        {
+          "group": "Get Started",
+          "pages": [
+            "get-started/introduction",
+            "get-started/quickstart",
+            "get-started/models",
+            "guides/embeddings",
+            "guides/linear-probing"
+          ]
+        },
+        {
+          "group": "Model Families",
+          "pages": [
+            "models/standard-model-v1"
+          ]
+        }
+      ]
     },
     "footer": {
       "socials": {
