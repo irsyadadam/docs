@@ -5,7 +5,6 @@ icon: "rocket"
 
 This guide walks you through how to set up your environment, download [SMB-v1-Structure](/models/standard-model-v1) (our flagship JEPA-based multimodal foundation model), extract patient embeddings from dummy data, and train classifiers on embeddings.
 
-
 ## Quickstart (Recommended)
 
 ```bash
@@ -114,7 +113,7 @@ print(f"Model parameters: {sum(p.numel() for p in model.parameters()):,}")
     Ensure NVIDIA drivers are up to date. Run `nvidia-smi` to verify GPU is accessible.
   </Card>
   <Card title="Out of Memory" icon="memory">
-    SMB-v1-Structure requires ~16GB GPU memory. Reduce memory use via `torch.float16` or quantization (see below).
+    Reduce memory use via `torch.float16` or quantization (see below).
   </Card>
   <Card title="Model Access Denied" icon="lock">
     Some models may require authentication. Run `huggingface-cli login` with your token.
@@ -124,31 +123,36 @@ print(f"Model parameters: {sum(p.numel() for p in model.parameters()):,}")
   </Card>
 </CardGroup>
 
-### Reducing Memory Usage
+### Memory optimization
 
-For GPUs with less memory, use half-precision or quantization:
+For large cohorts and/or limited GPU memory, use half-precision or quantization:
 
-```python
-import torch
-from transformers import AutoModelForCausalLM
+<Tabs>
+  <Tab title="Float16">
+    ```python
+    model = AutoModelForCausalLM.from_pretrained(
+        model_id,
+        trust_remote_code=True,
+        torch_dtype=torch.float16,
+        device_map="auto"
+    )
+    ```
 
-# Load in bfloat16 (half precision + f32 range)
-model = AutoModelForCausalLM.from_pretrained(
-    "standardmodelbio/SMB-v1-1.7B-Structure",
-    trust_remote_code=True,
-    torch_dtype=torch.bfloat16,
-    device_map="auto"
-)
+    **Memory:** ~8GB
+  </Tab>
+  <Tab title="8-bit Quantization">
+    ```python
+    model = AutoModelForCausalLM.from_pretrained(
+        model_id,
+        trust_remote_code=True,
+        load_in_8bit=True,
+        device_map="auto"
+    )
+    ```
 
-# Or use 8-bit quantization (requires bitsandbytes)
-# pip install bitsandbytes
-model = AutoModelForCausalLM.from_pretrained(
-    "standardmodelbio/SMB-v1-1.7B-Structure",
-    trust_remote_code=True,
-    load_in_8bit=True,
-    device_map="auto"
-)
-```
+    **Memory:** ~4GB
+  </Tab>
+</Tabs>
 
 {/* 
 

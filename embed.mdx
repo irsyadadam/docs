@@ -243,36 +243,6 @@ embedding_df = pd.DataFrame(
 embedding_df.to_parquet("patient_embeddings.parquet")
 ```
 
-## Memory optimization
-
-For large cohorts or limited GPU memory:
-
-<Tabs>
-  <Tab title="Float16">
-    ```python
-    model = AutoModelForCausalLM.from_pretrained(
-        model_id,
-        trust_remote_code=True,
-        torch_dtype=torch.float16,
-        device_map="auto"
-    )
-    ```
-
-    **Memory:** ~8GB
-  </Tab>
-  <Tab title="8-bit Quantization">
-    ```python
-    model = AutoModelForCausalLM.from_pretrained(
-        model_id,
-        trust_remote_code=True,
-        load_in_8bit=True,
-        device_map="auto"
-    )
-    ```
-
-    **Memory:** ~4GB
-  </Tab>
-</Tabs>
 
 ## Full example
 
