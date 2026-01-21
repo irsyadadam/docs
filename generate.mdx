@@ -1,0 +1,69 @@
+---
+title: "Generate patient data"
+icon: "stethoscope"
+---
+
+This guide shows how to generate MEDS-formatted electronic health record data, from which we will subsequently extract embeddings and apply the Standard Model.
+
+[MEDS (Medical Event Data Standard)](https://github.com/Medical-Event-Data-Standard/meds) represents patient data as timestamped clinical events. Each row contains a subject ID, timestamp, clinical code, table type, and optional value.
+
+```python
+import pandas as pd
+
+# Create dummy MEDS-format patient data
+dummy_data = pd.DataFrame({
+    'subject_id': ['patient_001'] * 8 + ['patient_002'] * 6,
+    'time': pd.to_datetime([
+        # Patient 001: Lung cancer journey
+        '2023-01-15', '2023-02-01', '2023-03-10', '2023-04-05',
+        '2023-05-20', '2023-06-15', '2023-07-01', '2023-08-10',
+        # Patient 002: Cardiovascular patient
+        '2023-01-10', '2023-02-15', '2023-03-20', '2023-04-25',
+        '2023-05-30', '2023-06-15'
+    ]),
+    'code': [
+        # Patient 001
+        'ICD10:C34.90',    # Lung cancer
+        'CPT:71260',       # CT chest with contrast
+        'RxNorm:583214',   # Carboplatin
+        'LOINC:2160-0',    # Creatinine
+        'ICD10:J18.9',     # Pneumonia
+        'CPT:99213',       # Office visit
+        'RxNorm:311671',   # Pembrolizumab
+        'LOINC:718-7',     # Hemoglobin
+        # Patient 002
+        'ICD10:I25.10',    # Coronary artery disease
+        'ICD10:I10',       # Hypertension
+        'RxNorm:197361',   # Lisinopril
+        'LOINC:2093-3',    # Total cholesterol
+        'CPT:93000',       # ECG
+        'RxNorm:83367'     # Atorvastatin
+    ],
+    'table': [
+        'condition', 'procedure', 'medication', 'lab',
+        'condition', 'procedure', 'medication', 'lab',
+        'condition', 'condition', 'medication', 'lab',
+        'procedure', 'medication'
+    ],
+    'value': [
+        None, None, None, 1.2,
+        None, None, None, 12.5,
+        None, None, None, 220.0,
+        None, None
+    ]
+})
+
+print(dummy_data)
+```
+
+**Output:**
+
+```
+      subject_id       time           code       table  value
+0    patient_001 2023-01-15   ICD10:C34.90   condition    NaN
+1    patient_001 2023-02-01      CPT:71260   procedure    NaN
+2    patient_001 2023-03-10  RxNorm:583214  medication    NaN
+3    patient_001 2023-04-05   LOINC:2160-0         lab    1.2
+4    patient_001 2023-05-20    ICD10:J18.9   condition    NaN
+...
+```

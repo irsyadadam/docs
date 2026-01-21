@@ -59,7 +59,8 @@
           "group": "Get Started",
           "pages": [
             "install",
-            "embed",
+            "generate",
+            "embed-copied-1",
             "probe",
             "model"
           ]
