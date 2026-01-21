@@ -7,19 +7,17 @@ This guide walks you through setting up your environment, downloading [SMB-v1-St
 
 ## One-Command Setup (Recommended)
 
-Run the quickstart script to automatically configure your environment:
-
 ```bash
 curl -fsSL https://raw.githubusercontent.com/standardmodelbio/quickstart/main/quickstart.sh -o quickstart.sh && source quickstart.sh
 ```
 
 This script will:
 
-1. Create a Python 3.10 virtual environment named `standard_model`
-2. Install PyTorch with CUDA support (if available)
-3. Install HuggingFace libraries (transformers, datasets, accelerate)
-4. Install SMB utilities (`smb-biopan-utils`)
-5. Download the Standard Model to your local machine
+1. Create a Python 3.10 virtual environment named `standard_model`.
+2. Install PyTorch with CUDA support (if available).
+3. Install HuggingFace libraries (transformers, datasets, accelerate).
+4. Install `smb-biopan-utils`.
+5. Download the model to your machine.
 
 ## Prerequisites
 
@@ -33,8 +31,6 @@ First, install the following:
 - **pip** — Python package manager
 - **CUDA** (recommended) — For GPU acceleration with NVIDIA GPUs
 - **Git** — For cloning repositories
-
-## 
 
 ## Manual Installation
 
@@ -81,7 +77,7 @@ If you prefer to set up your environment manually:
   </Step>
 </Steps>
 
-## Environment Activation
+### Environment Activation
 
 After setup, activate your environment for usage:
 
@@ -89,7 +85,7 @@ After setup, activate your environment for usage:
 source standard_model/bin/activate
 ```
 
-## Verify Installation
+### Verify Installation
 
 Verify that everything is working correctly:
 
@@ -118,33 +114,6 @@ print(f"Model parameters: {sum(p.numel() for p in model.parameters()):,}")
   SMB-v1-Structure is a **world model**, not a text generator. It predicts patient states in latent space, not tokens. See the [Embeddings Guide](/guides/embeddings) for the full workflow.
 </Warning>
 
-## Download Other Models
-
-Download additional models from the Standard Model family:
-
-<CodeGroup>
-
-```python SMB-EHR-4B
-from huggingface_hub import snapshot_download
-
-snapshot_download("standardmodelbio/smb-ehr-4b")
-```
-
-
-```python SMB-Vision-Base
-from huggingface_hub import snapshot_download
-
-snapshot_download("standardmodelbio/smb-vision-base")
-```
-
-
-```python SMB-Language-8B
-from huggingface_hub import snapshot_download
-
-snapshot_download("standardmodelbio/model-model-smb-mntp-llama-3.1-8b-v1")
-```
-
-</CodeGroup>
 
 ## Troubleshooting
 
@@ -189,6 +158,7 @@ model = AutoModelForCausalLM.from_pretrained(
 )
 ```
 
+<!-- 
 ## Hardware Requirements
 
 | Model            | Parameters | Min GPU Memory | Recommended |
@@ -213,4 +183,4 @@ model = AutoModelForCausalLM.from_pretrained(
   <Card title="HuggingFace" icon="face-smile" href="https://huggingface.co/standardmodelbio">
     Browse all models on HuggingFace.
   </Card>
-</CardGroup>
+</CardGroup> -->
