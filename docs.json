@@ -1,6 +1,6 @@
 {
     "$schema": "https://mintlify.com/docs.json",
-    "name": "Standard Model Biomedicine",
+    "name": "Standard Model Bio",
     "theme": "mint",
     "logo": {
       "light": "/Brandmark-Isolated-OnLight.png",
@@ -91,7 +91,8 @@
     },
     "footer": {
       "socials": {
-        "website": "https://www.standardmodel.bio"
+        "website": "https://www.standardmodel.bio",
+        "linkedin": "https://www.linkedin.com/company/standardmodel-bio/"
       }
     },
     "modeToggle": {
