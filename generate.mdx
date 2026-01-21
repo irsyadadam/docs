@@ -1,222 +1,63 @@
 ---
-title: "Generate patient data"
+title: "End-to-end example"
 icon: "stethoscope"
+description: "This Python script generate MEDS-formatted electronic health record data, extracts embeddings using the Standard Model, trains a classifier, "
 ---
 
-This guide shows how to generate MEDS-formatted electronic health record data, from which we will subsequently extract embeddings and apply the Standard Model.
+We provide [`quickstart-pipeline.py`](https://raw.githubusercontent.com/standardmodelbio/quickstart/main/quickstart-pipeline.py) demonstrating an end-to-end workflow using the Standard Model to go from raw data to clinical insight. It performs three key steps:
 
-The Standard Model works with data in the [MEDS (Medical Event Data Standard)](https://github.com/Medical-Event-Data-Standard/meds) format, which represents patient data as timestamped clinical events. Each row contains a subject ID, timestamp, clinical code, table type, and optional value.
+1. **Simulate Raw Data:** Generates a synthetic [MEDS (Medical Event Data Standard)](https://github.com/Medical-Event-Data-Standard/meds) cohort with distinct clinical phenotypes (Lung Cancer vs. Pneumonia), including longitudinal codes, labs, and medications.
+2. **Extract Universal Representations:** Ingests the raw timelines into the Standard Model to produce high-dimensional patient-level embeddings that capture the full causal history.
+3. **Train Clinical Predictors:** Uses these frozen embeddings to power downstream tasks including Readmission Risk, Disease Phenotyping, and Survival Analysis.
 
-Don't forget to activate your virtual environment:
+This example requires `pandas`, `scikit-learn`, `transformers`, and `smb-biopan-utils`.
+
+Don't forget to activate your virtual environment!
 
 ```bash
 source standard_model/bin/activate
 ```
 
-This Python code simulates realistic patient trajectories in MEDS format. It injects specific signal (cancer progression/toxicity) vs. noise (acute infection/recovery) to test the model's ability to distinguish clinical phenotypes.
+Pull the script from GitHub:
 
-```python
-import pandas as pd
-import numpy as np
-import random
-from datetime import timedelta
-
-# ==========================================
-# 1. BIOMEDICAL VOCABULARY & SEMANTICS
-# ==========================================
-# Defines the "atomic" events for patient trajectories with clinical context.
-
-CONDITIONS = [
-    {
-        "code": "ICD10:C34.90",
-        "description": "Malignant neoplasm of unsp. part of bronchus or lung (NSCLC). The primary \"Signal\" for the model to detect.",
-        "table": "condition"
-    },
-    {
-        "code": "ICD10:J18.9",
-        "description": "Pneumonia, unspecified organism. Serves as a \"confounder\" (acute respiratory event) to test specificity.",
-        "table": "condition"
-    }
-]
-
-PROCEDURES = [
-    {
-        "code": "CPT:71260",
-        "description": "CT Thorax, diagnostic, with contrast. Standard staging imaging for cancer; also used for complex pneumonia.",
-        "table": "procedure"
-    },
-    {
-        "code": "CPT:99213",
-        "description": "Office/outpatient visit (15 min). Represents routine interactions and longitudinal care continuity.",
-        "table": "procedure"
-    }
-]
-
-MEDICATIONS = [
-    {
-        "code": "RxNorm:583214",
-        "description": "Carboplatin 10 MG/ML Injectable. Platinum-based chemotherapy backbone for lung cancer.",
-        "table": "medication"
-    },
-    {
-        "code": "RxNorm:311671",
-        "description": "Pemetrexed 500 MG Injection. Antifolate chemotherapy often combined with Carboplatin.",
-        "table": "medication"
-    }
-]
-
-LABS = [
-    {
-        "code": "LOINC:2160-0",
-        "description": "Creatinine [Mass/vol] in Serum. Marker of kidney function; monitors renal toxicity from Carboplatin.",
-        "table": "lab",
-        "mean": 0.9, "std": 0.2, "unit": "mg/dL"
-    },
-    {
-        "code": "LOINC:718-7",
-        "description": "Hemoglobin [Mass/vol] in Blood. Marker for anemia; monitors myelosuppression from Pemetrexed.",
-        "table": "lab",
-        "mean": 14.0, "std": 1.5, "unit": "g/dL"
-    }
-]
-
-# ==========================================
-# 2. TRAJECTORY ENGINE
-# ==========================================
-
-def create_meds_cohort(n_patients=1000):
-    """
-    Generates a synthetic MEDS dataframe for N patients.
-    Simulates two distinct causal pathways:
-    1. Chronic/Signal: Lung Cancer (Diagnosis -> Chemo -> Toxicity)
-    2. Acute/Noise: Pneumonia (Diagnosis -> Recovery)
-    """
-    all_events = []
-    
-    for i in range(n_patients):
-        pid = f"{i:04d}"
-        # Randomized entry point into the healthcare system
-        start_date = pd.Timestamp("2023-01-01") + timedelta(days=random.randint(0, 180))
-        
-        # Phenotype assignment: 50/50 split
-        has_cancer = random.random() > 0.5
-        
-        current_date = start_date
-
-        # --- EVENT 1: PRESENTATION ---
-        # All patients enter via a standard outpatient evaluation
-        all_events.append({
-            "subject_id": pid, "time": current_date,
-            "code": "CPT:99213", # Office Visit
-            "table": "procedure", "value": None
-        })
-
-        # --- EVENT 2: WORKUP ---
-        # Imaging ordered to investigate respiratory symptoms
-        current_date += timedelta(days=2)
-        all_events.append({
-            "subject_id": pid, "time": current_date,
-            "code": "CPT:71260", # CT Thorax
-            "table": "procedure", "value": None
-        })
-
-        if has_cancer:
-            # === PATHWAY A: LUNG CANCER (The Signal) ===
-            
-            # Diagnosis
-            current_date += timedelta(days=5)
-            all_events.append({
-                "subject_id": pid, "time": current_date,
-                "code": "ICD10:C34.90", # Lung Cancer
-                "table": "condition", "value": None
-            })
-            
-            # Treatment: 3 Cycles of Doublet Chemo
-            for cycle in range(3):
-                current_date += timedelta(days=21) # 21-day cycles
-                
-                # Administration
-                all_events.append({
-                    "subject_id": pid, "time": current_date,
-                    "code": "RxNorm:583214", # Carboplatin
-                    "table": "medication", "value": None
-                })
-                all_events.append({
-                    "subject_id": pid, "time": current_date,
-                    "code": "RxNorm:311671", # Pemetrexed
-                    "table": "medication", "value": None
-                })
-                
-                # Toxicity Monitoring (Signal Injection)
-                # Elevate Creatinine (Kidney stress) and lower Hgb (Anemia)
-                creat_val = np.random.normal(1.4, 0.2) 
-                hgb_val = np.random.normal(10.5, 1.0) 
-                
-                all_events.append({"subject_id": pid, "time": current_date, "code": "LOINC:2160-0", "table": "lab", "value": creat_val})
-                all_events.append({"subject_id": pid, "time": current_date, "code": "LOINC:718-7", "table": "lab", "value": hgb_val})
-
-        else:
-            # === PATHWAY B: PNEUMONIA (The Noise) ===
-            
-            # Diagnosis
-            current_date += timedelta(days=1)
-            all_events.append({
-                "subject_id": pid, "time": current_date,
-                "code": "ICD10:J18.9", # Pneumonia
-                "table": "condition", "value": None
-            })
-            
-            # Recovery Follow-up
-            current_date += timedelta(days=14)
-            all_events.append({
-                "subject_id": pid, "time": current_date,
-                "code": "CPT:99213", # Office Visit
-                "table": "procedure", "value": None
-            })
-            
-            # Normal Labs (Baseline health)
-            all_events.append({"subject_id": pid, "time": current_date, "code": "LOINC:2160-0", "table": "lab", "value": np.random.normal(0.9, 0.1)})
-            all_events.append({"subject_id": pid, "time": current_date, "code": "LOINC:718-7", "table": "lab", "value": np.random.normal(14.0, 1.0)})
-
-    # Final Serialization
-    df = pd.DataFrame(all_events)
-    # MEDS requires sorting by subject then time
-    df = df.sort_values(["subject_id", "time"]).reset_index(drop=True)
-    return df
-
-# ==========================================
-# 3. EXECUTION
-# ==========================================
-if __name__ == "__main__":
-    meds_data = create_meds_cohort(n_patients=100)
-    print(f"Generated {len(meds_data)} events across {meds_data['subject_id'].nunique()} patients.")
-    print("\nSample Trajectory (Head):")
-    print(meds_data.head(10))
+```bash
+curl -fsSL https://raw.githubusercontent.com/standardmodelbio/quickstart/main/quickstart-pipeline.py -o quickstart-pipeline.py
 ```
 
-## **Example Output**
+Run the script:
 
+```shellscript
+(standard_model) [user@vm ~]$ python quickstart-pipeline.py
+
+[1/4] Simulating patient data for N=200...
+   -> Generated 1274 total clinical events (MEDS format).
+   -> Class Balance: 144 Cancer / 56 Pneumonia.
+
+[2/4] Loading Standard Model (SMB-v1-1.7B)...
+model.safetensors: 100%|█████████████████| 3.66G/3.66G [00:12<00:00, 287MB/s]
+generation_config.json: 100%|██████████████| 127/127 [00:00<00:00, 939kB/s]
+
+[3/4] Generating embeddings for 200 patients...
+   -> Strategy: Causal Inference (Last Token Pooling)
+   -> Processed 50/200 patients...
+   -> Processed 100/200 patients...
+   -> Processed 150/200 patients...
+   -> Processed 200/200 patients...
+   -> Inference complete.
+
+[4/4] Training Clinical Task Heads...
+   -> Split: 160 Train / 40 Test examples.
+
+   --- Task A: Binary Classification (Readmission Risk) ---
+   -> ROC-AUC: 1.000
+
+   --- Task B: Multiclass Classification (Phenotype Stage) ---
+   -> Accuracy: 1.000
+
+   --- Task C: Regression (Overall Survival Time) ---
+   -> MAE: 4.02 months
+
+   --- Task D: Survival Analysis (Cox Proportional Hazards) ---
+   -> Projecting embeddings to 10D PCA for stability...
+   -> C-Index: 0.827
 ```
-Generated 1105 events across 100 patients.
-
-Sample Trajectory (Head):
-  subject_id       time           code       table      value
-0       0000 2023-04-12      CPT:99213   procedure        NaN
-1       0000 2023-04-14      CPT:71260   procedure        NaN
-2       0000 2023-04-19   ICD10:C34.90   condition        NaN
-3       0000 2023-05-10  RxNorm:583214  medication        NaN
-4       0000 2023-05-10  RxNorm:311671  medication        NaN
-5       0000 2023-05-10   LOINC:2160-0         lab   1.450122
-6       0000 2023-05-10    LOINC:718-7         lab  10.239101
-7       0000 2023-05-31  RxNorm:583214  medication        NaN
-8       0000 2023-05-31  RxNorm:311671  medication        NaN
-9       0000 2023-05-31   LOINC:2160-0         lab   1.380299
-```
-
-### Comments about the data:
-
-1. **Sparsity (**`NaN`**):** Notice that `value` is `NaN` (or `None`) for procedures, conditions, and meds. This is correct MEDS format; only labs generally have numeric values.
-2. **Trajectory Contrast:**
-   - **Patient_0000 (Pneumonia):** Short timeline (~17 days). Labs at the end show normal kidney function (`0.88`) and normal hemoglobin (`13.95`).
-   - **Patient_0001 (Cancer):** Long timeline. Labs during chemo show **toxicity**: High Creatinine (`1.42` = kidney stress) and Low Hemoglobin (`10.15` = anemia), reflecting the side effects of the drugs.
-3. **Temporal Order:** All events are monotonically sorted by time, which enables correct processing of temporal trajectories.

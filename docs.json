@@ -60,8 +60,6 @@
           "pages": [
             "install",
             "generate",
-            "embed-copied-1",
-            "probe",
             "model"
           ]
         }
