@@ -58,10 +58,10 @@
         {
           "group": "Get Started",
           "pages": [
-            "get-started/installation",
-            "guides/embeddings",
-            "guides/linear-probing",
-            "smb-v1"
+            "install",
+            "embed",
+            "probe",
+            "model"
           ]
         }
       ]
