@@ -1,20 +1,17 @@
 ---
-title: "Embeddings"
-description: "Extract patient embeddings from SMB-v1-Structure using MEDS-format data"
+title: "Extract patient embeddings"
 icon: "code"
 ---
 
-<Info>
-
-**Model:** `standardmodelbio/SMB-v1-1.7B-Structure`  
+<!-- <Info>
+**Model:** `standardmodelbio/SMB-v1-1.7B-Structure`. 
 **Utility:** `smb-biopan-utils`  
 **Data Format:** MEDS (Medical Event Data Standard)
+</Info> -->
 
-</Info>
+This guide shows how to extract patient embeddings from MEDS-formatted electronic health record data using `SMB-v1-Structure`.
 
-This guide shows how to extract patient embeddings from SMB-v1-Structure using MEDS-format electronic health record data.
-
-## Environment Activation
+## Activate environment
 
 ```bash
 source standard_model/bin/activate
@@ -24,7 +21,7 @@ source standard_model/bin/activate
 See the [Quickstart Guide](/get-started/quickstart) for environment creation and installation.
 </Tip>
 
-## Create Dummy MEDS Data
+## Create dummy MEDS data
 
 MEDS (Medical Event Data Standard) represents patient data as timestamped clinical events. Each row contains a subject ID, timestamp, clinical code, table type, and optional value.
 
@@ -89,7 +86,7 @@ print(dummy_data)
 ...
 ```
 
-## Load Model and Tokenizer
+## Load model and tokenizer
 
 ```python
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -104,7 +101,7 @@ model = AutoModelForCausalLM.from_pretrained(
 )
 ```
 
-## Process Patient Data
+## Process patient data
 
 Use `process_ehr_info` from `smb-biopan-utils` to convert MEDS data into the structured text format expected by SMB-v1.
 
@@ -123,7 +120,8 @@ print(input_text)
 
 This converts the MEDS DataFrame into a structured text representation with tags like `<conditions>`, `<procedures>`, `<medications>`, and `<labs>`.
 
-## Extract Embeddings
+
+## Extract embeddings
 
 ```python
 import torch
@@ -145,6 +143,7 @@ patient_embedding = outputs.hidden_states[-1]
 print(f"Patient Embedding Shape: {patient_embedding.shape}")
 # Output: torch.Size([1, seq_len, hidden_dim])
 ```
+
 
 ## Pooling Strategies
 
@@ -190,7 +189,8 @@ print(f"Vector shape: {patient_vector.shape}")  # [1, hidden_dim]
 
 </Tabs>
 
-## Batch Processing Multiple Patients
+
+## Batch process multiple patients
 
 Process multiple patients efficiently:
 
@@ -245,6 +245,7 @@ embeddings = get_patient_embeddings(
 print(f"Batch embeddings shape: {embeddings.shape}")  # [2, hidden_dim]
 ```
 
+
 ## Saving Embeddings
 
 Save embeddings for downstream tasks:
@@ -266,7 +267,7 @@ embedding_df = pd.DataFrame(
 embedding_df.to_parquet("patient_embeddings.parquet")
 ```
 
-## Memory Optimization
+## Memory optimization
 
 For large cohorts or limited GPU memory:
 
@@ -304,9 +305,9 @@ model = AutoModelForCausalLM.from_pretrained(
 
 </Tabs>
 
-## Full Example
 
-Complete working example:
+## Full example
+
 
 ```python
 import pandas as pd
@@ -361,7 +362,7 @@ with torch.no_grad():
 print(f"Patient embedding shape: {patient_embedding.shape}")
 ```
 
-## Next Steps
+<!-- ## Next Steps
 
 <CardGroup cols={2}>
 
@@ -377,4 +378,4 @@ View full model catalog
 
 </Card>
 
-</CardGroup>
+</CardGroup> -->
