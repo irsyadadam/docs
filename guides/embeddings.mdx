@@ -3,12 +3,6 @@ title: "Extract patient embeddings"
 icon: "code"
 ---
 
-<!-- <Info>
-**Model:** `standardmodelbio/SMB-v1-1.7B-Structure`. 
-**Utility:** `smb-biopan-utils`  
-**Data Format:** MEDS (Medical Event Data Standard)
-</Info> -->
-
 This guide shows how to extract patient embeddings from MEDS-formatted electronic health record data using `SMB-v1-Structure`.
 
 ## Activate environment
@@ -17,13 +11,9 @@ This guide shows how to extract patient embeddings from MEDS-formatted electroni
 source standard_model/bin/activate
 ```
 
-<Tip>
-See the [Quickstart Guide](/get-started/quickstart) for environment creation and installation.
-</Tip>
+## Create dummy data
 
-## Create dummy MEDS data
-
-MEDS (Medical Event Data Standard) represents patient data as timestamped clinical events. Each row contains a subject ID, timestamp, clinical code, table type, and optional value.
+[MEDS (Medical Event Data Standard)](https://github.com/Medical-Event-Data-Standard/meds) represents patient data as timestamped clinical events. Each row contains a subject ID, timestamp, clinical code, table type, and optional value.
 
 ```python
 import pandas as pd
@@ -120,7 +110,6 @@ print(input_text)
 
 This converts the MEDS DataFrame into a structured text representation with tags like `<conditions>`, `<procedures>`, `<medications>`, and `<labs>`.
 
-
 ## Extract embeddings
 
 ```python
@@ -144,51 +133,39 @@ print(f"Patient Embedding Shape: {patient_embedding.shape}")
 # Output: torch.Size([1, seq_len, hidden_dim])
 ```
 
-
 ## Pooling Strategies
 
 The raw output has shape `[batch, sequence_length, hidden_dim]`. Pool to get a single vector per patient:
 
 <Tabs>
+  <Tab title="Last Token">
+    Use the last token's representation (common for causal LMs):
 
-<Tab title="Last Token">
+    ```python
+    # Last token pooling
+    patient_vector = patient_embedding[:, -1, :]
+    print(f"Vector shape: {patient_vector.shape}")  # [1, hidden_dim]
+    ```
+  </Tab>
+  <Tab title="Mean Pooling">
+    Average across all tokens:
 
-Use the last token's representation (common for causal LMs):
+    ```python
+    # Mean pooling
+    patient_vector = patient_embedding.mean(dim=1)
+    print(f"Vector shape: {patient_vector.shape}")  # [1, hidden_dim]
+    ```
+  </Tab>
+  <Tab title="Max Pooling">
+    Take the maximum value across tokens:
 
-```python
-# Last token pooling
-patient_vector = patient_embedding[:, -1, :]
-print(f"Vector shape: {patient_vector.shape}")  # [1, hidden_dim]
-```
-
-</Tab>
-
-<Tab title="Mean Pooling">
-
-Average across all tokens:
-
-```python
-# Mean pooling
-patient_vector = patient_embedding.mean(dim=1)
-print(f"Vector shape: {patient_vector.shape}")  # [1, hidden_dim]
-```
-
-</Tab>
-
-<Tab title="Max Pooling">
-
-Take the maximum value across tokens:
-
-```python
-# Max pooling
-patient_vector = patient_embedding.max(dim=1).values
-print(f"Vector shape: {patient_vector.shape}")  # [1, hidden_dim]
-```
-
-</Tab>
-
+    ```python
+    # Max pooling
+    patient_vector = patient_embedding.max(dim=1).values
+    print(f"Vector shape: {patient_vector.shape}")  # [1, hidden_dim]
+    ```
+  </Tab>
 </Tabs>
-
 
 ## Batch process multiple patients
 
@@ -245,7 +222,6 @@ embeddings = get_patient_embeddings(
 print(f"Batch embeddings shape: {embeddings.shape}")  # [2, hidden_dim]
 ```
 
-
 ## Saving Embeddings
 
 Save embeddings for downstream tasks:
@@ -272,42 +248,33 @@ embedding_df.to_parquet("patient_embeddings.parquet")
 For large cohorts or limited GPU memory:
 
 <Tabs>
+  <Tab title="Float16">
+    ```python
+    model = AutoModelForCausalLM.from_pretrained(
+        model_id,
+        trust_remote_code=True,
+        torch_dtype=torch.float16,
+        device_map="auto"
+    )
+    ```
 
-<Tab title="Float16">
+    **Memory:** ~8GB
+  </Tab>
+  <Tab title="8-bit Quantization">
+    ```python
+    model = AutoModelForCausalLM.from_pretrained(
+        model_id,
+        trust_remote_code=True,
+        load_in_8bit=True,
+        device_map="auto"
+    )
+    ```
 
-```python
-model = AutoModelForCausalLM.from_pretrained(
-    model_id,
-    trust_remote_code=True,
-    torch_dtype=torch.float16,
-    device_map="auto"
-)
-```
-
-**Memory:** ~8GB
-
-</Tab>
-
-<Tab title="8-bit Quantization">
-
-```python
-model = AutoModelForCausalLM.from_pretrained(
-    model_id,
-    trust_remote_code=True,
-    load_in_8bit=True,
-    device_map="auto"
-)
-```
-
-**Memory:** ~4GB
-
-</Tab>
-
+    **Memory:** ~4GB
+  </Tab>
 </Tabs>
 
-
 ## Full example
-
 
 ```python
 import pandas as pd
@@ -361,21 +328,3 @@ with torch.no_grad():
 
 print(f"Patient embedding shape: {patient_embedding.shape}")
 ```
-
-<!-- ## Next Steps
-
-<CardGroup cols={2}>
-
-<Card title="Linear Probing" icon="magnifying-glass" href="/guides/linear-probing">
-
-Train classifiers on patient embeddings
-
-</Card>
-
-<Card title="All Models" icon="cube" href="/get-started/models">
-
-View full model catalog
-
-</Card>
-
-</CardGroup> -->
