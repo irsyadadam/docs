@@ -54,15 +54,10 @@
           }
         ]
       },
-      "groups": [
-        {
-          "group": "Get Started",
-          "pages": [
-            "install",
-            "generate",
-            "model"
-          ]
-        }
+      "pages": [
+        "install",
+        "generate",
+        "model"
       ]
     },
     "footer": {
