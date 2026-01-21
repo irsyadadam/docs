@@ -56,16 +56,10 @@
         {
           "group": "Get Started",
           "pages": [
-            "get-started/quickstart",
-            "get-started/models",
+            "get-started/installation",
             "guides/embeddings",
-            "guides/linear-probing"
-          ]
-        },
-        {
-          "group": "Model Families",
-          "pages": [
-            "models/standard-model-v1"
+            "guides/linear-probing",
+            "smb-v1"
           ]
         }
       ]
