@@ -7,7 +7,13 @@ This guide shows how to generate MEDS-formatted electronic health record data, f
 
 The Standard Model works with data in the [MEDS (Medical Event Data Standard)](https://github.com/Medical-Event-Data-Standard/meds) format, which represents patient data as timestamped clinical events. Each row contains a subject ID, timestamp, clinical code, table type, and optional value.
 
-Code below simulates realistic patient trajectories. It injects specific signal (cancer progression/toxicity) vs. noise (acute infection/recovery) to test the foundation model's ability to distinguish clinical phenotypes in the latent space.
+Don't forget to activate your virtual environment:
+
+```bash
+source standard_model/bin/activate
+```
+
+This Python code simulates realistic patient trajectories in MEDS format. It injects specific signal (cancer progression/toxicity) vs. noise (acute infection/recovery) to test the model's ability to distinguish clinical phenotypes.
 
 ```python
 import pandas as pd
