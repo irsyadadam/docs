@@ -1,31 +1,9 @@
 ---
-title: "Quickstart"
-description: "Get up and running with Standard Model in minutes"
+title: "Get Started"
 icon: "rocket"
 ---
 
-Get started with Standard Model Biomedicine's biological world model. This guide walks you through setting up your environment and downloading SMB-v1-Structure.
-
-<Info>
-
-**New:** This quickstart now features [SMB-v1-Structure](/models/standard-model-v1) — our flagship JEPA-based multimodal foundation model for oncology.
-
-</Info>
-
-## Prerequisites
-
-<Tip>
-
-GPU support is strongly recommended. SMB-v1-Structure (1.7B parameters) requires approximately 16GB GPU memory for inference.
-
-</Tip>
-
-Before you begin, ensure you have the following installed:
-
-- **Python 3.10+** — Required for running the models
-- **pip** — Python package manager
-- **CUDA** (recommended) — For GPU acceleration with NVIDIA GPUs
-- **Git** — For cloning repositories
+This guide walks you through setting up your environment, downloading [SMB-v1-Structure](/models/standard-model-v1) — our flagship JEPA-based multimodal foundation model for oncology — and applying the model on some data.
 
 ## One-Command Setup (Recommended)
 
@@ -43,72 +21,64 @@ This script will:
 4. Install SMB utilities (`smb-biopan-utils`)
 5. Download the Standard Model to your local machine
 
+## Prerequisites
+
+<Tip>
+  GPU support is strongly recommended. SMB-v1-Structure has 1.7B parameters and requires approximately 16GB GPU memory for inference.
+</Tip>
+
+First, install the following:
+
+- **Python 3.10+** — Required for running the models
+- **pip** — Python package manager
+- **CUDA** (recommended) — For GPU acceleration with NVIDIA GPUs
+- **Git** — For cloning repositories
+
+## 
+
 ## Manual Installation
 
 If you prefer to set up your environment manually:
 
 <Steps>
-
-<Step title="Create Virtual Environment">
-
-```bash
-python3 -m venv standard_model
-source standard_model/bin/activate
-```
-
-</Step>
-
-<Step title="Install PyTorch">
-
-<Tabs>
-
-<Tab title="CUDA 12.x">
-
-```bash
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
-```
-
-</Tab>
-
-<Tab title="CUDA 11.x">
-
-```bash
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-```
-
-</Tab>
-
-<Tab title="CPU Only">
-
-```bash
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-```
-
-</Tab>
-
-</Tabs>
-
-</Step>
-
-<Step title="Install Dependencies">
-
-```bash
-pip install transformers datasets accelerate huggingface_hub pandas
-pip install git+https://github.com/standardmodelbio/smb-biopan-utils.git
-```
-
-</Step>
-
-<Step title="Download SMB-v1-Structure">
-
-```python
-from huggingface_hub import snapshot_download
-
-snapshot_download("standardmodelbio/SMB-v1-1.7B-Structure")
-```
-
-</Step>
-
+  <Step title="Create Virtual Environment">
+    ```bash
+    python3 -m venv standard_model
+    source standard_model/bin/activate
+    ```
+  </Step>
+  <Step title="Install PyTorch">
+    <Tabs>
+      <Tab title="CUDA 12.x">
+        ```bash
+        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+        ```
+      </Tab>
+      <Tab title="CUDA 11.x">
+        ```bash
+        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+        ```
+      </Tab>
+      <Tab title="CPU Only">
+        ```bash
+        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+        ```
+      </Tab>
+    </Tabs>
+  </Step>
+  <Step title="Install Dependencies">
+    ```bash
+    pip install transformers datasets accelerate huggingface_hub pandas
+    pip install git+https://github.com/standardmodelbio/smb-biopan-utils.git
+    ```
+  </Step>
+  <Step title="Download SMB-v1-Structure">
+    ```python
+    from huggingface_hub import snapshot_download
+    
+    snapshot_download("standardmodelbio/SMB-v1-1.7B-Structure")
+    ```
+  </Step>
 </Steps>
 
 ## Environment Activation
@@ -145,11 +115,8 @@ print(f"Model parameters: {sum(p.numel() for p in model.parameters()):,}")
 ```
 
 <Warning>
-
-SMB-v1-Structure is a **world model**, not a text generator. It predicts patient states in latent space, not tokens. See the [Embeddings Guide](/guides/embeddings) for the full workflow.
-
+  SMB-v1-Structure is a **world model**, not a text generator. It predicts patient states in latent space, not tokens. See the [Embeddings Guide](/guides/embeddings) for the full workflow.
 </Warning>
-
 
 ## Download Other Models
 
@@ -163,11 +130,13 @@ from huggingface_hub import snapshot_download
 snapshot_download("standardmodelbio/smb-ehr-4b")
 ```
 
+
 ```python SMB-Vision-Base
 from huggingface_hub import snapshot_download
 
 snapshot_download("standardmodelbio/smb-vision-base")
 ```
+
 
 ```python SMB-Language-8B
 from huggingface_hub import snapshot_download
@@ -180,31 +149,18 @@ snapshot_download("standardmodelbio/model-model-smb-mntp-llama-3.1-8b-v1")
 ## Troubleshooting
 
 <CardGroup cols={2}>
-
-<Card title="CUDA Not Detected" icon="microchip">
-
-Ensure NVIDIA drivers are up to date. Run `nvidia-smi` to verify GPU is accessible.
-
-</Card>
-
-<Card title="Out of Memory" icon="memory">
-
-SMB-v1-Structure requires ~16GB GPU memory. Use `torch.float16` or quantization for smaller GPUs.
-
-</Card>
-
-<Card title="Model Access Denied" icon="lock">
-
-Some models may require authentication. Run `huggingface-cli login` with your token.
-
-</Card>
-
-<Card title="Slow Download" icon="gauge">
-
-Model downloads can be large (several GB). Ensure stable connection and sufficient disk space.
-
-</Card>
-
+  <Card title="CUDA Not Detected" icon="microchip">
+    Ensure NVIDIA drivers are up to date. Run `nvidia-smi` to verify GPU is accessible.
+  </Card>
+  <Card title="Out of Memory" icon="memory">
+    SMB-v1-Structure requires ~16GB GPU memory. Use `torch.float16` or quantization for smaller GPUs.
+  </Card>
+  <Card title="Model Access Denied" icon="lock">
+    Some models may require authentication. Run `huggingface-cli login` with your token.
+  </Card>
+  <Card title="Slow Download" icon="gauge">
+    Model downloads can be large (several GB). Ensure stable connection and sufficient disk space.
+  </Card>
 </CardGroup>
 
 ### Reducing Memory Usage
@@ -235,39 +191,26 @@ model = AutoModelForCausalLM.from_pretrained(
 
 ## Hardware Requirements
 
-| Model | Parameters | Min GPU Memory | Recommended |
-|-------|------------|----------------|-------------|
-| SMB-v1-Structure | 1.7B | 16 GB | 32 GB |
-| SMB-EHR-4B | 4B | 24 GB | 48 GB |
-| SMB-Vision-Base | 97.2M | 4 GB | 8 GB |
-| SMB-Language-8B | 8B | 32 GB | 80 GB |
+| Model            | Parameters | Min GPU Memory | Recommended |
+| ---------------- | ---------- | -------------- | ----------- |
+| SMB-v1-Structure | 1.7B       | 16 GB          | 32 GB       |
+| SMB-EHR-4B       | 4B         | 24 GB          | 48 GB       |
+| SMB-Vision-Base  | 97.2M      | 4 GB           | 8 GB        |
+| SMB-Language-8B  | 8B         | 32 GB          | 80 GB       |
 
 ## Next Steps
 
 <CardGroup cols={2}>
-
-<Card title="Embeddings" icon="code" href="/guides/embeddings">
-
-Extract patient embeddings with dummy data examples.
-
-</Card>
-
-<Card title="Linear Probing" icon="magnifying-glass" href="/guides/linear-probing">
-
-Train classifiers on embeddings for prediction tasks.
-
-</Card>
-
-<Card title="Models" icon="cube" href="/get-started/models">
-
-Explore the full model catalog and capabilities.
-
-</Card>
-
-<Card title="HuggingFace" icon="face-smile" href="https://huggingface.co/standardmodelbio">
-
-Browse all models on HuggingFace.
-
-</Card>
-
+  <Card title="Embeddings" icon="code" href="/guides/embeddings">
+    Extract patient embeddings with dummy data examples.
+  </Card>
+  <Card title="Linear Probing" icon="magnifying-glass" href="/guides/linear-probing">
+    Train classifiers on embeddings for prediction tasks.
+  </Card>
+  <Card title="Models" icon="cube" href="/get-started/models">
+    Explore the full model catalog and capabilities.
+  </Card>
+  <Card title="HuggingFace" icon="face-smile" href="https://huggingface.co/standardmodelbio">
+    Browse all models on HuggingFace.
+  </Card>
 </CardGroup>
