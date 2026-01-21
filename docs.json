@@ -43,11 +43,13 @@
           {
             "anchor": "Hugging Face",
             "icon": "face-smile",
+            "hidden": true,
             "href": "https://huggingface.co/standardmodelbio"
           },
           {
             "anchor": "GitHub",
             "icon": "github",
+            "hidden": true,
             "href": "https://github.com/standardmodelbio"
           }
         ]
