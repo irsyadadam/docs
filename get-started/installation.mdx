@@ -110,10 +110,6 @@ print("SMB-v1-Structure loaded successfully!")
 print(f"Model parameters: {sum(p.numel() for p in model.parameters()):,}")
 ```
 
-<Warning>
-  SMB-v1-Structure is a **world model**, not a text generator. It predicts patient states in latent space, not tokens. See the [Embeddings Guide](/guides/embeddings) for the full workflow.
-</Warning>
-
 
 ## Troubleshooting
 
@@ -158,7 +154,7 @@ model = AutoModelForCausalLM.from_pretrained(
 )
 ```
 
-<!--
+{/* 
 
 
 ## Hardware Requirements
@@ -173,18 +169,18 @@ model = AutoModelForCausalLM.from_pretrained(
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Embeddings" icon="code" href="/guides/embeddings">
-    Extract patient embeddings with dummy data examples.
-  </Card>
-  <Card title="Linear Probing" icon="magnifying-glass" href="/guides/linear-probing">
-    Train classifiers on embeddings for prediction tasks.
-  </Card>
-  <Card title="Models" icon="cube" href="/get-started/models">
-    Explore the full model catalog and capabilities.
-  </Card>
-  <Card title="HuggingFace" icon="face-smile" href="https://huggingface.co/standardmodelbio">
-    Browse all models on HuggingFace.
-  </Card>
+<Card title="Embeddings" icon="code" href="/guides/embeddings">
+  Extract patient embeddings with dummy data examples.
+</Card>
+<Card title="Linear Probing" icon="magnifying-glass" href="/guides/linear-probing">
+  Train classifiers on embeddings for prediction tasks.
+</Card>
+<Card title="Models" icon="cube" href="/get-started/models">
+  Explore the full model catalog and capabilities.
+</Card>
+<Card title="HuggingFace" icon="face-smile" href="https://huggingface.co/standardmodelbio">
+  Browse all models on HuggingFace.
+</Card>
 </CardGroup>
 
--->
+*/}
