@@ -22,7 +22,7 @@ This script will:
 ## Prerequisites
 
 <Warning>
-  GPU support is strongly recommended. SMB-v1-Structure has 1.7B parameters and requires approximately 16GB GPU memory for inference.
+  GPU support is strongly recommended. `SMB-v1-Structure` has 1.7B parameters and requires approximately 16GB GPU memory for inference.
 </Warning>
 
 First, install the following:
@@ -77,7 +77,6 @@ If you prefer to set up your environment manually:
   </Step>
 </Steps>
 
-
 After setup, activate your environment for usage:
 
 ```bash
@@ -107,7 +106,6 @@ print("SMB-v1-Structure loaded successfully!")
 print(f"Model parameters: {sum(p.numel() for p in model.parameters()):,}")
 ```
 
-
 ## Troubleshooting
 
 <CardGroup cols={2}>
@@ -115,7 +113,7 @@ print(f"Model parameters: {sum(p.numel() for p in model.parameters()):,}")
     Ensure NVIDIA drivers are up to date. Run `nvidia-smi` to verify GPU is accessible.
   </Card>
   <Card title="Out of Memory" icon="memory">
-    SMB-v1-Structure requires ~16GB GPU memory. Use `torch.float16` or quantization for smaller GPUs.
+    SMB-v1-Structure requires ~16GB GPU memory. Reduce memory use via `torch.float16` or quantization (see below).
   </Card>
   <Card title="Model Access Denied" icon="lock">
     Some models may require authentication. Run `huggingface-cli login` with your token.
@@ -167,16 +165,16 @@ model = AutoModelForCausalLM.from_pretrained(
 
 <CardGroup cols={2}>
 <Card title="Embeddings" icon="code" href="/guides/embeddings">
-  Extract patient embeddings with dummy data examples.
+Extract patient embeddings with dummy data examples.
 </Card>
 <Card title="Linear Probing" icon="magnifying-glass" href="/guides/linear-probing">
-  Train classifiers on embeddings for prediction tasks.
+Train classifiers on embeddings for prediction tasks.
 </Card>
 <Card title="Models" icon="cube" href="/get-started/models">
-  Explore the full model catalog and capabilities.
+Explore the full model catalog and capabilities.
 </Card>
 <Card title="HuggingFace" icon="face-smile" href="https://huggingface.co/standardmodelbio">
-  Browse all models on HuggingFace.
+Browse all models on HuggingFace.
 </Card>
 </CardGroup>
 
