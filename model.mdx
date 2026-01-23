@@ -1,0 +1,180 @@
+---
+title: "More about the Standard Model"
+icon: "brain-circuit"
+---
+
+`SMB-v1-Structure` is our flagship biological world model. Unlike traditional LLMs that predict tokens, it predicts **patient states** in latent space, modeling how patients evolve over time and respond to interventions.
+
+<Tip>
+  Read more about our modeling approach and benchmarks at our [blog](blog.standardmodel.bio).
+</Tip>
+
+## Key Differentiators
+
+<CardGroup cols={3}>
+  <Card title="State Prediction" icon="brain">
+    Predicts future patient states in latent space, not text tokens
+  </Card>
+  <Card title="Causal Learning" icon="arrows-split-up-and-left">
+    Learns cause-and-effect: (Pre-State + Intervention) → Post-State
+  </Card>
+  <Card title="Multimodal Fusion" icon="layer-group">
+    Unifies genomics, imaging, EHR, and proteomics
+  </Card>
+</CardGroup>
+
+## Environment Activation
+
+```bash
+source standard_model/bin/activate
+```
+
+## Usage
+
+```python
+from transformers import AutoModel, AutoTokenizer
+import torch
+
+# Load model
+model = AutoModel.from_pretrained("standardmodelbio/SMB-v1-1.7B-Structure")
+tokenizer = AutoTokenizer.from_pretrained("standardmodelbio/SMB-v1-1.7B-Structure")
+
+# Move to GPU
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model = model.to(device)
+model.eval()
+```
+
+## Architecture
+
+The Standard Model uses **Joint-Embedding Predictive Architecture (JEPA)** — treating the patient as a dynamic "world" and treatments as interventions that change that world.
+
+<Frame>
+  ![Standard Model Architecture](/images/standard-model-architecture.png)
+</Frame>
+
+### How It Works
+
+<Steps>
+  <Step title="Modality Ingestion">
+    Raw signals — genomics, proteomics, imaging, EHR data — pass through modality-specific encoders. Each encoder is trained to extract meaningful representations from its data type.
+  </Step>
+  <Step title="Fusion Layer">
+    A specialized projector maps these encodings into a universal latent space. This creates a "fused" patient state embedding that retains both high-level semantic context and low-level biological granularity.
+  </Step>
+  <Step title="State Prediction">
+    Given the current patient state _S(t)_ and an intervention _A(t)_, the model predicts the future state _S(t+1)_ in latent space — not as text, but as a dense embedding.
+  </Step>
+  <Step title="Hybrid Optimization">
+    The model combines supervised fine-tuning (anchoring to clinical outcomes) with JEPA objectives (learning dynamics), preventing training collapse.
+  </Step>
+</Steps>
+
+## Extracting Embeddings
+
+Get patient state embeddings for downstream tasks:
+
+```python
+from transformers import AutoModel, AutoTokenizer
+import torch
+
+model = AutoModel.from_pretrained("standardmodelbio/SMB-v1-1.7B-Structure")
+tokenizer = AutoTokenizer.from_pretrained("standardmodelbio/SMB-v1-1.7B-Structure")
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model = model.to(device)
+model.eval()
+
+# Prepare input
+inputs = tokenizer(
+    "patient clinical data here",
+    return_tensors="pt",
+    padding=True,
+    truncation=True
+).to(device)
+
+# Extract embeddings
+with torch.no_grad():
+    outputs = model(**inputs)
+    embeddings = outputs.last_hidden_state
+    
+    # Pool to get single patient embedding
+    patient_embedding = embeddings.mean(dim=1)  # [batch, hidden_dim]
+
+print(f"Embedding shape: {patient_embedding.shape}")
+```
+
+## Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Treatment Simulation" icon="flask-vial">
+    Simulate how a tumor would evolve under Treatment A versus Treatment B by conditioning on different interventions.
+  </Card>
+  <Card title="Trajectory Prediction" icon="chart-line">
+    Predict disease progression over 3, 6, or 12 month windows.
+  </Card>
+  <Card title="Digital Twins" icon="users">
+    Create evolving patient representations that update as new data arrives.
+  </Card>
+  <Card title="Response Prediction" icon="heart-pulse">
+    Model probability of response to specific therapies.
+  </Card>
+</CardGroup>
+
+## Memory Optimization
+
+`SMB-v1-Structure` requires 16GB GPU memory at full precision. Memory usage can be reduced in several ways:
+
+<Tabs>
+  <Tab title="Float16">
+    ```python
+    model = AutoModel.from_pretrained(
+        "standardmodelbio/SMB-v1-1.7B-Structure",
+        torch_dtype=torch.float16,
+        device_map="auto"
+    )
+    ```
+
+    **Memory:** ~8GB
+  </Tab>
+  <Tab title="8-bit Quantization">
+    ```python
+    # pip install bitsandbytes
+    model = AutoModel.from_pretrained(
+        "standardmodelbio/SMB-v1-1.7B-Structure",
+        load_in_8bit=True,
+        device_map="auto"
+    )
+    ```
+
+    **Memory:** ~4GB
+  </Tab>
+  <Tab title="4-bit Quantization">
+    ```python
+    # pip install bitsandbytes
+    from transformers import BitsAndBytesConfig
+    
+    quantization_config = BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_compute_dtype=torch.float16
+    )
+    
+    model = AutoModel.from_pretrained(
+        "standardmodelbio/SMB-v1-1.7B-Structure",
+        quantization_config=quantization_config,
+        device_map="auto"
+    )
+    ```
+
+    **Memory:** ~2GB
+  </Tab>
+</Tabs>
+
+## Hardware Requirements
+
+| Precision | GPU Memory | Recommended GPU |
+| --------- | ---------- | --------------- |
+| float32   | 16 GB      | A100, A6000     |
+| float16   | 8 GB       | RTX 4090, A10   |
+| 8-bit     | 4 GB       | RTX 3080, T4    |
+| 4-bit     | 2 GB       | RTX 3060        |
