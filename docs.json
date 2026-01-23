@@ -55,6 +55,7 @@
         ]
       },
       "pages": [
+        "index",
         "example",
         "your-own-data",
         "model"
