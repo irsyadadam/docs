@@ -8,7 +8,7 @@
       "height": 40,
       "href": "https://www.standardmodel.bio"
     },
-    "favicon": "/favicon.svg",
+    "favicon": "images/favicon.svg",
     "colors": {
       "primary": "#2B3E50",
       "light": "#FF6B6B",
@@ -22,7 +22,7 @@
     ],
     "topbarCtaButton": {
       "name": "Contact",
-      "url": "mailto:info@standardmodel.bio"
+      "url": "mailto:erik@standardmodel.bio"
     },
     "search": {
       "prompt": "Search documentation..."
@@ -33,11 +33,13 @@
           {
             "anchor": "Website",
             "icon": "globe",
+            "hidden": true,
             "href": "https://www.standardmodel.bio"
           },
           {
             "anchor": "Blog",
             "icon": "newspaper",
+            "hidden": true,
             "href": "https://blog.standardmodel.bio"
           },
           {
