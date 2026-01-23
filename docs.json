@@ -55,8 +55,9 @@
         ]
       },
       "pages": [
-        "install",
+        "index",
         "example",
+        "your-own-data",
         "model"
       ]
     },

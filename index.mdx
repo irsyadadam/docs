@@ -1,228 +1,200 @@
 ---
-title: "Standard Model Biomedicine"
+title: "Install the Standard Model"
+icon: "rocket"
+description: "This guide walks you through how to set up your environment, download our flagship JEPA-based multimodal foundation model, extract patient embeddings from dummy data, and train classifiers on embeddings."
 ---
 
-<img
-  src="/images/logo.png"
-  alt="Standard Model Bio"
-  className="block dark:hidden"
-  width="180"
-/>
+## Quickstart (Recommended)
 
-# Overview
+```bash
+curl -fsSL https://raw.githubusercontent.com/standardmodelbio/quickstart/main/quickstart.sh -o quickstart.sh && source quickstart.sh
+```
 
-Use our open foundation models to build the next generation of biomedical AI, spanning electronic health records to medical imaging to genomics.
+This script will:
 
----
+1. Create a Python 3.10 virtual environment named `standard_model`.
+2. Install PyTorch with CUDA support (if available).
+3. Install HuggingFace libraries (transformers, datasets, accelerate).
+4. Install `smb-biopan-utils`.
+5. Download the `SMB-v1-Structure` model to your machine.
 
-## Get Started
+## Prerequisites
 
-<Card title="Quickstart" icon="rocket" href="/get-started/quickstart">
+<Warning>
+  GPU support is strongly recommended. `SMB-v1-Structure` has 1.7B parameters and requires approximately 16GB GPU memory for inference.
+</Warning>
 
-**Set up your environment in minutes**
+First, install the following:
 
-Install dependencies, configure CUDA, and download your first model with our automated setup script or step-by-step guide.
+- **Python 3.10+** — Required for running the models
+- **pip** — Python package manager
+- **CUDA** (recommended) — For GPU acceleration with NVIDIA GPUs
+- **Git** — For cloning repositories
 
+## Manual Installation
 
-</Card>
+If you prefer to set up your environment manually:
 
-<CardGroup cols={3}>
+<Steps>
+  <Step title="Create Virtual Environment">
+    ```bash
+    python3 -m venv standard_model
+    source standard_model/bin/activate
+    ```
+  </Step>
+  <Step title="Install PyTorch">
+    <Tabs>
+      <Tab title="CUDA 12.x">
+        ```bash
+        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+        ```
+      </Tab>
+      <Tab title="CUDA 11.x">
+        ```bash
+        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+        ```
+      </Tab>
+      <Tab title="CPU Only">
+        ```bash
+        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+        ```
+      </Tab>
+    </Tabs>
+  </Step>
+  <Step title="Install Dependencies">
+    ```bash
+    pip install transformers datasets accelerate huggingface_hub pandas
+    pip install git+https://github.com/standardmodelbio/smb-biopan-utils.git
+    ```
+  </Step>
+  <Step title="Download SMB-v1-Structure">
+    ```python
+    from huggingface_hub import snapshot_download
+    
+    snapshot_download("standardmodelbio/SMB-v1-1.7B-Structure")
+    ```
+  </Step>
+</Steps>
 
-<Card title="Introduction" icon="book" href="/get-started/introduction">
+After setup, activate your environment for usage:
 
-Learn about our approach and architecture
+```bash
+source standard_model/bin/activate
+```
 
-</Card>
+Verify that everything is working correctly:
 
-<Card title="Models" icon="cube" href="/get-started/models">
+```python
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
-Explore the full model catalog
+# Check PyTorch and CUDA
+print(f"PyTorch version: {torch.__version__}")
+print(f"CUDA available: {torch.cuda.is_available()}")
 
-</Card>
+# Load SMB-v1-Structure
+model_id = "standardmodelbio/SMB-v1-1.7B-Structure"
+tokenizer = AutoTokenizer.from_pretrained(model_id)
+model = AutoModelForCausalLM.from_pretrained(
+    model_id,
+    trust_remote_code=True,
+    device_map="auto"
+)
 
-<Card title="Core Concepts" icon="lightbulb" href="/core-concepts/overview">
+print("SMB-v1-Structure loaded successfully!")
+print(f"Model parameters: {sum(p.numel() for p in model.parameters()):,}")
+```
 
-Understand JEPA and multimodal fusion
-
-</Card>
-
-</CardGroup>
-
----
-
-## Model Families
+## Troubleshooting
 
 <CardGroup cols={2}>
-
-<Card title="SMB-v1-Structure" icon="star" href="/models/standard-model-v1">
-
-**1.7B parameters** · Biological World Model
-
-Our flagship multimodal model that predicts patient trajectories using JEPA architecture. Integrates genomics, imaging, EHR, and proteomics.
-
-```
-standardmodelbio/SMB-v1-1.7B-Structure
-```
-
-</Card>
-
-<Card title="SMB-EHR" icon="file-medical" href="/models/smb-ehr">
-
-**4B parameters** · Electronic Health Records
-
-Foundation model for clinical event prediction and temporal reasoning over patient records.
-
-```
-standardmodelbio/smb-ehr-4b
-```
-
-</Card>
-
-<Card title="SMB-Vision" icon="eye" href="/models/smb-vision">
-
-**97M - 600M parameters** · Medical Imaging
-
-Vision encoders for radiology, pathology, and CT imaging tasks. Multiple sizes available.
-
-```
-standardmodelbio/smb-vision-base
-```
-
-</Card>
-
-<Card title="SMB-Language" icon="message" href="/models/smb-language">
-
-**8B parameters** · Clinical Text
-
-Biomedical language model for sentence similarity, semantic search, and text understanding.
-
-```
-standardmodelbio/model-model-smb-mntp-llama-3.1-8b-v1
-```
-
-</Card>
-
+  <Card title="CUDA Not Detected" icon="microchip">
+    Ensure NVIDIA drivers are up to date. Run `nvidia-smi` to verify GPU is accessible.
+  </Card>
+  <Card title="Out of Memory" icon="memory">
+    Reduce memory use via `torch.float16` or quantization (see below).
+  </Card>
+  <Card title="Model Access Denied" icon="lock">
+    Some models may require authentication. Run `huggingface-cli login` with your token.
+  </Card>
+  <Card title="Slow Download" icon="gauge">
+    Model downloads can be large (several GB). Ensure stable connection and sufficient disk space.
+  </Card>
 </CardGroup>
 
----
+### Memory optimization
 
-## All Available Models
+For large cohorts and/or limited GPU memory, use half-precision or quantization:
 
-| Model | Parameters | Type | Use Case |
-|-------|------------|------|----------|
-| [SMB-v1-1.7B-Structure](https://huggingface.co/standardmodelbio/SMB-v1-1.7B-Structure) | 1.7B | World Model | Patient trajectory prediction |
-| [smb-ehr-4b](https://huggingface.co/standardmodelbio/smb-ehr-4b) | 4B | EHR | Clinical event prediction |
-| [smb-vision-v0-risk](https://huggingface.co/standardmodelbio/smb-vision-v0-risk) | 0.6B | Vision | Risk assessment |
-| [smb-vision-v0-mim](https://huggingface.co/standardmodelbio/smb-vision-v0-mim) | 0.6B | Vision | Masked image modeling |
-| [smb-vision-large](https://huggingface.co/standardmodelbio/smb-vision-large) | 0.3B | Vision | General encoder |
-| [smb-vision-base](https://huggingface.co/standardmodelbio/smb-vision-base) | 97M | Vision | General encoder |
-| [smb-vision-ct-base-0519](https://huggingface.co/standardmodelbio/smb-vision-ct-base-0519) | 97M | Vision | CT-specific |
-| [smb-mntp-llama-3.1-8b-v1](https://huggingface.co/standardmodelbio/model-model-smb-mntp-llama-3.1-8b-v1) | 8B | Language | Sentence similarity |
+<Tabs>
+  <Tab title="Float16">
+    ```python
+    model = AutoModelForCausalLM.from_pretrained(
+        model_id,
+        trust_remote_code=True,
+        torch_dtype=torch.float16,
+        device_map="auto"
+    )
+    ```
 
----
+    **Memory:** ~8GB
 
-## Choose Your Model
+    ---
 
-<AccordionGroup>
+    # Next Steps
+  </Tab>
+  <Tab title="8-bit Quantization">
+    ```python
+    model = AutoModelForCausalLM.from_pretrained(
+        model_id,
+        trust_remote_code=True,
+        load_in_8bit=True,
+        device_map="auto"
+    )
+    ```
 
-<Accordion title="I want to predict patient outcomes over time" icon="chart-line">
+    **Memory:** ~4GB
+  </Tab>
+</Tabs>
 
-Use **Standard Model v1** — our JEPA-based world model that predicts how patients evolve given interventions.
+{/* 
 
-[View Standard Model v1 documentation →](/get-started/models#standard-model-v1)
-
-</Accordion>
-
-<Accordion title="I'm working with electronic health records" icon="file-medical">
-
-Use **SMB-EHR-4B** — trained on longitudinal clinical events for next-event prediction and temporal reasoning.
-
-[View SMB-EHR documentation →](/get-started/models#smb-ehr)
-
-</Accordion>
-
-<Accordion title="I need to analyze medical images" icon="image">
-
-Start with **SMB-Vision** models. Start with `smb-vision-base` for general tasks, or `smb-vision-ct-base-0519` for CT scans.
-
-[View SMB-Vision documentation →](/get-started/models#smb-vision)
-
-</Accordion>
-
-<Accordion title="I'm doing clinical text analysis" icon="file-lines">
-
-Use **SMB-Language-8B** for semantic search, sentence similarity, and clinical text embeddings.
-
-[View SMB-Language documentation →](/get-started/models#smb-language)
-
-</Accordion>
-
-</AccordionGroup>
-
----
 
 ## Hardware Requirements
 
-| Model Size | GPU Memory | Examples |
-|------------|------------|----------|
-| ~100M | 4-8 GB | smb-vision-base, smb-vision-ct-base |
-| ~300M-600M | 8-16 GB | smb-vision-large, smb-vision-v0-risk |
-| 1.7B | 16-32 GB | Standard Model v1 |
-| 4B | 24-48 GB | smb-ehr-4b |
-| 8B | 32-80 GB | smb-language |
-
-<Tip>
-
-See the [Quickstart guide](/get-started/quickstart#reducing-memory-usage) for tips on reducing memory with float16 and quantization.
-
-</Tip>
+| Model            | Parameters | Min GPU Memory | Recommended |
+| ---------------- | ---------- | -------------- | ----------- |
+| SMB-v1-Structure | 1.7B       | 16 GB          | 32 GB       |
+| SMB-EHR-4B       | 4B         | 24 GB          | 48 GB       |
+| SMB-Vision-Base  | 97.2M      | 4 GB           | 8 GB        |
+| SMB-Language-8B  | 8B         | 32 GB          | 80 GB       |
 
 ---
 
-## Resources
+## Next Steps
 
-<CardGroup cols={3}>
-
+<CardGroup cols={2}>
+<Card title="Embeddings" icon="code" href="/guides/embeddings">
+Extract patient embeddings with dummy data examples.
+</Card>
+<Card title="Linear Probing" icon="magnifying-glass" href="/guides/linear-probing">
+Train classifiers on embeddings for prediction tasks.
+</Card>
+<Card title="Models" icon="cube" href="/get-started/models">
+Explore the full model catalog and capabilities.
+</Card>
 <Card title="HuggingFace" icon="face-smile" href="https://huggingface.co/standardmodelbio">
-
-Download models
-
+Browse all models on HuggingFace.
 </Card>
-
-<Card title="GitHub" icon="github" href="https://github.com/standardmodelbio">
-
-Source code
-
-</Card>
-
-<Card title="Blog" icon="newspaper" href="https://blog.standardmodel.bio">
-
-Research updates
-
-</Card>
-
 </CardGroup>
 
----
+*/}
 
-## Connect
-
-<CardGroup cols={4}>
-
-<Card title="LinkedIn" icon="linkedin" href="https://www.linkedin.com/company/standardmodel-bio">
-
-</Card>
-
-<Card title="Twitter/X" icon="x-twitter" href="https://x.com/smbiomedicine">
-
-</Card>
-
-<Card title="Website" icon="globe" href="https://www.standardmodel.bio">
-
-</Card>
-
-<Card title="Contact" icon="envelope" href="mailto:info@standardmodel.bio">
-
-</Card>
-
-</CardGroup>
+<Columns cols={2}>
+  <Card title="Try a full example with synthetic data" icon="sparkles" href="https://docs.standardmodel.bio/example">
+    
+  </Card>
+  <Card title="Use the model on your own data" icon="sparkles" href="https://docs.standardmodel.bio/your-own-data">
+    
+  </Card>
+</Columns>
