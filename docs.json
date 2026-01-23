@@ -43,11 +43,13 @@
           {
             "anchor": "Hugging Face",
             "icon": "face-smile",
+            "hidden": true,
             "href": "https://huggingface.co/standardmodelbio"
           },
           {
             "anchor": "GitHub",
             "icon": "github",
+            "hidden": true,
             "href": "https://github.com/standardmodelbio"
           }
         ]
@@ -55,25 +57,7 @@
       "pages": [
         "install",
         "example",
-        "use-the-standard-model-on-your-data",
         "model"
-      "groups": [
-        {
-          "group": "Get Started",
-          "pages": [
-            "get-started/introduction",
-            "get-started/quickstart",
-            "get-started/models",
-            "guides/embeddings",
-            "guides/linear-probing"
-          ]
-        },
-        {
-          "group": "Model Families",
-          "pages": [
-            "models/standard-model-v1"
-          ]
-        }
       ]
     },
     "footer": {
