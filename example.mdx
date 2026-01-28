@@ -24,8 +24,13 @@ curl -fsSL https://raw.githubusercontent.com/standardmodelbio/quickstart/main/qu
 
 Run the script:
 
-```shellscript
-(standard_model) [user@vm ~]$ python quickstart-pipeline.py
+```bash
+python quickstart-pipeline.py
+```
+
+You should see something like the following output as the script runs successfully:
+
+```
 
 [1/4] Simulating patient data for N=200...
    -> Generated 1274 total clinical events (MEDS format).
@@ -59,3 +64,5 @@ generation_config.json: 100%|██████████████| 127/127
    -> Projecting embeddings to 10D PCA for stability...
    -> C-Index: 0.827
 ```
+
+/
