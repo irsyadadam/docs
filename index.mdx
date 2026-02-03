@@ -20,20 +20,24 @@ This script will:
 
 <Tip>After running the quickstart script, skip ahead to <a href="#verify-your-installation">Verify Your Installation</a> to confirm everything is working.</Tip>
 
-## Prerequisites
+## Manual Installation - Prerequisites
 
 <Warning>
   GPU support is strongly recommended. `SMB-v1-Structure` has 1.7B parameters and requires approximately 16GB GPU memory for inference.
 </Warning>
 
-First, install the following:
+The following are required to run the Standard Model:
 
 - **Python 3.10+** — Required for running the models
 - **pip** — Python package manager
+- **PyTorch** — Deep learning framework for model inference
+- **HuggingFace Ecosystem** (`transformers`, `datasets`, `accelerate`, `huggingface_hub`) — Model loading, data handling, and inference utilities
+- **pandas** — Data manipulation and analysis
+- **smb-biopan-utils** — Standard Model Bio utilities package
 - **CUDA** (recommended) — For GPU acceleration with NVIDIA GPUs
 - **Git** — For cloning repositories
 
-## Manual Installation
+## Manual Installation - Environment Setup
 
 If you prefer to set up your environment manually:
 
