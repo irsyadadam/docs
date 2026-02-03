@@ -71,5 +71,11 @@
     },
     "modeToggle": {
       "default": "light"
-    }
+    },
+    "redirects": [
+      {
+        "source": "/quickstart.sh",
+        "destination": "https://raw.githubusercontent.com/standardmodelbio/quickstart/main/quickstart.sh"
+      }
+    ]
   }
