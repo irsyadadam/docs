@@ -15,15 +15,15 @@ This script will:
 1. Create a Python 3.10 virtual environment named `standard_model`.
 2. Install PyTorch with CUDA support (if available).
 3. Install HuggingFace libraries (transformers, datasets, accelerate).
-4. Install `smb-biopan-utils`.
-5. Download the `SMB-v1-Structure` model to your machine.
+4. Install `smb_utils`.
+5. Download the `SMB-v1-1.7B` model to your machine.
 
 <Tip>After running the quickstart script, skip ahead to <a href="#verify-your-installation">Verify Your Installation</a> to confirm everything is working.</Tip>
 
 ## Manual Installation - Prerequisites
 
 <Warning>
-  GPU support is strongly recommended. `SMB-v1-Structure` has 1.7B parameters and requires approximately 16GB GPU memory for inference.
+  GPU support is strongly recommended. `SMB-v1-1.7B` has 1.7B parameters and requires approximately 16GB GPU memory for inference.
 </Warning>
 
 The following are required to run the Standard Model:
@@ -70,14 +70,14 @@ If you prefer to set up your environment manually:
   <Step title="Install Dependencies">
     ```bash
     pip install transformers datasets accelerate huggingface_hub pandas
-    pip install git+https://github.com/standardmodelbio/smb-biopan-utils.git
+    pip install git+https://github.com/standardmodelbio/smb-utils.git
     ```
   </Step>
-  <Step title="Download SMB-v1-Structure">
+  <Step title="Download SMB-v1-1.7B">
     ```python
     from huggingface_hub import snapshot_download
     
-    snapshot_download("standardmodelbio/SMB-v1-1.7B-Structure")
+    snapshot_download("standardmodelbio/SMB-v1-1.7B")
     ```
   </Step>
 </Steps>
@@ -100,8 +100,8 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 print(f"PyTorch version: {torch.__version__}")
 print(f"CUDA available: {torch.cuda.is_available()}")
 
-# Load SMB-v1-Structure
-model_id = "standardmodelbio/SMB-v1-1.7B-Structure"
+# Load SMB-v1-1.7B
+model_id = "standardmodelbio/SMB-v1-1.7B"
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 model = AutoModelForCausalLM.from_pretrained(
     model_id,
@@ -109,7 +109,7 @@ model = AutoModelForCausalLM.from_pretrained(
     device_map="auto"
 )
 
-print("SMB-v1-Structure loaded successfully!")
+print("SMB-v1-1.7B loaded successfully!")
 print(f"Model parameters: {sum(p.numel() for p in model.parameters()):,}")
 ```
 

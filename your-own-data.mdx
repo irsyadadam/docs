@@ -5,7 +5,7 @@ icon: "code-fork"
 
 This guide explains how to leverage the Standard Model on your own EHR data. The workflow consists of three stages:
 
-1. **Format data:** Convert [MEDS (Medical Event Data Standard)](https://github.com/Medical-Event-Data-Standard/meds) formatted EHR data into serial tokens using `smb-biopan-utils`.
+1. **Format data:** Convert [MEDS (Medical Event Data Standard)](https://github.com/Medical-Event-Data-Standard/meds) formatted EHR data into serial tokens using `smb_utils`.
 2. **Represent data as embeddings:** Ingest MEDS data into the Standard Model to produce high-dimensional patient-level embeddings that capture the full causal history.
 3. **Train clinical predictors:** Use embeddings to power downstream tasks including Readmission Risk, Disease Phenotyping, and Survival Analysis.
 
@@ -24,7 +24,7 @@ To apply the Standard Model, you must bridge the gap between your storage schema
 </Note>
 
 1. **Schema (MEDS):** You must first organize your data into MEDS format. This provides a strict logical structure (patient, time, code) for your ETL pipeline. The [MEDS repo](https://github.com/Medical-Event-Data-Standard/meds) has tools to help you do so.
-2. **The Modality (Text):** We provide `smb-biopan-utils` to deterministically convert your MEDS tables into a tokenizable XML-like stream to input to the model. This function handles date grouping, modality tagging (e.g., `<conditions>`), and causal masking.
+2. **The Modality (Text):** We provide `smb_utils` to deterministically convert your MEDS tables into a tokenizable XML-like stream to input to the model. This function handles date grouping, modality tagging (e.g., `<conditions>`), and causal masking.
 
 #### ETL Example
 
@@ -32,7 +32,7 @@ Use Pandas to restructure your raw data into this schema. We assume your data is
 
 ```python
 import pandas as pd
-from smb_biopan_utils import process_ehr_info
+from smb_utils import process_ehr_info
 
 # Load your cohort in MEDS format
 df = pd.read_parquet("internal_cohort_meds.parquet")

@@ -4,10 +4,10 @@ icon: "stethoscope"
 description: "This Python script generate MEDS-formatted electronic health record data, extracts embeddings using the Standard Model, trains a classifier, "
 ---
 
-We provide [`quickstart-pipeline.py`](https://raw.githubusercontent.com/standardmodelbio/quickstart/main/quickstart-pipeline.py) demonstrating an end-to-end workflow using the Standard Model to go from raw data to clinical insight. It performs three key steps:
+We provide [`demo.py`](https://raw.githubusercontent.com/standardmodelbio/quickstart/main/demo.py) demonstrating an end-to-end workflow using the Standard Model to go from raw data to clinical insight. It performs three key steps:
 
 1. **Simulate patient data:** Generate a synthetic [MEDS (Medical Event Data Standard)](https://github.com/Medical-Event-Data-Standard/meds) cohort with distinct clinical phenotypes (Lung Cancer vs. Pneumonia), including longitudinal codes, labs, and medications.
-2. **Represent data as embeddings:** Convert tabular MEDS data into a token stream using `smb-biopan-utils` and use the Standard Model on this input to produce high-dimensional patient-level embeddings that capture causal history.
+2. **Represent data as embeddings:** Convert tabular MEDS data into a token stream using `smb_utils` and use the Standard Model on this input to produce high-dimensional patient-level embeddings that capture causal history.
 3. **Train clinical predictors:** Use embeddings to power downstream tasks including Readmission Risk, Disease Phenotyping, and Survival Analysis.
 
 Don't forget to activate your virtual environment!
@@ -19,13 +19,13 @@ source standard_model/bin/activate
 Pull the script from GitHub:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/standardmodelbio/quickstart/main/quickstart-pipeline.py -o quickstart-pipeline.py
+curl -fsSL https://raw.githubusercontent.com/standardmodelbio/quickstart/main/demo.py -o demo.py
 ```
 
 Run the script:
 
 ```bash
-python quickstart-pipeline.py
+python demo.py
 ```
 
 You should see something like the following output as the script runs successfully:
