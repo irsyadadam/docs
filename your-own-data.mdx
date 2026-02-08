@@ -9,11 +9,7 @@ This guide explains how to leverage the Standard Model on your own EHR data. The
 2. **Represent data as embeddings:** Ingest MEDS data into the Standard Model to produce high-dimensional patient-level embeddings that capture the full causal history.
 3. **Train clinical predictors:** Use embeddings to power downstream tasks including Readmission Risk, Disease Phenotyping, and Survival Analysis.
 
-Don't forget to activate your virtual environment!
-
-```bash
-source standard_model/bin/activate
-```
+Make sure you've completed the [quickstart](/) setup. All commands below should be run from the `quickstart/` directory using `uv run`.
 
 # Format data
 
@@ -140,7 +136,7 @@ print(f"-> ROC-AUC: {auc:.3f}")
 
 # --- Task B: Multiclass Classification (e.g., Disease Staging) ---
 print("\n--- Task B: Multiclass Phenotyping ---")
-clf_multi = LogisticRegression(multi_class="multinomial", max_iter=1000)
+clf_multi = LogisticRegression(max_iter=1000)
 clf_multi.fit(X_train, y_train["phenotype_class"])
 
 y_pred_class = clf_multi.predict(X_test)

@@ -12,105 +12,73 @@ bash -c "$(curl -fsSL https://docs.standardmodel.bio/quickstart.sh)"
 
 This script will:
 
-1. Create a Python 3.10 virtual environment named `standard_model`.
-2. Install PyTorch with CUDA support (if available).
-3. Install HuggingFace libraries (transformers, datasets, accelerate).
-4. Install `smb_utils`.
-5. Download the `SMB-v1-1.7B` model to your machine.
+1. Clone the [quickstart repo](https://github.com/standardmodelbio/quickstart) with `demo.py` and all dependencies.
+2. Install [uv](https://docs.astral.sh/uv/) if not already present.
+3. Run `uv sync` to install the exact locked dependency set (PyTorch, transformers, `smb_utils`, etc.).
+
+Once complete, run the demo:
+
+```bash
+cd quickstart
+uv run python demo.py
+```
 
 <Tip>After running the quickstart script, skip ahead to <a href="#verify-your-installation">Verify Your Installation</a> to confirm everything is working.</Tip>
 
-## Manual Installation - Prerequisites
+<Note>
+This quickstart uses [uv](https://docs.astral.sh/uv/) for dependency management. If you prefer a different tool (conda, pip, etc.), refer to `pyproject.toml` in the quickstart repo for the list of dependencies.
+</Note>
+
+## Manual Installation
 
 <Warning>
   GPU support is strongly recommended. `SMB-v1-1.7B` has 1.7B parameters and requires approximately 16GB GPU memory for inference.
 </Warning>
 
-The following are required to run the Standard Model:
-
-- **Python 3.10+** — Required for running the models
-- **pip** — Python package manager
-- **PyTorch** — Deep learning framework for model inference
-- **HuggingFace Ecosystem** (`transformers`, `datasets`, `accelerate`, `huggingface_hub`) — Model loading, data handling, and inference utilities
-- **pandas** — Data manipulation and analysis
-- **smb-biopan-utils** — Standard Model Bio utilities package
-- **CUDA** (recommended) — For GPU acceleration with NVIDIA GPUs
-- **Git** — For cloning repositories
-
-## Manual Installation - Environment Setup
-
-If you prefer to set up your environment manually:
+**Requirements:** Python 3.11+, Git, and [uv](https://docs.astral.sh/uv/).
 
 <Steps>
-  <Step title="Create Virtual Environment">
+  <Step title="Install uv">
     ```bash
-    python3 -m venv standard_model
-    source standard_model/bin/activate
+    curl -LsSf https://astral.sh/uv/install.sh | sh
     ```
   </Step>
-  <Step title="Install PyTorch">
-    <Tabs>
-      <Tab title="CUDA 12.x">
-        ```bash
-        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
-        ```
-      </Tab>
-      <Tab title="CUDA 11.x">
-        ```bash
-        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-        ```
-      </Tab>
-      <Tab title="CPU Only">
-        ```bash
-        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-        ```
-      </Tab>
-    </Tabs>
-  </Step>
-  <Step title="Install Dependencies">
+  <Step title="Clone and install">
     ```bash
-    pip install transformers datasets accelerate huggingface_hub pandas
-    pip install git+https://github.com/standardmodelbio/smb-utils.git
-    ```
-  </Step>
-  <Step title="Download SMB-v1-1.7B">
-    ```python
-    from huggingface_hub import snapshot_download
-    
-    snapshot_download("standardmodelbio/SMB-v1-1.7B")
+    git clone https://github.com/standardmodelbio/quickstart.git
+    cd quickstart
+    uv sync
     ```
   </Step>
 </Steps>
 
+All dependencies (PyTorch, transformers, `smb_utils`, etc.) are installed from the lockfile, ensuring a reproducible environment.
+
 ## Verify Your Installation
 
-After setup, activate your environment for usage:
+From the `quickstart/` directory, verify that everything is working:
 
 ```bash
-source standard_model/bin/activate
-```
-
-Verify that everything is working correctly:
-
-```python
+uv run python -c "
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 # Check PyTorch and CUDA
-print(f"PyTorch version: {torch.__version__}")
-print(f"CUDA available: {torch.cuda.is_available()}")
+print(f'PyTorch version: {torch.__version__}')
+print(f'CUDA available: {torch.cuda.is_available()}')
 
 # Load SMB-v1-1.7B
-model_id = "standardmodelbio/SMB-v1-1.7B"
+model_id = 'standardmodelbio/SMB-v1-1.7B'
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 model = AutoModelForCausalLM.from_pretrained(
     model_id,
     trust_remote_code=True,
-    device_map="auto"
+    device_map='auto'
 )
 
-print("SMB-v1-1.7B loaded successfully!")
-print(f"Model parameters: {sum(p.numel() for p in model.parameters()):,}")
+print('SMB-v1-1.7B loaded successfully!')
+print(f'Model parameters: {sum(p.numel() for p in model.parameters()):,}')
+"
 ```
 
 ## Troubleshooting
