@@ -77,7 +77,6 @@ model = AutoModelForCausalLM.from_pretrained(
 )
 
 print('smb-v1-1.7b loaded successfully!')
-print(f'Model parameters: {sum(p.numel() for p in model.parameters()):,}')
 "
 ```
 
