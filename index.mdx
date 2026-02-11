@@ -32,7 +32,7 @@ This quickstart uses [uv](https://docs.astral.sh/uv/) for dependency management.
 ## Manual Installation
 
 <Warning>
-  GPU support is strongly recommended. `SMB-v1-1.7B` has 1.7B parameters and requires approximately 16GB GPU memory for inference.
+  GPU support is strongly recommended. `smb-v1-1.7b` has 1.7B parameters and requires approximately 16GB GPU memory for inference.
 </Warning>
 
 **Requirements:** Python 3.11+, Git, and [uv](https://docs.astral.sh/uv/).
@@ -67,8 +67,8 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 print(f'PyTorch version: {torch.__version__}')
 print(f'CUDA available: {torch.cuda.is_available()}')
 
-# Load SMB-v1-1.7B
-model_id = 'standardmodelbio/SMB-v1-1.7B'
+# Load smb-v1-1.7b
+model_id = 'standardmodelbio/smb-v1-1.7b'
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 model = AutoModelForCausalLM.from_pretrained(
     model_id,
@@ -76,7 +76,7 @@ model = AutoModelForCausalLM.from_pretrained(
     device_map='auto'
 )
 
-print('SMB-v1-1.7B loaded successfully!')
+print('smb-v1-1.7b loaded successfully!')
 print(f'Model parameters: {sum(p.numel() for p in model.parameters()):,}')
 "
 ```
@@ -140,10 +140,10 @@ For large cohorts and/or limited GPU memory, use half-precision or quantization:
 
 | Model            | Parameters | Min GPU Memory | Recommended |
 | ---------------- | ---------- | -------------- | ----------- |
-| SMB-v1-Structure | 1.7B       | 16 GB          | 32 GB       |
-| SMB-EHR-4B       | 4B         | 24 GB          | 48 GB       |
-| SMB-Vision-Base  | 97.2M      | 4 GB           | 8 GB        |
-| SMB-Language-8B  | 8B         | 32 GB          | 80 GB       |
+| smb-v1-1.7b      | 1.7B       | 16 GB          | 32 GB       |
+| smb-ehr-4b       | 4B         | 24 GB          | 48 GB       |
+| smb-vision-base  | 97.2M      | 4 GB           | 8 GB        |
+| smb-language-8b  | 8B         | 32 GB          | 80 GB       |
 
 ---
 

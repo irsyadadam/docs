@@ -3,7 +3,7 @@ title: "More about the Standard Model"
 icon: "brain-circuit"
 ---
 
-`SMB-v1-Structure` is our flagship biological world model. Unlike traditional LLMs that predict tokens, it predicts **patient states** in latent space, modeling how patients evolve over time and respond to interventions.
+`smb-v1-1.7b` is our flagship biological world model. Unlike traditional LLMs that predict tokens, it predicts **patient states** in latent space, modeling how patients evolve over time and respond to interventions.
 
 <Tip>
   Read more about our modeling approach and benchmarks at our [blog](blog.standardmodel.bio).
@@ -36,8 +36,8 @@ from transformers import AutoModel, AutoTokenizer
 import torch
 
 # Load model
-model = AutoModel.from_pretrained("standardmodelbio/SMB-v1-1.7B-Structure")
-tokenizer = AutoTokenizer.from_pretrained("standardmodelbio/SMB-v1-1.7B-Structure")
+model = AutoModel.from_pretrained("standardmodelbio/smb-v1-1.7b")
+tokenizer = AutoTokenizer.from_pretrained("standardmodelbio/smb-v1-1.7b")
 
 # Move to GPU
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -78,8 +78,8 @@ Get patient state embeddings for downstream tasks:
 from transformers import AutoModel, AutoTokenizer
 import torch
 
-model = AutoModel.from_pretrained("standardmodelbio/SMB-v1-1.7B-Structure")
-tokenizer = AutoTokenizer.from_pretrained("standardmodelbio/SMB-v1-1.7B-Structure")
+model = AutoModel.from_pretrained("standardmodelbio/smb-v1-1.7b")
+tokenizer = AutoTokenizer.from_pretrained("standardmodelbio/smb-v1-1.7b")
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model = model.to(device)
@@ -123,13 +123,13 @@ print(f"Embedding shape: {patient_embedding.shape}")
 
 ## Memory Optimization
 
-`SMB-v1-Structure` requires 16GB GPU memory at full precision. Memory usage can be reduced in several ways:
+`smb-v1-1.7b` requires 16GB GPU memory at full precision. Memory usage can be reduced in several ways:
 
 <Tabs>
   <Tab title="Float16">
     ```python
     model = AutoModel.from_pretrained(
-        "standardmodelbio/SMB-v1-1.7B-Structure",
+        "standardmodelbio/smb-v1-1.7b",
         torch_dtype=torch.float16,
         device_map="auto"
     )
@@ -141,7 +141,7 @@ print(f"Embedding shape: {patient_embedding.shape}")
     ```python
     # pip install bitsandbytes
     model = AutoModel.from_pretrained(
-        "standardmodelbio/SMB-v1-1.7B-Structure",
+        "standardmodelbio/smb-v1-1.7b",
         load_in_8bit=True,
         device_map="auto"
     )
@@ -160,7 +160,7 @@ print(f"Embedding shape: {patient_embedding.shape}")
     )
     
     model = AutoModel.from_pretrained(
-        "standardmodelbio/SMB-v1-1.7B-Structure",
+        "standardmodelbio/smb-v1-1.7b",
         quantization_config=quantization_config,
         device_map="auto"
     )
