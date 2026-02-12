@@ -16,17 +16,15 @@ This script will:
 2. Install [uv](https://docs.astral.sh/uv/) if not already present.
 3. Run `uv sync` to install the exact locked dependency set (PyTorch, transformers, `smb_utils`, etc.).
 
-Once complete, run the demo:
+<Tip>
+  After running the quickstart script, skip ahead to <a href="#verify-your-installation">
+   Verify Your Installation</a>
 
-```bash
-cd quickstart
-uv run python demo.py
-```
-
-<Tip>After running the quickstart script, skip ahead to <a href="#verify-your-installation">Verify Your Installation</a> to confirm everything is working.</Tip>
+  to confirm everything is working.
+</Tip>
 
 <Note>
-This quickstart uses [uv](https://docs.astral.sh/uv/) for dependency management. If you prefer a different tool (conda, pip, etc.), refer to `pyproject.toml` in the [quickstart repo](https://github.com/standardmodelbio/quickstart for the list of dependencies.
+  This quickstart uses [uv](https://docs.astral.sh/uv/) for dependency management. If you prefer a different tool (conda, pip, etc.), refer to `pyproject.toml` in the [quickstart repo](https://github.com/standardmodelbio/quickstart) for the list of dependencies.
 </Note>
 
 ## Manual Installation
@@ -44,6 +42,13 @@ This quickstart uses [uv](https://docs.astral.sh/uv/) for dependency management.
     ```
   </Step>
   <Step title="Clone and install">
+    Once complete, run the demo:
+
+    ```bash
+    cd quickstart
+    uv run python demo.py
+    ```
+
     ```bash
     git clone https://github.com/standardmodelbio/quickstart.git
     cd quickstart
@@ -80,19 +85,23 @@ print('smb-v1-1.7b loaded successfully!')
 "
 ```
 
+## Next Steps
+
+Once complete, you can [run a demo](https://docs.standardmodel.bio/example) for an end-to end example, or [try the model on your data](https://docs.standardmodel.bio/your-own-data). 
+
 ## Troubleshooting
 
 <CardGroup cols={2}>
-  <Card title="CUDA Not Detected" icon="microchip">
+  <Card icon="microchip" title="CUDA Not Detected">
     Ensure NVIDIA drivers are up to date. Run `nvidia-smi` to verify GPU is accessible.
   </Card>
-  <Card title="Out of Memory" icon="memory">
+  <Card icon="memory" title="Out of Memory">
     Reduce memory use via `torch.float16` or quantization (see below).
   </Card>
-  <Card title="Model Access Denied" icon="lock">
+  <Card icon="lock" title="Model Access Denied">
     Some models may require authentication. Run `huggingface-cli login` with your token.
   </Card>
-  <Card title="Slow Download" icon="gauge">
+  <Card icon="gauge" title="Slow Download">
     Model downloads can be large (several GB). Ensure stable connection and sufficient disk space.
   </Card>
 </CardGroup>
@@ -166,10 +175,10 @@ Browse all models on HuggingFace.
 */}
 
 <Columns cols={2}>
-  <Card title="Try a full example with synthetic data" icon="sparkles" href="https://docs.standardmodel.bio/example">
+  <Card icon="sparkles" href="https://docs.standardmodel.bio/example" title="Try a full example with synthetic data">
     
   </Card>
-  <Card title="Use the model on your own data" icon="sparkles" href="https://docs.standardmodel.bio/your-own-data">
+  <Card icon="sparkles" href="https://docs.standardmodel.bio/your-own-data" title="Use the model on your own data">
     
   </Card>
 </Columns>
