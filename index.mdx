@@ -17,78 +17,77 @@ This script will:
 3. Run `uv sync` to install the exact locked dependency set (PyTorch, transformers, `smb_utils`, etc.).
 
 <Tip>
-  After running the quickstart script, skip ahead to  [Verify Your Installation](#verify-your-installation) to confirm everything is working.
+  GPU support is strongly recommended. `smb-v1-1.7b` has 1.7B parameters and requires approximately 16GB GPU memory for inference.
 </Tip>
 
-<Note>
-  This quickstart uses [uv](https://docs.astral.sh/uv/) for dependency management. If you prefer a different tool (conda, pip, etc.), refer to `pyproject.toml` in the [quickstart repo](https://github.com/standardmodelbio/quickstart) for the list of dependencies.
-</Note>
+<Accordion title="Manual Installation">
+  **Requirements:** Python 3.11+, Git, and [uv](https://docs.astral.sh/uv/).
 
-## Manual Installation
+  <Note>
+    The quickstart uses [uv](https://docs.astral.sh/uv/) for dependency management. If you prefer a different tool (conda, pip, etc.), refer to `pyproject.toml` in the [quickstart repo](https://github.com/standardmodelbio/quickstart) for the list of dependencies.
+  </Note>
+  <Steps>
+    <Step title="Install uv">
+      ```bash
+      curl -LsSf https://astral.sh/uv/install.sh | sh
+      ```
+    </Step>
+    <Step title="Clone and install">
+      Once complete, run the demo:
 
-<Warning>
-  GPU support is strongly recommended. `smb-v1-1.7b` has 1.7B parameters and requires approximately 16GB GPU memory for inference.
-</Warning>
+      ```bash
+      cd quickstart
+      uv run python demo.py
+      ```
 
-**Requirements:** Python 3.11+, Git, and [uv](https://docs.astral.sh/uv/).
+      ```bash
+      git clone https://github.com/standardmodelbio/quickstart.git
+      cd quickstart
+      uv sync
+      ```
+    </Step>
+  </Steps>
+  All dependencies (PyTorch, transformers, `smb_utils`, etc.) are installed from the lockfile, ensuring a reproducible environment.
 
-<Steps>
-  <Step title="Install uv">
-    ```bash
-    curl -LsSf https://astral.sh/uv/install.sh | sh
-    ```
-  </Step>
-  <Step title="Clone and install">
-    Once complete, run the demo:
+  ### Verify Your Installation
 
-    ```bash
-    cd quickstart
-    uv run python demo.py
-    ```
+  From the `quickstart/` directory, verify that everything is working:
 
-    ```bash
-    git clone https://github.com/standardmodelbio/quickstart.git
-    cd quickstart
-    uv sync
-    ```
-  </Step>
-</Steps>
-
-All dependencies (PyTorch, transformers, `smb_utils`, etc.) are installed from the lockfile, ensuring a reproducible environment.
-
-## Verify Your Installation
-
-From the `quickstart/` directory, verify that everything is working:
-
-```bash
-cd quickstart/
-
-uv run python -c "
-import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
-
-# Check PyTorch and CUDA
-print(f'PyTorch version: {torch.__version__}')
-print(f'CUDA available: {torch.cuda.is_available()}')
-
-# Load smb-v1-1.7b
-model_id = 'standardmodelbio/smb-v1-1.7b'
-tokenizer = AutoTokenizer.from_pretrained(model_id)
-model = AutoModelForCausalLM.from_pretrained(
-    model_id,
-    trust_remote_code=True,
-    device_map='auto'
-)
-
-print('smb-v1-1.7b loaded successfully!')
-"
-```
+  ```bash
+  uv run python -c "
+  import torch
+  from transformers import AutoModelForCausalLM, AutoTokenizer
+  
+  # Check PyTorch and CUDA
+  print(f'PyTorch version: {torch.__version__}')
+  print(f'CUDA available: {torch.cuda.is_available()}')
+  
+  # Load smb-v1-1.7b
+  model_id = 'standardmodelbio/smb-v1-1.7b'
+  tokenizer = AutoTokenizer.from_pretrained(model_id)
+  model = AutoModelForCausalLM.from_pretrained(
+      model_id,
+      trust_remote_code=True,
+      device_map='auto'
+  )
+  
+  print('smb-v1-1.7b loaded successfully!')
+  "
+  ```
+</Accordion>
 
 ## Next Steps
 
-Once complete, you can [run a demo](https://docs.standardmodel.bio/example) for an end-to end example, or [try the model on your data](https://docs.standardmodel.bio/your-own-data).
+<Columns cols={2}>
+  <Card icon="sparkles" href="https://docs.standardmodel.bio/example" title="Try a full example with synthetic data">
+    
+  </Card>
+  <Card icon="sparkles" href="https://docs.standardmodel.bio/your-own-data" title="Use the model on your own data">
+    
+  </Card>
+</Columns>
 
-## Troubleshooting
+### Troubleshooting
 
 <CardGroup cols={2}>
   <Card icon="microchip" title="CUDA Not Detected">
@@ -121,10 +120,6 @@ For large cohorts and/or limited GPU memory, use half-precision or quantization:
     ```
 
     **Memory:** ~8GB
-
-    ---
-
-    # Next Steps
   </Tab>
   <Tab title="8-bit Quantization">
     ```python
@@ -168,11 +163,6 @@ Browse all models on HuggingFace.
 
 */}
 
-<Columns cols={2}>
-  <Card icon="sparkles" href="https://docs.standardmodel.bio/example" title="Try a full example with synthetic data">
-    
-  </Card>
-  <Card icon="sparkles" href="https://docs.standardmodel.bio/your-own-data" title="Use the model on your own data">
-    
-  </Card>
-</Columns>
+### Contact Us
+
+Still having trouble, or just want to talk about your project? Send an email to [danielle@standardmodel.bio](mailto:danielle@standardmodel.bio)
