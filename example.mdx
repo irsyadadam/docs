@@ -1,55 +1,125 @@
 ---
 title: "End-to-end example"
 icon: "stethoscope"
-description: "This Python script generates MEDS-formatted electronic health record data, extracts embeddings using the Standard Model, and trains classifiers."
+description: "This demo illustrates the data formats, core functions, and results involved in using the smb-v1-1.7b model. The Python script loads and reshapes MIMIC-IV demo data in MEDS format, extracts patient-representative embeddings using the Standard Model, and trains 4 example classifiers on those embeddings to predict clinical outcomes."
 ---
 
-We provide [`demo.py`](https://github.com/standardmodelbio/quickstart/blob/main/demo.py) demonstrating an end-to-end workflow using the Standard Model to go from raw data to clinical insight. It performs three key steps:
+Two parquet files are used in the demo:
 
-1. **Simulate patient data:** Generate a synthetic [MEDS (Medical Event Data Standard)](https://github.com/Medical-Event-Data-Standard/meds) cohort with distinct clinical phenotypes (Lung Cancer vs. Pneumonia), including longitudinal codes, labs, and medications.
-2. **Represent data as embeddings:** Convert tabular MEDS data into a token stream using `smb_utils` and use the Standard Model on this input to produce high-dimensional patient-level embeddings that capture causal history.
-3. **Train clinical predictors:** Use embeddings to power downstream tasks including Readmission Risk, Disease Phenotyping, and Survival Analysis.
+1. an **events** table in [MEDS (Medical Event Data Standard)](https://github.com/Medical-Event-Data-Standard/meds) format (one row per clinical event) used to create embeddings, and
+2. a **labels** table (one row per patient with task targets) used to record the clinical outcomes for the classifiers.
 
-If you ran the [quickstart](/), you already have `demo.py` in your `quickstart/` directory. Run it with:
+This example contains a brief preview of each data file included in the demo, focused on the columns the model and classifiers use. We then give a description of how the demo script deploys the model to extract embeddings and provide clinical outcome predictions.
+
+<Info>
+  This example uses the [MIMIC-IV Clinical Database Demo](https://physionet.org/content/mimic-iv-demo-meds/) (a reduced, publicly available subset for teaching and development—not the full MIMIC-IV database) in MEDS format.
+</Info>
+
+## 1. Events data (MEDS event stream)
+
+The events file is a long table of timestamped clinical events (e.g. diagnoses, medications, labs). Although the [MIMIC-IV Clinical Database Demo](https://physionet.org/content/mimic-iv-demo-meds/) parquet file contains other columns,  [`prep_mimic_demo_data.py`](https://github.com/standardmodelbio/quickstart/blob/main/scripts/prep_mimic_demo_data.py) reshapes it to focus only those listed below for this demo. The final demo parquet file contains ~916k rows for 100 subjects.
+
+**Events Data Preview (example rows):**
+
+| subject_id | time                | code          | table      | value |
+| ---------- | ------------------- | ------------- | ---------- | ----- |
+| 10000032   | 2022-01-15 08:00:00 | ICD10:I10     | condition  | —     |
+| 10000032   | 2022-01-15 09:30:00 | LOINC:2093-3  | lab        | 145.2 |
+| 10001217   | 2022-02-01 14:00:00 | RxNorm:861004 | medication | —     |
+
+**Columns used:**
+
+- **subject_id** — Patient identifier; links events table to the labels table by patient.
+- **time** — When the event occurred (used for ordering events and censoring them from the model).
+- **code** — Clinical code (e.g. `ICD10:`, `RxNorm:`, `LOINC:`); the primary categorical descriptor of the measurement (e.g., the performed laboratory test or recorded diagnosis).
+- **table** — Modality of the row's event data: `condition`, `medication`, `lab`, or `procedure` (used by the model’s text serialization).
+- **value** — Optional numeric value (e.g. lab result); may be null.
+
+<Info>
+  Note that the **table** column is derived from the **code** column in this demo, using [`prep_mimic_demo_data.py`](https://github.com/standardmodelbio/quickstart/blob/main/scripts/prep_mimic_demo_data.py). \
+  \
+  More information about these and other columns in the MEDS format schemas can be found [here](https://github.com/Medical-Event-Data-Standard/meds?tab=readme-ov-file#the-dataschema-schema).
+</Info>
+
+## 2. Labels data (one row per subject)
+
+The labels file contains columns recording the clinical outcomes for the four demo tasks we will predict, per subject. This will be used for training the classifiers and evaluating test prediction metrics.
+
+<Info>
+  Labels in this demo are **artificially generated** (see [data/README.md](https://github.com/standardmodelbio/quickstart/blob/main/data/README.md) for methodology); they are not directly derived from events data and are for demonstration purposes only.
+</Info>
+
+**Preview (example rows):**
+
+| subject_id | prediction_time     | readmission_risk | phenotype_class | overall_survival_months | event_observed |
+| ---------- | ------------------- | ---------------- | --------------- | ----------------------- | -------------- |
+| 10000032   | 2022-06-15 12:00:00 | 0                | 0               | 68.1                    | 1              |
+| 10001217   | 2022-06-15 12:00:00 | 0                | 2               | 45.8                    | 1              |
+| 10002428   | 2022-06-15 12:00:00 | 1                | 1               | 35.5                    | 1              |
+
+**Columns used:**
+
+- **subject_id** — Must match the events table; one row per patient.
+- **prediction_time** — As-of time for the prediction (inclusive endpoint of data used). The model uses this time as the cutoff when considering events to build embeddings; the value is the same for all rows in this example.
+- **readmission_risk** — Binary (0/1) for Task A, a classifier to predict subject readmission to the hospital.
+- **phenotype_class** — Integer 0–3 for Task B, a phenotype classifier to predict cancer staging progression.
+- **overall_survival_months** — Numeric; used for Task C, a regression model to predict months survival for subjects who died, and Task D, a Cox survival prediction.
+- **event_observed** — 1 if the outcome of death was observed; used in Task D.
+
+---
+
+## Running the Demo
+
+Running`demo.py` loads both pre-configured data files from the [quickstart repo](https://github.com/standardmodelbio/quickstart) (main branch) into memory, then:
+
+1. **Events → Embeddings:** For each patient, it serializes that patient’s events (using `subject_id`, `time`, `code`, `table`, `value`from the events data) into a token stream with `smb_utils` up to `prediction_time` from the labels file. The script then runs the Standard Model, and takes the last-token hidden state as the **patient embedding**.
+2. **Embeddings + Labels → Predictive Task Performance Metrics:** After extracting embeddings, `demo.py` trains four separate task heads designed to predict A) binary hospital readmission, B) multiclass classification of cancer staging, C) continuous survival regression in months, and D) Cox survival. Each predictive output layer is trained on an 80/20 train/test split of the embeddings and labels. ROC-AUC, accuracy, mean absolute error, and C-index are provided for each of these tasks, respectively.
+
+If you ran the [quickstart](/) model installation, you can run the demo with:
 
 ```bash
 cd quickstart
 uv run python demo.py
 ```
 
-You should see something like the following output as the script runs successfully:
+You should see something like the following output:
 
 ```
-
-[1/4] Simulating patient data for N=200...
-   -> Generated 1274 total clinical events (MEDS format).
-   -> Class Balance: 144 Cancer / 56 Pneumonia.
+[1/4] Loading MIMIC-IV demo data from GitHub...
+   -> main  (data/README.md, PhysioNet ODbL)
+   -> Loaded 916166 events, 100 subjects.
 
 [2/4] Loading Standard Model (smb-v1-1.7b)...
 model.safetensors: 100%|█████████████████| 3.66G/3.66G [00:12<00:00, 287MB/s]
 generation_config.json: 100%|██████████████| 127/127 [00:00<00:00, 939kB/s]
 
-[3/4] Generating embeddings for 200 patients...
+[3/4] Generating embeddings for 100 patients...
    -> Strategy: Causal Inference (Last Token Pooling)
-   -> Processed 50/200 patients...
-   -> Processed 100/200 patients...
-   -> Processed 150/200 patients...
-   -> Processed 200/200 patients...
+   -> Processed 50/100 patients...
+   -> Processed 100/100 patients...
    -> Inference complete.
 
 [4/4] Training Clinical Task Heads...
-   -> Split: 160 Train / 40 Test examples.
+   -> Split: 80 Train / 20 Test examples.
 
    --- Task A: Binary Classification (Readmission Risk) ---
-   -> ROC-AUC: 1.000
+   -> ROC-AUC: 0.xxx
 
    --- Task B: Multiclass Classification (Phenotype Stage) ---
-   -> Accuracy: 1.000
+   -> Accuracy: 0.xxx
 
    --- Task C: Regression (Overall Survival Time) ---
-   -> MAE: 4.02 months
+   -> MAE: x.xx months
 
    --- Task D: Survival Analysis (Cox Proportional Hazards) ---
    -> Projecting embeddings to 10D PCA for stability...
-   -> C-Index: 0.827
+   -> C-Index: 0.xxx
 ```
+
+<Info>
+  **Attribution:** Events are from the MIMIC-IV Clinical Database Demo converted to MEDS ([van de Water et al. (2025). MIMIC-IV demo data in the Medical Event Data Standard (MEDS) (version 0.0.1). PhysioNet. RRID:SCR_007345.](https://doi.org/10.13026/t2y8-ea41))
+
+  Licensed under the [Open Database License (ODbL)](https://opendatacommons.org/licenses/odbl/1.0/). Redistribution must be under ODbL (share-alike); do not apply technical measures that restrict reuse. 
+
+  Predictive task labels are artificially generated.
+</Info>
