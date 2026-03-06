@@ -29,11 +29,13 @@ The events file is a long table of timestamped clinical events (e.g. diagnoses, 
 
 **Columns used:**
 
-- **subject_id** — Patient identifier; links events table to the labels table by patient.
-- **time** — When the event occurred (used for ordering events and censoring them from the model).
-- **code** — Clinical code (e.g. `ICD10:`, `RxNorm:`, `LOINC:`); the primary categorical descriptor of the measurement (e.g., the performed laboratory test or recorded diagnosis).
-- **table** — Modality of the row's event data: `condition`, `medication`, `lab`, or `procedure` (used by the model’s text serialization).
-- **value** — Optional numeric value (e.g. lab result); may be null.
+| Column       | Description                                                                                                                                                            |
+| :----------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `subject_id` | Patient identifier; links events table to the labels table by patient.                                                                                                 |
+| `time`       | When the event occurred (used for ordering events and censoring them from the model).                                                                                  |
+| `code`       | Clinical code (e.g. `ICD10:`, `RxNorm:`, `LOINC:`); the primary categorical descriptor of the measurement (e.g., the performed laboratory test or recorded diagnosis). |
+| `table`      | Modality of the row's event data: `condition`, `medication`, `lab`, or `procedure` (used by the model’s text serialization).                                           |
+| `value`      | Optional numeric value (e.g. lab result); may be null.                                                                                                                 |
 
 <Info>
   Note that the **table** column is derived from the **code** column in this demo, using [`prep_mimic_demo_data.py`](https://github.com/standardmodelbio/quickstart/blob/main/scripts/prep_mimic_demo_data.py). \
@@ -84,7 +86,7 @@ uv run python demo.py
 
 You should see something like the following output:
 
-```
+```text
 [1/4] Loading MIMIC-IV demo data from GitHub...
    -> main  (data/README.md, PhysioNet ODbL)
    -> Loaded 916166 events, 100 subjects.
@@ -119,7 +121,7 @@ generation_config.json: 100%|██████████████| 127/127
 <Info>
   **Attribution:** Events are from the MIMIC-IV Clinical Database Demo converted to MEDS ([van de Water et al. (2025). MIMIC-IV demo data in the Medical Event Data Standard (MEDS) (version 0.0.1). PhysioNet. RRID:SCR_007345.](https://doi.org/10.13026/t2y8-ea41))
 
-  Licensed under the [Open Database License (ODbL)](https://opendatacommons.org/licenses/odbl/1.0/). Redistribution must be under ODbL (share-alike); do not apply technical measures that restrict reuse. 
+  Licensed under the [Open Database License (ODbL)](https://opendatacommons.org/licenses/odbl/1.0/). Redistribution must be under ODbL (share-alike); do not apply technical measures that restrict reuse.
 
   Predictive task labels are artificially generated.
 </Info>
