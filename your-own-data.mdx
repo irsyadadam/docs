@@ -5,25 +5,13 @@ icon: "code-fork"
 
 This guide explains how to leverage the Standard Model on your own EHR data. The workflow consists of three stages:
 
-1. **Format data:** Organize your data into the required [MEDS (Medical Event Data Standard)](https://github.com/Medical-Event-Data-Standard/meds) format, then convert these **events** into serial tokens using `smb_utils`. You will also need a **labels** table corresponding to your data, including the ground truth for your task targets.
-2. **Represent data as embeddings:** Ingest MEDS events tokens into the Standard Model to produce high-dimensional patient-level embeddings.
-3. **Train clinical predictors:** Use embeddings plus labels to train task heads (readmission, phenotyping, survival).
+1. **Format data:** Organize your data into the required [MEDS](https://github.com/Medical-Event-Data-Standard/meds) format to record medical **events** and a **labels** table which includes the ground truth for your task targets. Convert these into serial tokens using `smb_utils`.
+2. **Represent data as embeddings:** Ingest MEDS **events** tokens into the Standard Model to produce high-dimensional patient-level embeddings.
+3. **Train clinical predictors:** Use embeddings plus **labels** to train task heads (e.g., readmission, phenotyping, survival).
 
 <Check>
   Make sure you've completed the [quickstart](/) setup. Commands below assume `quickstart/` as the working directory and use `uv run`.
 </Check>
-
-# Input data format
-
-**1. Events table (MEDS event stream)** — One row per clinical event. Required columns:
-
-| Column       | Description                                                 |
-| ------------ | ----------------------------------------------------------- |
-| `subject_id` | Patient identifier; must align with labels.                 |
-| `time`       | When the event occurred (used for ordering and censoring).  |
-| `code`       | Clinical code (e.g. `ICD10:`, `RxNorm:`, `LOINC:`).         |
-| `table`      | Modality: `condition`, `medication`, `lab`, or `procedure`. |
-| `value`      | Optional numeric value (e.g. lab result); may be null.      |
 
 **2. Labels table (one row per patient)** — Required if you want to train the task heads below. One row per `subject_id`, with columns:
 
@@ -38,11 +26,19 @@ This guide explains how to leverage the Standard Model on your own EHR data. The
 
 # Format and tokenize data
 
-To apply the Standard Model, you must first have an **events** table in [MEDS (Medical Event Data Standard)](https://github.com/Medical-Event-Data-Standard/meds) format (one row per clinical event). A collection of ETLs from comon data formats, including OMOP, MIMIC-IV, and MEDS Unsorted can be found [here](https://github.com/Medical-Event-Data-Standard/meds_etl). 
+To apply the Standard Model, you must first have an **events** table in [MEDS (Medical Event Data Standard)](https://github.com/Medical-Event-Data-Standard/meds) format (one row per clinical event). A collection of ETLs from common data formats, including OMOP, MIMIC-IV, and MEDS Unsorted can be found [here](https://github.com/Medical-Event-Data-Standard/meds_etl).
 
 <Tip>
-  The [end-to-end example](/example) further describes the exact input data format.
+  The [end-to-end example](/example) further describes the input data format.
 </Tip>
+
+**Events data example rows:**
+
+| subject_id | time                | code          | table      | value |
+| :--------- | :------------------ | :------------ | :--------- | :---- |
+| 10000032   | 2022-01-15 08:00:00 | ICD10:I10     | condition  | —     |
+| 10000032   | 2022-01-15 09:30:00 | LOINC:2093-3  | lab        | 145.2 |
+| 10001217   | 2022-02-01 14:00:00 | RxNorm:861004 | medication | —     |
 
 into a token stream. The [MEDS repo](https://github.com/Medical-Event-Data-Standard/meds) has tools to help you produce the required schema. We provide `smb_utils.process_ehr_info` to convert that table into a tokenizable XML-like stream (date grouping, modality tags like `<conditions>`, causal masking).
 

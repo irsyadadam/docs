@@ -61,12 +61,14 @@ The labels file contains columns recording the clinical outcomes for the four de
 
 **Columns used:**
 
-- **subject_id** — Must match the events table; one row per patient.
-- **prediction_time** — As-of time for the prediction (inclusive endpoint of data used). The model uses this time as the cutoff when considering events to build embeddings; the value is the same for all rows in this example.
-- **readmission_risk** — Binary (0/1) for Task A, a classifier to predict subject readmission to the hospital.
-- **phenotype_class** — Integer 0–3 for Task B, a phenotype classifier to predict cancer staging progression.
-- **overall_survival_months** — Numeric; used for Task C, a regression model to predict months survival for subjects who died, and Task D, a Cox survival prediction.
-- **event_observed** — 1 if the outcome of death was observed; used in Task D.
+| Column                    | Description                                                                                                                                          |
+| :------------------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `subject_id`              | Must match the events table order; one row per patient.                                                                                              |
+| `prediction_time`         | As-of time for the prediction (inclusive endpoint of data used). The model uses this time as the cutoff when considering events to build embeddings. |
+| `readmission_risk`        | Binary (0/1) for Task A, a classifier to predict subject readmission to the hospital.                                                                |
+| `phenotype_class`         | Integer (e.g. 0–3) for Task B, a phenotype classifier to predict cancer staging progression.                                                         |
+| `overall_survival_months` | Numeric; for Task C, a regression model to predict months survival for subjects who died, and Task D, a Cox survival prediction.                     |
+| `event_observed`          | 1 if the outcome of death was observed; used in Task D.                                                                                              |
 
 ---
 
