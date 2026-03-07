@@ -17,9 +17,9 @@ This guide explains how to leverage the Standard Model on your own EHR data. The
 
 To apply the Standard Model, you must first have an **events** table in [MEDS (Medical Event Data Standard)](https://github.com/Medical-Event-Data-Standard/meds) format (one row per clinical event). A collection of ETLs from common data formats, including OMOP, MIMIC-IV, and MEDS Unsorted can be found [here](https://github.com/Medical-Event-Data-Standard/meds_etl).
 
-<Tip>
+<Info>
   The [end-to-end example](/example) further describes the input data format.
-</Tip>
+</Info>
 
 **Events data example rows:**
 
@@ -84,17 +84,11 @@ print(input_text)
 # </medications>
 ```
 
-into a token stream. The [MEDS repo](https://github.com/Medical-Event-Data-Standard/meds) has tools to help you produce the required schema. We provide `smb_utils.process_ehr_info` to convert that table into a tokenizable XML-like stream (date grouping, modality tags like `<conditions>`, causal masking).
-
-<Note>
-  The Standard Model was built to operate on multiple modalities. For simplicity, this tutorial focuses on EHR text data. A more advanced multi-modal tutorial is forthcoming.
-</Note>
-
 Labels must be aligned to the same patients and order as your embedding matrix (e.g. same `subject_id` order as the events you passed to the model). When extracting embeddings, pass `end_time=labels["prediction_time"].iloc[0]` (or your chosen row) so the model only sees data up to that time.
 
 #### ETL example
 
-Assume your events are saved as `internal_cohort_meds.parquet` with the columns above. Load and verify, then serialize one patient:
+Assume your events are saved as `internal_cohort_meds.parquet` with the schema above. Load and verify, then serialize one patient:
 
 ```python
 import pandas as pd
@@ -122,6 +116,10 @@ print(input_text)
 # RxNorm:583214
 # </medications>
 ```
+
+<Note>
+  The Standard Model was built to operate on multiple modalities. For simplicity, this tutorial focuses on EHR text data. A more advanced multi-modal tutorial is forthcoming.
+</Note>
 
 # **Represent data as embeddings**
 
