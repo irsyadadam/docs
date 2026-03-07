@@ -5,24 +5,13 @@ icon: "code-fork"
 
 This guide explains how to leverage the Standard Model on your own EHR data. The workflow consists of three stages:
 
-1. **Format data:** Organize your data into the required [MEDS](https://github.com/Medical-Event-Data-Standard/meds) format to record medical **events** and a **labels** table which includes the ground truth for your task targets. Convert these into serial tokens using `smb_utils`.
+1. **Format data and tokenize data:** Organize your data into the required [MEDS](https://github.com/Medical-Event-Data-Standard/meds) format to record medical **events** and a **labels** table which includes the ground truth for your task targets. Convert these into serial tokens using `smb_utils`.
 2. **Represent data as embeddings:** Ingest MEDS **events** tokens into the Standard Model to produce high-dimensional patient-level embeddings.
 3. **Train clinical predictors:** Use embeddings plus **labels** to train task heads (e.g., readmission, phenotyping, survival).
 
 <Check>
   Make sure you've completed the [quickstart](/) setup. Commands below assume `quickstart/` as the working directory and use `uv run`.
 </Check>
-
-**2. Labels table (one row per patient)** — Required if you want to train the task heads below. One row per `subject_id`, with columns:
-
-| Column                    | Description                                                                                                                                                                                                                            |
-| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `subject_id`              | Must match the events table; one row per patient.                                                                                                                                                                                      |
-| `prediction_time`         | As-of time for the prediction (inclusive endpoint of data used). The demo uses this as the cutoff when building embeddings (MEDS-style: labels file is the source of truth). Use the same value for all rows for a single cohort time. |
-| `readmission_risk`        | Binary (0/1) for Task A.                                                                                                                                                                                                               |
-| `phenotype_class`         | Integer (e.g. 0–3) for Task B.                                                                                                                                                                                                         |
-| `overall_survival_months` | Numeric; for Task C and Task D.                                                                                                                                                                                                        |
-| `event_observed`          | 1 if outcome observed (for survival); for Task D.                                                                                                                                                                                      |
 
 # Format and tokenize data
 
@@ -39,6 +28,61 @@ To apply the Standard Model, you must first have an **events** table in [MEDS (M
 | 10000032   | 2022-01-15 08:00:00 | ICD10:I10     | condition  | —     |
 | 10000032   | 2022-01-15 09:30:00 | LOINC:2093-3  | lab        | 145.2 |
 | 10001217   | 2022-02-01 14:00:00 | RxNorm:861004 | medication | —     |
+
+You should also have a **labels** table with one row per subject, in the same order as your **events** table. Columns set the ground truth for prediction tasks, and are used for performance evaluation.
+
+The model tokenizer uses `prediction_time` in the **labels** table as the cutoff when considering events to build embeddings. Think of this date as the "as-of" time for the prediction, or the inclusive endpoint of data the model can use to generate embeddings. Pass `end_time=labels["prediction_time"].iloc[0]` (or your chosen row) so the model only sees data up to that time.
+
+**Labels data example rows:**
+
+| subject_id | prediction_time     | readmission_risk | phenotype_class | overall_survival_months | event_observed |
+| :--------- | :------------------ | :--------------- | :-------------- | :---------------------- | :------------- |
+| 10000032   | 2022-04-12 12:00:00 | 0                | 0               | 68.1                    | 1              |
+| 10001217   | 2022-06-15 08:00:00 | 0                | 2               | 45.8                    | 1              |
+| 10002428   | 2022-02-14 13:30:00 | 1                | 1               | 35.5                    | 1              |
+
+We provide `smb_utils.process_ehr_info` to convert the MEDS **events** table into a tokenizable XML-like stream (e.g., [timestamp]: \<conditions\>\</conditions\>, \<measurements\>\</measurements\>).
+
+Time in our setting is measured in days. All events recorded at the same timestamp will be grouped by the event type/category with the XML-style tag, in chronological order. The timestamp is an explicit token in the string as well (see `input_text` in the example below).
+
+<Info>
+  Note that smb-v1-1.7B only supports a context length of 3k, yet many patient histories exceed this constraint.
+
+  As a temporary solution to efficiently manage context, our [smb-utils](https://github.com/standardmodelbio/smb-utils) package offers functionality to 1) filter events data by modality (i.e., code or table columns), 2) organize events into time bins with the most recent events from an anchor date, or 3) flexibly define custom event categories.
+
+  Supporting longer context length is always a to-do on our list and we are almost ready to roll out something better pretty soon!
+</Info>
+
+#### ETL example
+
+Assume your events are saved as `internal_cohort_meds.parquet` with the scchema above. Load and verify, then serialize one patient:
+
+```python
+import pandas as pd
+from smb_utils import process_ehr_info
+
+# Load events (MEDS format: subject_id, time, code, table, value)
+df = pd.read_parquet("internal_cohort_meds.parquet")
+assert {"subject_id", "time", "code", "table", "value"}.issubset(df.columns)
+
+# Example: Serialize a single patient history
+# 'end_time' enforces causal masking (the model cannot see future data)
+input_text = process_ehr_info(
+    df,
+    subject_id="patient_5521",
+    end_time=pd.Timestamp("2024-01-01")
+)
+
+print(input_text)
+# Output:
+# [2023-11-15]
+# <conditions>
+# ICD10:C34.90
+# </conditions>
+# <medications>
+# RxNorm:583214
+# </medications>
+```
 
 into a token stream. The [MEDS repo](https://github.com/Medical-Event-Data-Standard/meds) has tools to help you produce the required schema. We provide `smb_utils.process_ehr_info` to convert that table into a tokenizable XML-like stream (date grouping, modality tags like `<conditions>`, causal masking).
 
