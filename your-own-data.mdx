@@ -92,7 +92,7 @@ Labels must be aligned to the same patients and order as your embedding matrix (
 
 # **Represent data as embeddings**
 
-We now provide example code for `get_embeddings`, a function to load the model, serialize MEDS data into text, tokenize the text stream, and perform inference through the model for a full dataframe of patients. 
+We now provide example code for `get_embeddings`, a function to load the model, serialize MEDS data into text, tokenize the text stream, and perform inference through the model for a full dataframe of patients.
 
 <Info>
   We use **Last Token Pooling** to extract the final hidden state, which represents the patient's entire causal trajectory up to the `end_time`(inclusive).
@@ -142,7 +142,7 @@ end_time = labels_df["prediction_time"].iloc[0]
 X = get_embeddings(df, pids, end_time)
 ```
 
-The output `X` is a list of embeddings (1-dimensional PyTorch tensors) that represent the patients in `df`. This list is in the same patient order as your MEDS data and labels table. 
+The output `X` is a list of embeddings (1-dimensional PyTorch tensors) that represent the patients in `df`. This list is in the same patient order as your MEDS data and labels table.
 
 # Train clinical predictors
 
@@ -154,12 +154,6 @@ We can now use the embeddings (`X`) and the **labels** table to train multiple t
 | B    | `phenotype_class`                         | Multi-class classifier to predict cancer stage                    |
 | C    | `overall_survival_months`                 | Regression model to predict months survival for subjects who died |
 | D    | `overall_survival_months; event_observed` | Cox proportional hazard between a fictional variable and death    |
-
-| `readmission_risk`        | Binary (0/1) for Task A, a classifier to predict subject readmission to the hospital.                                            |
-| :------------------------ | :------------------------------------------------------------------------------------------------------------------------------- |
-| `phenotype_class`         | Integer (e.g. 0–3) for Task B, a phenotype classifier to predict cancer staging progression.                                     |
-| `overall_survival_months` | Numeric; for Task C, a regression model to predict months survival for subjects who died, and Task D, a Cox survival prediction. |
-| `event_observed`          | 1 if the outcome of death was observed; used in Task D.                                                                          |
 
 Use the column names: `readmission_risk`, `phenotype_class`, `overall_survival_months`, `event_observed`.
 
