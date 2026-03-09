@@ -146,7 +146,7 @@ The output `X` is a list of embeddings (1-dimensional PyTorch tensors) that repr
 
 # Train clinical predictors
 
-We can now use the embeddings (`X`) and the **labels** table to train multiple types of task heads to predict clinical outcomes. After importing the necessary packages and splitting our data into training and test sets, we complete Task A: a binary classifier to predict subject readmission to the hospital, as recorded in the `readmission_risk` column. ROC-AUC is given as the evaluation metric for task A. 
+We can now use the embeddings (`X`) and the **labels** table to train multiple types of task heads to predict clinical outcomes. After importing the necessary packages and splitting our data into training and test sets, we complete Task A: a binary classifier to predict subject readmission to the hospital, as recorded in the `readmission_risk` column. ROC-AUC is given as the evaluation metric for task A.
 
 | Task | Data Column(s)                            | Description                                                       | |
 | ---- | ----------------------------------------- | ----------------------------------------------------------------- | --- |
@@ -195,17 +195,21 @@ y_pred_class = clf_multi.predict(X_test)
 acc = accuracy_score(labels_test["phenotype_class"], y_pred_class)
 print(f"-\> Accuracy: {acc:.3f}"
 ```
-Task C uses 
+
+Task C uses the continuous variable in `overall_survival_months` to train a regression model and predict months survival for subjects who died. Mean absolute error is reported for Task C.
+
 ```python
-# --- Task C: Regression (Survival months) ---\
-print("\\n--- Task C: Regression ---")\
-reg = Ridge(alpha=1.0)\
-reg.fit(X_train, labels_train["overall_survival_months"])\
-y_pred_reg = reg.predict(X_test)\
-mae = mean_absolute_error(labels_test["overall_survival_months"], y_pred_reg)\
-print(f"-\> MAE: {mae:.2f}")\
-\
-\
+# --- Task C: Regression (Survival months) ---
+print("\\n--- Task C: Regression ---")
+reg = Ridge(alpha=1.0)
+reg.fit(X_train, labels_train["overall_survival_months"])
+y_pred_reg = reg.predict(X_test)
+mae = mean_absolute_error(labels_test["overall_survival_months"], y_pred_reg)
+print(f"-\> MAE: {mae:.2f}")
+```
+Finally, task D predicts the Cox proportional hazard between arbitrary groups of patients for risk of death, using the `overall_survival_months` and `event_observed` columns. The concordance index is reported as the evaluation metric.
+
+```python
 # --- Task D: Survival (Cox PH) ---\
 print("\\n--- Task D: Survival Analysis ---")\
 pca = PCA(n_components=10)\
