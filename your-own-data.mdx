@@ -5,7 +5,7 @@ icon: "code-fork"
 
 This guide explains how to leverage the Standard Model on your own EHR data. The workflow consists of three stages:
 
-1. **Format data:** Organize your data into the required [MEDS](https://github.com/Medical-Event-Data-Standard/meds) format to record medical **events** and a **labels** table which includes the ground truth for your task targets. Convert these into serial tokens using `smb_utils`.
+1. **Format data and tokenize data:** Organize your data into the required [MEDS](https://github.com/Medical-Event-Data-Standard/meds) format to record medical **events** and a **labels** table which includes the ground truth for your task targets. Convert these into serial tokens using `smb_utils`.
 2. **Represent data as embeddings:** Ingest MEDS **events** tokens into the Standard Model to produce high-dimensional patient-level embeddings.
 3. **Train clinical predictors:** Use embeddings plus **labels** to train task heads (e.g., readmission, phenotyping, survival).
 
@@ -13,24 +13,13 @@ This guide explains how to leverage the Standard Model on your own EHR data. The
   Make sure you've completed the [quickstart](/) setup. Commands below assume `quickstart/` as the working directory and use `uv run`.
 </Check>
 
-**2. Labels table (one row per patient)** — Required if you want to train the task heads below. One row per `subject_id`, with columns:
-
-| Column                    | Description                                                                                                                                                                                                                            |
-| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `subject_id`              | Must match the events table; one row per patient.                                                                                                                                                                                      |
-| `prediction_time`         | As-of time for the prediction (inclusive endpoint of data used). The demo uses this as the cutoff when building embeddings (MEDS-style: labels file is the source of truth). Use the same value for all rows for a single cohort time. |
-| `readmission_risk`        | Binary (0/1) for Task A.                                                                                                                                                                                                               |
-| `phenotype_class`         | Integer (e.g. 0–3) for Task B.                                                                                                                                                                                                         |
-| `overall_survival_months` | Numeric; for Task C and Task D.                                                                                                                                                                                                        |
-| `event_observed`          | 1 if outcome observed (for survival); for Task D.                                                                                                                                                                                      |
-
 # Format and tokenize data
 
 To apply the Standard Model, you must first have an **events** table in [MEDS (Medical Event Data Standard)](https://github.com/Medical-Event-Data-Standard/meds) format (one row per clinical event). A collection of ETLs from common data formats, including OMOP, MIMIC-IV, and MEDS Unsorted can be found [here](https://github.com/Medical-Event-Data-Standard/meds_etl).
 
-<Tip>
+<Info>
   The [end-to-end example](/example) further describes the input data format.
-</Tip>
+</Info>
 
 **Events data example rows:**
 
@@ -40,17 +29,37 @@ To apply the Standard Model, you must first have an **events** table in [MEDS (M
 | 10000032   | 2022-01-15 09:30:00 | LOINC:2093-3  | lab        | 145.2 |
 | 10001217   | 2022-02-01 14:00:00 | RxNorm:861004 | medication | —     |
 
-into a token stream. The [MEDS repo](https://github.com/Medical-Event-Data-Standard/meds) has tools to help you produce the required schema. We provide `smb_utils.process_ehr_info` to convert that table into a tokenizable XML-like stream (date grouping, modality tags like `<conditions>`, causal masking).
+You should also have a **labels** table with one row per subject, in the same order as your **events** table. Columns set the ground truth for prediction tasks, and are used for performance evaluation.
 
-<Note>
-  The Standard Model was built to operate on multiple modalities. For simplicity, this tutorial focuses on EHR text data. A more advanced multi-modal tutorial is forthcoming.
-</Note>
+The model tokenizer uses `prediction_time` in the **labels** table as the cutoff when considering events to build embeddings. Think of this date as the "as-of" time for the prediction, or the inclusive endpoint of data the model can use to generate embeddings. Pass `end_time=labels["prediction_time"].iloc[0]` (or your chosen row) so the model only sees data up to that time.
 
-Labels must be aligned to the same patients and order as your embedding matrix (e.g. same `subject_id` order as the events you passed to the model). When extracting embeddings, pass `end_time=labels["prediction_time"].iloc[0]` (or your chosen row) so the model only sees data up to that time.
+**Labels data example rows:**
+
+| subject_id | prediction_time     | readmission_risk | phenotype_class | overall_survival_months | event_observed |
+| :--------- | :------------------ | :--------------- | :-------------- | :---------------------- | :------------- |
+| 10000032   | 2022-04-12 12:00:00 | 0                | 0               | 68.1                    | 1              |
+| 10001217   | 2022-06-15 08:00:00 | 0                | 2               | 45.8                    | 1              |
+| 10002428   | 2022-02-14 13:30:00 | 1                | 1               | 35.5                    | 1              |
+
+We provide `smb_utils.process_ehr_info` to convert the MEDS **events** table into a tokenizable XML-like stream (e.g., [timestamp]: \<conditions\>\</conditions\>, \<measurements\>\</measurements\>).
+
+Time in our setting is measured in days. All events recorded at the same timestamp will be grouped by the event type/category with the XML-style tag, in chronological order. The timestamp is an explicit token in the string as well (see `input_text` in the example below).
+
+<Warning>
+  Note that smb-v1-1.7B only supports a max token length of 4096, yet many patient histories exceed this constraint.
+
+  As a temporary solution to efficiently manage context, our [smb-utils](https://github.com/standardmodelbio/smb-utils) package offers functionality to solve this via multiple strategies:
+
+  1. filter events data by modality (i.e., code or table columns),
+  2. organize events into time bins with the most recent events from an anchor date, or
+  3. flexibly define custom event categories.
+
+  Supporting longer context length is always a to-do on our list and we are almost ready to roll out something better pretty soon!
+</Warning>
 
 #### ETL example
 
-Assume your events are saved as `internal_cohort_meds.parquet` with the columns above. Load and verify, then serialize one patient:
+Assume your events are saved as `internal_cohort_meds.parquet` with the scchema above. Load and verify, then serialize one patient:
 
 ```python
 import pandas as pd
@@ -79,9 +88,19 @@ print(input_text)
 # </medications>
 ```
 
+Labels must be aligned to the same patients and order as your embedding matrix (e.g. same `subject_id` order as the events you passed to the model). When extracting embeddings, you will pass `end_time=labels["prediction_time"].iloc[0]` (or the text in your chosen row, as above) so the model only "sees" data up to that time (inclusive).
+
+<Note>
+  The Standard Model was built to operate on multiple modalities. For simplicity, this tutorial focuses on EHR text data. A more advanced multi-modal tutorial is forthcoming.
+</Note>
+
 # **Represent data as embeddings**
 
-Pass the serialized text through the model. We use **Last Token Pooling** to extract the final hidden state, which represents the patient's entire causal trajectory up to the `end_time`.
+We now provide example code for `get_embeddings`, a function to load the model, serialize MEDS data into text, tokenize the text stream, and perform inference through the model for a full dataframe of patients.
+
+<Info>
+  We use **Last Token Pooling** to extract the final hidden state, which represents the patient's entire causal trajectory up to the `end_time`(inclusive).
+</Info>
 
 ```python
 import pandas as pd
@@ -122,16 +141,21 @@ def get_embeddings(df, pids, end_time):
 
 # Execute (use prediction_time from your labels table if it has that column; otherwise set a single cutoff)
 pids = df["subject_id"].unique()
-# If your labels table has prediction_time (e.g. from the quickstart demo), use: end_time = labels_df["prediction_time"].iloc[0]
-end_time = pd.Timestamp("2024-01-01")
+# If your labels table has prediction_time (e.g. from the quickstart demo)
+end_time = labels_df["prediction_time"].iloc[0]
 X = get_embeddings(df, pids, end_time)
 ```
 
+The output `X` is a list of embeddings (1-dimensional PyTorch tensors) that represent the patients in `df`. This list is in the same patient order as your MEDS data and labels table.
+
 # Train clinical predictors
 
-The embeddings (`X`) and **labels** table (see [Input data format](#input-data-format) above) let you train the same task heads as the demo. Labels must be aligned to `X` (one row per patient, same order as the `pids` you passed to `get_embeddings`). Use the column names: `readmission_risk`, `phenotype_class`, `overall_survival_months`, `event_observed`.
+We can now use the embeddings (`X`) and the **labels** table to train multiple types of task heads to predict clinical outcomes.
+
+After importing the necessary packages and splitting our data into training and test sets, we complete **Task A**: a binary classifier to predict subject readmission to the hospital, as recorded in the `readmission_risk` column. ROC-AUC is given as the evaluation metric for Task A.
 
 ```python
+# --- Setup ---
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LogisticRegression, Ridge
@@ -140,8 +164,7 @@ from sklearn.decomposition import PCA
 from sklearn.metrics import roc_auc_score, accuracy_score, mean_absolute_error
 from lifelines import CoxPHFitter
 
-# --- Setup ---
-# X, pids from embedding step above. Load your labels (same columns as in Input data format) and align to X row order:
+# X, pids from embedding step above. Load your labels table and align to X row order:
 labels_df = pd.read_parquet("your_labels.parquet")  # replace with your path
 labels = labels_df.set_index("subject_id").loc[pids].reset_index()
 
@@ -150,43 +173,62 @@ X_train, X_test, labels_train, labels_test = train_test_split(
 )
 print(f"Training on {len(X_train)} samples, testing on {len(X_test)}")
 
+
 # --- Task A: Binary (Readmission Risk) ---
-print("\n--- Task A: Binary Classification ---")
+print("\\n--- Task A: Binary Classification ---")
 clf_bin = LogisticRegression(max_iter=1000)
 clf_bin.fit(X_train, labels_train["readmission_risk"])
 y_prob = clf_bin.predict_proba(X_test)[:, 1]
 auc = roc_auc_score(labels_test["readmission_risk"], y_prob)
-print(f"-> ROC-AUC: {auc:.3f}")
+print(f"-\> ROC-AUC: {auc:.3f}")
+```
 
+**Task B** is a multi-class classifier to predict cancer stage 1-4, as recorded in the `phenotype_class` column. Accuracy score, or fraction of correctly classified samples, is given as evaluation metric.
+
+```python
 # --- Task B: Multiclass (Phenotype) ---
-print("\n--- Task B: Multiclass Phenotyping ---")
+print("\\n--- Task B: Multiclass Phenotyping ---")
 clf_multi = LogisticRegression(max_iter=1000)
 clf_multi.fit(X_train, labels_train["phenotype_class"])
 y_pred_class = clf_multi.predict(X_test)
 acc = accuracy_score(labels_test["phenotype_class"], y_pred_class)
-print(f"-> Accuracy: {acc:.3f}")
+print(f"-\> Accuracy: {acc:.3f}"
+```
 
+**Task C** uses the continuous variable in `overall_survival_months` to train a regression model and predict months survival for subjects who died. Mean absolute error is reported for Task C.
+
+```python
 # --- Task C: Regression (Survival months) ---
-print("\n--- Task C: Regression ---")
+print("\\n--- Task C: Regression ---")
 reg = Ridge(alpha=1.0)
 reg.fit(X_train, labels_train["overall_survival_months"])
 y_pred_reg = reg.predict(X_test)
 mae = mean_absolute_error(labels_test["overall_survival_months"], y_pred_reg)
-print(f"-> MAE: {mae:.2f}")
-
-# --- Task D: Survival (Cox PH) ---
-print("\n--- Task D: Survival Analysis ---")
-pca = PCA(n_components=10)
-X_train_pca = pca.fit_transform(X_train)
-X_test_pca = pca.transform(X_test)
-cox_df = pd.DataFrame(X_train_pca, columns=[f"PC{i}" for i in range(10)])
-cox_df["T"] = labels_train["overall_survival_months"].values
-cox_df["E"] = labels_train["event_observed"].values
-cph = CoxPHFitter()
-cph.fit(cox_df, duration_col="T", event_col="E")
-test_cox_df = pd.DataFrame(X_test_pca, columns=[f"PC{i}" for i in range(10)])
-test_cox_df["T"] = labels_test["overall_survival_months"].values
-test_cox_df["E"] = labels_test["event_observed"].values
-c_index = cph.score(test_cox_df, scoring_method="concordance_index")
-print(f"-> C-Index: {c_index:.3f}")
+print(f"-\> MAE: {mae:.2f}")
 ```
+
+Finally, **Task D** predicts the Cox proportional hazard between arbitrary groups of patients for risk of death, using the `overall_survival_months` and `event_observed` columns. The concordance index is reported as the evaluation metric.
+
+```python
+# --- Task D: Survival (Cox PH) ---\
+print("\\n--- Task D: Survival Analysis ---")\
+pca = PCA(n_components=10)\
+X_train_pca = pca.fit_transform(X_train)\
+X_test_pca = pca.transform(X_test)\
+cox_df = pd.DataFrame(X_train_pca, columns=[f"PC{i}" for i in range(10)])\
+cox_df["T"] = labels_train["overall_survival_months"].values\
+cox_df["E"] = labels_train["event_observed"].values\
+cph = CoxPHFitter()\
+cph.fit(cox_df, duration_col="T", event_col="E")\
+test_cox_df = pd.DataFrame(X_test_pca, columns=[f"PC{i}" for i in range(10)])\
+test_cox_df["T"] = labels_test["overall_survival_months"].values\
+test_cox_df["E"] = labels_test["event_observed"].values\
+c_index = cph.score(test_cox_df, scoring_method="concordance_index")\
+print(f"-\> C-Index: {c_index:.3f}")
+```
+
+You may similarly abstract these concepts to use the Standard Model embeddings as input to other classifier types, including more complex downstream models!
+
+### Contact Us
+
+Having trouble, or just want to talk about your project? Send an email to [danielle@standardmodel.bio](mailto:danielle@standardmodel.bio)
