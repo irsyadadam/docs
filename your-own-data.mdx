@@ -48,13 +48,11 @@ Time in our setting is measured in days. All events recorded at the same timesta
 <Warning>
   Note that smb-v1-1.7B only supports a max token length of 4096, yet many patient histories exceed this constraint.
 
-  As a temporary solution to efficiently manage context, our [smb-utils](https://github.com/standardmodelbio/smb-utils) package offers functionality to solve this via multiple strategies: 
+  As a temporary solution to efficiently manage context, our [smb-utils](https://github.com/standardmodelbio/smb-utils) package offers functionality to solve this via multiple strategies:
 
-  1) filter events data by modality (i.e., code or table columns), 
-
-  2) organize events into time bins with the most recent events from an anchor date, or 
-
-  3) flexibly define custom event categories.
+  1. filter events data by modality (i.e., code or table columns),
+  2. organize events into time bins with the most recent events from an anchor date, or
+  3. flexibly define custom event categories.
 
   Supporting longer context length is always a to-do on our list and we are almost ready to roll out something better pretty soon!
 </Warning>
@@ -152,7 +150,7 @@ The output `X` is a list of embeddings (1-dimensional PyTorch tensors) that repr
 
 # Train clinical predictors
 
-We can now use the embeddings (`X`) and the **labels** table to train multiple types of task heads to predict clinical outcomes. 
+We can now use the embeddings (`X`) and the **labels** table to train multiple types of task heads to predict clinical outcomes.
 
 After importing the necessary packages and splitting our data into training and test sets, we complete **Task A**: a binary classifier to predict subject readmission to the hospital, as recorded in the `readmission_risk` column. ROC-AUC is given as the evaluation metric for Task A.
 
@@ -228,3 +226,7 @@ test_cox_df["E"] = labels_test["event_observed"].values\
 c_index = cph.score(test_cox_df, scoring_method="concordance_index")\
 print(f"-\> C-Index: {c_index:.3f}")
 ```
+
+### Contact Us
+
+Having trouble, or just want to talk about your project? Send an email to [danielle@standardmodel.bio](mailto:danielle@standardmodel.bio)
