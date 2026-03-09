@@ -48,7 +48,13 @@ Time in our setting is measured in days. All events recorded at the same timesta
 <Warning>
   Note that smb-v1-1.7B only supports a max token length of 4096, yet many patient histories exceed this constraint.
 
-  As a temporary solution to efficiently manage context, our [smb-utils](https://github.com/standardmodelbio/smb-utils) package offers functionality to 1) filter events data by modality (i.e., code or table columns), 2) organize events into time bins with the most recent events from an anchor date, or 3) flexibly define custom event categories.
+  As a temporary solution to efficiently manage context, our [smb-utils](https://github.com/standardmodelbio/smb-utils) package offers functionality to solve this via multiple strategies: 
+
+  1) filter events data by modality (i.e., code or table columns), 
+
+  2) organize events into time bins with the most recent events from an anchor date, or 
+
+  3) flexibly define custom event categories.
 
   Supporting longer context length is always a to-do on our list and we are almost ready to roll out something better pretty soon!
 </Warning>
@@ -146,14 +152,9 @@ The output `X` is a list of embeddings (1-dimensional PyTorch tensors) that repr
 
 # Train clinical predictors
 
-We can now use the embeddings (`X`) and the **labels** table to train multiple types of task heads to predict clinical outcomes. After importing the necessary packages and splitting our data into training and test sets, we complete Task A: a binary classifier to predict subject readmission to the hospital, as recorded in the `readmission_risk` column. ROC-AUC is given as the evaluation metric for task A.
+We can now use the embeddings (`X`) and the **labels** table to train multiple types of task heads to predict clinical outcomes. 
 
-| Task | Data Column(s)                            | Description                                                       | |
-| ---- | ----------------------------------------- | ----------------------------------------------------------------- | --- |
-| A    | `readmission_risk`                        | Binary classifier to predict subject readmission to the hospital  | |
-| B    | `phenotype_class`                         | Multi-class classifier to predict cancer stage                    | |
-| C    | `overall_survival_months`                 | Regression model to predict months survival for subjects who died | |
-| D    | `overall_survival_months; event_observed` | Cox proportional hazard between a fictional variable and death    | |
+After importing the necessary packages and splitting our data into training and test sets, we complete **Task A**: a binary classifier to predict subject readmission to the hospital, as recorded in the `readmission_risk` column. ROC-AUC is given as the evaluation metric for Task A.
 
 ```python
 # --- Setup ---
@@ -184,7 +185,7 @@ auc = roc_auc_score(labels_test["readmission_risk"], y_prob)
 print(f"-\> ROC-AUC: {auc:.3f}")
 ```
 
-Task B is a multi-class classifier to predict cancer stage 1-4, as recorded in the `phenotype_class` column. Accuracy score, or fraction of correctly classified samples, is given as evaluation metric.
+**Task B** is a multi-class classifier to predict cancer stage 1-4, as recorded in the `phenotype_class` column. Accuracy score, or fraction of correctly classified samples, is given as evaluation metric.
 
 ```python
 # --- Task B: Multiclass (Phenotype) ---
@@ -196,7 +197,7 @@ acc = accuracy_score(labels_test["phenotype_class"], y_pred_class)
 print(f"-\> Accuracy: {acc:.3f}"
 ```
 
-Task C uses the continuous variable in `overall_survival_months` to train a regression model and predict months survival for subjects who died. Mean absolute error is reported for Task C.
+**Task C** uses the continuous variable in `overall_survival_months` to train a regression model and predict months survival for subjects who died. Mean absolute error is reported for Task C.
 
 ```python
 # --- Task C: Regression (Survival months) ---
@@ -207,7 +208,8 @@ y_pred_reg = reg.predict(X_test)
 mae = mean_absolute_error(labels_test["overall_survival_months"], y_pred_reg)
 print(f"-\> MAE: {mae:.2f}")
 ```
-Finally, task D predicts the Cox proportional hazard between arbitrary groups of patients for risk of death, using the `overall_survival_months` and `event_observed` columns. The concordance index is reported as the evaluation metric.
+
+Finally, **Task D** predicts the Cox proportional hazard between arbitrary groups of patients for risk of death, using the `overall_survival_months` and `event_observed` columns. The concordance index is reported as the evaluation metric.
 
 ```python
 # --- Task D: Survival (Cox PH) ---\
