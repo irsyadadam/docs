@@ -146,37 +146,35 @@ The output `X` is a list of embeddings (1-dimensional PyTorch tensors) that repr
 
 # Train clinical predictors
 
-We can now use the embeddings (`X`) and the **labels** table to train multiple types of task heads to predict clinical outcomes:
+We can now use the embeddings (`X`) and the **labels** table to train multiple types of task heads to predict clinical outcomes. After importing the necessary packages and splitting our data into training and test sets, we complete Task A: a binary classifier to predict subject readmission to the hospital:
 
-| Task | Data Column(s)                            | Description                                                       |
-| ---- | ----------------------------------------- | ----------------------------------------------------------------- |
-| A    | `readmission_risk`                        | Binary classifier to predict subject readmission to the hospital  |
-| B    | `phenotype_class`                         | Multi-class classifier to predict cancer stage                    |
-| C    | `overall_survival_months`                 | Regression model to predict months survival for subjects who died |
-| D    | `overall_survival_months; event_observed` | Cox proportional hazard between a fictional variable and death    |
-
-We first import the necessary packages and split our data into training and test sets:
+| Task | Data Column(s)                            | Description                                                       | |
+| ---- | ----------------------------------------- | ----------------------------------------------------------------- | --- |
+| A    | `readmission_risk`                        | Binary classifier to predict subject readmission to the hospital  | |
+| B    | `phenotype_class`                         | Multi-class classifier to predict cancer stage                    | |
+| C    | `overall_survival_months`                 | Regression model to predict months survival for subjects who died | |
+| D    | `overall_survival_months; event_observed` | Cox proportional hazard between a fictional variable and death    | |
 
 ```python
-# --- Setup ---\
-import numpy as np\
-import pandas as pd\
-from sklearn.linear_model import LogisticRegression, Ridge\
-from sklearn.model_selection import train_test_split\
-from sklearn.decomposition import PCA\
-from sklearn.metrics import roc_auc_score, accuracy_score, mean_absolute_error\
-from lifelines import CoxPHFitter\
-\
-# X, pids from embedding step above. Load your labels table and align to X row order:\
-labels_df = pd.read_parquet("your_labels.parquet")  # replace with your path\
-labels = labels_df.set_index("subject_id").loc[pids].reset_index()\
-\
-X_train, X_test, labels_train, labels_test = train_test_split(\
-    X, labels, test_size=0.2, random_state=42\
-)\
-print(f"Training on {len(X_train)} samples, testing on {len(X_test)}")\
-\
-\
+# --- Setup ---
+import numpy as np
+import pandas as pd
+from sklearn.linear_model import LogisticRegression, Ridge
+from sklearn.model_selection import train_test_split
+from sklearn.decomposition import PCA
+from sklearn.metrics import roc_auc_score, accuracy_score, mean_absolute_error
+from lifelines import CoxPHFitter
+
+# X, pids from embedding step above. Load your labels table and align to X row order:
+labels_df = pd.read_parquet("your_labels.parquet")  # replace with your path
+labels = labels_df.set_index("subject_id").loc[pids].reset_index()
+
+X_train, X_test, labels_train, labels_test = train_test_split(
+    X, labels, test_size=0.2, random_state=42
+)
+print(f"Training on {len(X_train)} samples, testing on {len(X_test)}")
+
+
 # --- Task A: Binary (Readmission Risk) ---\
 print("\\n--- Task A: Binary Classification ---")\
 clf_bin = LogisticRegression(max_iter=1000)\
@@ -184,8 +182,9 @@ clf_bin.fit(X_train, labels_train["readmission_risk"])\
 y_prob = clf_bin.predict_proba(X_test)[:, 1]\
 auc = roc_auc_score(labels_test["readmission_risk"], y_prob)\
 print(f"-\> ROC-AUC: {auc:.3f}")\
-\
-\
+```
+
+```python
 # --- Task B: Multiclass (Phenotype) ---\
 print("\\n--- Task B: Multiclass Phenotyping ---")\
 clf_multi = LogisticRegression(max_iter=1000)\
