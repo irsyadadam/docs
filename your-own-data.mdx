@@ -1,7 +1,7 @@
 ---
 title: "Use the Standard Model on your data"
 icon: "code-fork"
-description: "This guide explains how to leverage the Standard Model on your own EHR data." 
+description: "This guide explains how to leverage the Standard Model on your own EHR data, including reshaping and tokenizing medical events, building a labels table, and training 4 types of classifiers on Standard Model embeddings " 
 ---
 
 The workflow consists of three stages:
@@ -60,7 +60,7 @@ Time in our setting is measured in days. All events recorded at the same timesta
 
 #### ETL example
 
-Assume your events are saved as `internal_cohort_meds.parquet` with the scchema above. Load and verify, then serialize one patient:
+Assume your events are saved as `internal_cohort_meds.parquet` with the schema above. Load and verify, then serialize one patient:
 
 ```python
 import pandas as pd
