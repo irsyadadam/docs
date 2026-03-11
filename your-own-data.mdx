@@ -1,9 +1,8 @@
 ---
 title: "Use the Standard Model on your data"
 icon: "code-fork"
+description: This guide explains how to leverage the Standard Model on your own EHR data. The workflow consists of three stages:
 ---
-
-This guide explains how to leverage the Standard Model on your own EHR data. The workflow consists of three stages:
 
 1. **Format data and tokenize data:** Organize your data into the required [MEDS](https://github.com/Medical-Event-Data-Standard/meds) format to record medical **events** and a **labels** table which includes the ground truth for your task targets. Convert these into serial tokens using `smb_utils`.
 2. **Represent data as embeddings:** Ingest MEDS **events** tokens into the Standard Model to produce high-dimensional patient-level embeddings.
