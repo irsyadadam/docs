@@ -50,7 +50,9 @@ The events file is a long table of timestamped clinical events (e.g. diagnoses, 
 The labels file contains columns recording the clinical outcomes for the four demo tasks we will predict, per subject. This will be used for training the classifiers and evaluating test prediction metrics.
 
 <Info>
-  Labels in this demo are **artificially generated** (see [data/README.md](https://github.com/standardmodelbio/quickstart/blob/main/data/README.md) for methodology); they are not directly derived from events data and are for demonstration purposes only.
+  Outcome labels and `prediction_time `in this demo are **artificially generated** (see [data/README.md](https://github.com/standardmodelbio/quickstart/blob/main/data/README.md) for methodology); they are not directly derived from events data and are for demonstration purposes only.
+
+  In a real use case, outcome labels should be directly derived from an events dataset, and `prediction_time` should be set as the timestamp strictly before the event that defines the label.
 </Info>
 
 **Preview (example rows):**
@@ -74,7 +76,15 @@ The labels file contains columns recording the clinical outcomes for the four de
 
 ---
 
-## Running the Demo
+## Running the demo via AI coding agent
+
+Copy and paste the prompt below into your coding assistant of choice (i.e., Claude Code, Codex, Gemini). Runtime from prompt through model download, inference, and classifier train/test to results should take ~5m.
+
+<Prompt description={`Install the model, download the dummy data, and run the demo.`} actions={["cursor","copy"]}>
+  Use the Standard Model Biomedicine docs here (https://docs.standardmodel.bio) and the quickstart repo here (https://github.com/standardmodelbio/quickstart) to install the model with the provided one-line command, then run demo.py. Tell me about the outputs.
+</Prompt>
+
+## Running the demo manually
 
 Running`demo.py` loads both pre-configured data files from the [quickstart repo](https://github.com/standardmodelbio/quickstart) (main branch) into memory, then:
 
