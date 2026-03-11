@@ -17,7 +17,7 @@ This example contains a brief preview of each data file included in the demo, fo
 
 ## 1. Events data (MEDS event stream)
 
-The events file is a long table of timestamped clinical events (e.g. diagnoses, medications, labs). Although the [MIMIC-IV Clinical Database Demo](https://physionet.org/content/mimic-iv-demo-meds/) parquet file contains other columns,  [`prep_mimic_demo_data.py`](https://github.com/standardmodelbio/quickstart/blob/main/scripts/prep_mimic_demo_data.py) reshapes it to focus only those listed below for this demo. The final demo parquet file contains ~916k rows for 100 subjects.
+The events file is a long table of timestamped clinical events (e.g. diagnoses, medications, labs). Although the [MIMIC-IV Clinical Database Demo](https://physionet.org/content/mimic-iv-demo-meds/) parquet file contains other columns,  `prep_mimic_demo_data.py` reshapes it to focus only those listed below for this demo. The final demo parquet file contains ~916k rows for 100 subjects.
 
 **Events Data Preview (example rows):**
 
@@ -38,7 +38,7 @@ The events file is a long table of timestamped clinical events (e.g. diagnoses, 
 | `value`      | Optional numeric value (e.g. lab result); may be null.                                                                                                                 |
 
 <Info>
-  Note that the **table** column is derived from the **code** column in this demo, using [`prep_mimic_demo_data.py`](https://github.com/standardmodelbio/quickstart/blob/main/scripts/prep_mimic_demo_data.py). \
+  Note that the **table** column is derived from the **code** column in this demo, using `prep_mimic_demo_data.py`. \
   \
   More information about these and other columns in the MEDS format schemas can be found [here](https://github.com/Medical-Event-Data-Standard/meds?tab=readme-ov-file#the-dataschema-schema).
 </Info>
@@ -119,6 +119,17 @@ generation_config.json: 100%|██████████████| 127/127
    -> Projecting embeddings to 10D PCA for stability...
    -> C-Index: 0.xxx
 ```
+
+## Next Steps
+
+<Columns cols={2}>
+  <Card icon="sparkles" href="/your-own-data" title="Use the model on your own data">
+    
+  </Card>
+  <Card icon="sparkles" href="/model" title="Learn more about the Standard Model">
+    
+  </Card>
+</Columns>
 
 ### Contact Us
 
