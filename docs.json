@@ -77,5 +77,21 @@
         "source": "/quickstart.sh",
         "destination": "https://raw.githubusercontent.com/standardmodelbio/quickstart/main/quickstart.sh"
       }
-    ]
+    ],
+    "contextual": {
+   "options": [
+     "copy",
+     "view",
+     "assistant",
+     "chatgpt",
+     "claude",
+     "perplexity",
+     "grok",
+     "mcp",
+     "cursor",
+     "vscode"
+   ]
+ }
+
   }
+  
