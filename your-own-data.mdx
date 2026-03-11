@@ -16,11 +16,11 @@ The workflow consists of three stages:
 
 # Format and tokenize data
 
-To apply the Standard Model, you must first have an **events** table in [MEDS (Medical Event Data Standard)](https://github.com/Medical-Event-Data-Standard/meds) format (one row per clinical event). A collection of ETLs from common data formats, including OMOP, MIMIC-IV, and MEDS Unsorted can be found [here](https://github.com/Medical-Event-Data-Standard/meds_etl).
+To apply the Standard Model, you must first have an **events** table in [MEDS (Medical Event Data Standard)](https://github.com/Medical-Event-Data-Standard/meds) format (one row per clinical event). A collection of ETLs from common data formats, including OMOP, MIMIC-IV, and MEDS Unsorted can be found [here](https://github.com/Medical-Event-Data-Standard/meds_etl). The [end-to-end example](/example) further describes the input data format.
 
-<Info>
-  The [end-to-end example](/example) further describes the input data format.
-</Info>
+<Note>
+  The Standard Model was built to operate on multiple modalities. For simplicity, this tutorial focuses on EHR text data. A more advanced multi-modal tutorial is forthcoming.
+</Note>
 
 **Events data example rows:**
 
@@ -32,8 +32,6 @@ To apply the Standard Model, you must first have an **events** table in [MEDS (M
 
 You should also have a **labels** table with one row per subject, in the same order as your **events** table. Columns set the ground truth for prediction tasks, and are used for performance evaluation.
 
-The model tokenizer uses `prediction_time` in the **labels** table as the cutoff when considering events to build embeddings. Think of this date as the "as-of" time for the prediction, or the inclusive endpoint of data the model can use to generate embeddings. Pass `end_time=labels["prediction_time"].iloc[0]` (or your chosen row) so the model only sees data up to that time.
-
 **Labels data example rows:**
 
 | subject_id | prediction_time     | readmission_risk | phenotype_class | overall_survival_months | event_observed |
@@ -42,14 +40,18 @@ The model tokenizer uses `prediction_time` in the **labels** table as the cutoff
 | 10001217   | 2022-06-15 08:00:00 | 0                | 2               | 45.8                    | 1              |
 | 10002428   | 2022-02-14 13:30:00 | 1                | 1               | 35.5                    | 1              |
 
-We provide `smb_utils.process_ehr_info` to convert the MEDS **events** table into a tokenizable XML-like stream (e.g., [timestamp]: \<conditions\>\</conditions\>, \<measurements\>\</measurements\>).
+Your **labels** should be derived from linked patient data and should reflect the data types used by your clinical outcome classifier or model type.
+
+The model tokenizer uses `prediction_time` in the **labels** table as the cutoff when considering events to build embeddings. Think of this date as the "as-of" time for the prediction, or the inclusive endpoint of data the model can use to generate embeddings.
+
+We next provide `smb_utils.process_ehr_info` to convert the MEDS **events** table into a tokenizable XML-like stream (e.g., [timestamp]: \<conditions\>\</conditions\>, \<measurements\>\</measurements\>).
 
 Time in our setting is measured in days. All events recorded at the same timestamp will be grouped by the event type/category with the XML-style tag, in chronological order. The timestamp is an explicit token in the string as well (see `input_text` in the example below).
 
 <Warning>
   Note that smb-v1-1.7B only supports a max token length of 4096, yet many patient histories exceed this constraint.
 
-  As a temporary solution to efficiently manage context, our [smb-utils](https://github.com/standardmodelbio/smb-utils) package offers functionality to solve this via multiple strategies:
+  Our [smb-utils](https://github.com/standardmodelbio/smb-utils) package offers functionality to solve this via multiple strategies as a temporary solution to efficiently manage context:
 
   1. filter events data by modality (i.e., code or table columns),
   2. organize events into time bins with the most recent events from an anchor date, or
@@ -89,13 +91,22 @@ print(input_text)
 # </medications>
 ```
 
-Labels must be aligned to the same patients and order as your embedding matrix (e.g. same `subject_id` order as the events you passed to the model). When extracting embeddings, you will pass `end_time=labels["prediction_time"].iloc[0]` (or the text in your chosen row, as above) so the model only "sees" data up to that time (inclusive).
+Labels must be aligned to the same patient order as your embedding matrix (i.e., same `subject_id` order as the events you passed to the model). This is important to resolve the correct `end_time` for each patient when creating embeddings.
 
-<Note>
-  The Standard Model was built to operate on multiple modalities. For simplicity, this tutorial focuses on EHR text data. A more advanced multi-modal tutorial is forthcoming.
-</Note>
+If you're using a coding agent (like Claude Code, Codex, Gemini, etc.), you can derive a new labels table from your events data with the prompt below. In this example we've specified the kinds of outcomes we're looking for and the data type we'll use when making predictions downstream. We recommend chatting with the agent to explore your events data if you're unsure of what clinical outcomes you may want to predict. The promp below runs in ~1m.
 
-# **Represent data as embeddings**
+<Prompt description={`Create a new labels table by referencing your events data. This prompt assumes that you've already downloaded the model and that the MIMIC-IV demo events data file is available for use.`} actions={["copy","cursor"]}>
+  Use the Standard Model Biomedicine documentation here (https://docs.standardmodel.bio/your-own-data) and my MEDS-formatted events data to write a new labels table. The outcomes I'd like to include are a binary  for mortality, a multi-class category for disposition at final discharge (i.e., went home, institutionalized, death/hospice, other), and a continuous variable for survival days after last admission. Since all of these correspond to the end of each patient's history, record the prediction_time as the time stamp strictly before their last hospital admission.
+</Prompt>
+
+# Get embeddings and train classifiers with AI
+
+From here, a coding agent is generally able to run inference, train classifiers, and give you evaluation results with a single prompt. The following example resolves in ~m.
+
+<Prompt description={`Represent patients as embeddings, train 4 types of classifiers, and get prediction results. This prompt assumes you have completed all previous steps`} actions={["copy"]}>
+</Prompt>
+
+## Represent data as embeddings
 
 We now provide example code for `get_embeddings`, a function to load the model, serialize MEDS data into text, tokenize the text stream, and perform inference through the model for a full dataframe of patients.
 
@@ -123,7 +134,14 @@ model.eval()
 def get_embeddings(df, pids, end_time):
     embeddings = []
     for pid in tqdm(pids):
-        # A. Serialize (MEDS -> Text)
+        
+		# Resolve per-patient end_time if a mapping is provided
+          if isinstance(end_time, (pd.Series, dict)):
+              patient_end_time = pd.Timestamp(end_time[pid])
+          else:
+              patient_end_time = end_time
+
+		# A. Serialize (MEDS -> Text)
         text = process_ehr_info(df, subject_id=pid, end_time=end_time)
         
         # B. Tokenize
@@ -143,11 +161,11 @@ def get_embeddings(df, pids, end_time):
 # Execute (use prediction_time from your labels table if it has that column; otherwise set a single cutoff)
 pids = df["subject_id"].unique()
 # If your labels table has prediction_time (e.g. from the quickstart demo)
-end_time = labels_df["prediction_time"].iloc[0]
+end_times = labels_df.set_index("subject_id")["prediction_time"]
 X = get_embeddings(df, pids, end_time)
 ```
 
-The output `X` is a list of embeddings (1-dimensional PyTorch tensors) that represent the patients in `df`. This list is in the same patient order as your MEDS data and labels table.
+The output `X` is a list of **embeddings** (fixed-length, 1-dimensional PyTorch tensor) that represent the patients' medical history from `df`. This list is in the same patient order as your MEDS data and labels table.
 
 # Train clinical predictors
 
