@@ -1,7 +1,7 @@
 ---
 title: "End-to-end example"
 icon: "stethoscope"
-description: "This demo illustrates the data formats, core functions, and results involved in using the smb-v1-1.7b model. The Python script loads and reshapes MIMIC-IV demo data in MEDS format, extracts patient-representative embeddings using the Standard Model, and trains 4 example classifiers on those embeddings to predict clinical outcomes."
+description: "This demo illustrates the data formats, core functions, and results for using the smb-v1-1.7b model. The Python script loads MIMIC-IV demo data in MEDS format, extracts patient-representative embeddings using the Standard Model, and trains 4 example classifiers on those embeddings to predict clinical outcomes."
 ---
 
 Two parquet files are used in the demo:
@@ -41,6 +41,8 @@ The events file is a long table of timestamped clinical events (e.g. diagnoses, 
   Note that the **table** column is derived from the **code** column in this demo, using `prep_mimic_demo_data.py`. \
   \
   More information about these and other columns in the MEDS format schemas can be found [here](https://github.com/Medical-Event-Data-Standard/meds?tab=readme-ov-file#the-dataschema-schema).
+
+  A collection of ETLs from common data formats, including OMOP, MIMIC-IV, and MEDS Unsorted can be found [here](https://github.com/Medical-Event-Data-Standard/meds_etl).
 </Info>
 
 ## 2. Labels data (one row per subject)
@@ -48,7 +50,9 @@ The events file is a long table of timestamped clinical events (e.g. diagnoses, 
 The labels file contains columns recording the clinical outcomes for the four demo tasks we will predict, per subject. This will be used for training the classifiers and evaluating test prediction metrics.
 
 <Info>
-  Labels in this demo are **artificially generated** (see [data/README.md](https://github.com/standardmodelbio/quickstart/blob/main/data/README.md) for methodology); they are not directly derived from events data and are for demonstration purposes only.
+  Outcome labels and `prediction_time `in this demo are **artificially generated** (see [data/README.md](https://github.com/standardmodelbio/quickstart/blob/main/data/README.md) for methodology); they are not directly derived from events data and are for demonstration purposes only.
+
+  In a real use case, outcome labels should be directly derived from an events dataset, and `prediction_time` should be set as the timestamp strictly before the event that defines the label.
 </Info>
 
 **Preview (example rows):**
@@ -72,7 +76,15 @@ The labels file contains columns recording the clinical outcomes for the four de
 
 ---
 
-## Running the Demo
+## Running the demo via AI coding agent
+
+Copy and paste the prompt below into your coding assistant of choice (i.e., Claude Code, Codex, Gemini). Runtime from prompt through model download, inference, and classifier train/test to results should take ~5m.
+
+<Prompt description={`Install the model, download the dummy data, and run the demo.`} actions={["cursor","copy"]}>
+  Use the Standard Model Biomedicine docs here (https://docs.standardmodel.bio) and the quickstart repo here (https://github.com/standardmodelbio/quickstart) to install the model with the provided one-line command, then run demo.py. Tell me about the outputs.
+</Prompt>
+
+## Running the demo manually
 
 Running`demo.py` loads both pre-configured data files from the [quickstart repo](https://github.com/standardmodelbio/quickstart) (main branch) into memory, then:
 
@@ -122,7 +134,6 @@ generation_config.json: 100%|██████████████| 127/127
 
 ## Next Steps
 
-
 <Columns cols={2}>
   <Card icon="code-fork" href="/your-own-data" title="Use the model on your own data">
     
@@ -137,7 +148,9 @@ generation_config.json: 100%|██████████████| 127/127
 Having trouble, or just want to talk about your project? Send an email to [danielle@standardmodel.bio](mailto:danielle@standardmodel.bio)
 
 <Info>
-  **Attribution:** Events are from the MIMIC-IV Clinical Database Demo converted to MEDS ([van de Water et al. (2025). MIMIC-IV demo data in the Medical Event Data Standard (MEDS) (version 0.0.1). PhysioNet. RRID:SCR_007345.](https://doi.org/10.13026/t2y8-ea41))
+  **Attribution:** Events are from the MIMIC-IV Clinical Database Demo converted to MEDS
+
+  [van de Water et al. (2025). MIMIC-IV demo data in the Medical Event Data Standard (MEDS) (version 0.0.1). PhysioNet. RRID:SCR_007345.](https://doi.org/10.13026/t2y8-ea41)
 
   Licensed under the [Open Database License (ODbL)](https://opendatacommons.org/licenses/odbl/1.0/). Redistribution must be under ODbL (share-alike); do not apply technical measures that restrict reuse.
 
