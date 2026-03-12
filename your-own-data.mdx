@@ -4,7 +4,7 @@ icon: "code-fork"
 description: "This guide explains how to leverage the Standard Model on your own EHR data, including reshaping and tokenizing medical events, building a labels table, and training 4 types of classifiers on Standard Model embeddings."
 ---
 
-The workflow consists of three stages:
+UThe workflow consists of three stages:
 
 1. **Format data and tokenize data:** Organize your data into the required [MEDS](https://github.com/Medical-Event-Data-Standard/meds) format to record medical **events** and a **labels** table which includes the ground truth for your task targets. Convert these into serial tokens using `smb_utils`.
 2. **Represent data as embeddings:** Ingest MEDS **events** tokens into the Standard Model to produce high-dimensional patient-level embeddings.
@@ -93,7 +93,7 @@ print(input_text)
 
 Labels must be aligned to the same patient order as your embedding matrix (i.e., same `subject_id` order as the events you passed to the model). This is important to resolve the correct `end_time` for each patient when creating embeddings.
 
-If you're using a coding agent (like Claude Code, Codex, Gemini, etc.), you can derive a new labels table from your events data with the prompt below. In this example we've specified the kinds of outcomes we're looking for and the data type we'll use when making predictions downstream. We recommend chatting with the agent to explore your events data if you're unsure of what clinical outcomes you may want to predict. The promp below runs in ~1m.
+If you're using a coding agent (like Claude Code, Codex, Gemini, etc.), you can derive a new labels table from your events data with the prompt below. In this example we've specified the kinds of outcomes we're looking for and the data type we'll use when making predictions downstream. The prompt below runs in ~1m, though the resulting models perform better on other outcomes we've specified. We recommend chatting with the agent to explore your events data if you're unsure of what clinical outcomes you may want to predict. 
 
 <Prompt description={`Create a new labels table by referencing your events data. This prompt assumes that you've already downloaded the model and that the MIMIC-IV demo events data file is available for use.`} actions={["copy","cursor"]}>
   Use the Standard Model Biomedicine documentation here (https://docs.standardmodel.bio/your-own-data) and my MEDS-formatted events data to write a new labels table. The outcomes I'd like to include are a binary  for mortality, a multi-class category for disposition at final discharge (i.e., went home, institutionalized, death/hospice, other), and a continuous variable for survival days after last admission. Since all of these correspond to the end of each patient's history, record the prediction_time as the time stamp strictly before their last hospital admission.
@@ -101,9 +101,10 @@ If you're using a coding agent (like Claude Code, Codex, Gemini, etc.), you can 
 
 # Get embeddings and train classifiers with AI
 
-From here, a coding agent is generally able to run inference, train classifiers, and give you evaluation results with a single prompt. The following example resolves in ~m.
+From here, a coding agent is generally able to run inference, train classifiers, and give you evaluation results with a single prompt. The following example resolves in 3-4m.
 
 <Prompt description={`Represent patients as embeddings, train 4 types of classifiers, and get prediction results. This prompt assumes you have completed all previous steps`} actions={["copy"]}>
+  Use my MEDS event data and labels table to extract embeddings using the appropriate script from this documentation page (https://docs.standardmodel.bio/your-own-data). Use the page as a guide to then train binary, multi-class, regression, and COX classifiers with the resulting embeddings and provide results for each model's performance.
 </Prompt>
 
 ## Represent data as embeddings
