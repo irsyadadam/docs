@@ -365,33 +365,17 @@ aside[class*="sidebar"] a[aria-current="page"] {
   50% { opacity: 0.4; transform: scale(0.85); }
 }
 
-/* --- Landing container with scroll snap --- */
+/* --- Landing container — flows naturally in Mintlify's scroll --- */
 .smb-landing {
   font-family: var(--font-display);
   color: var(--smb-text-dark);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  scroll-snap-type: y proximity;
-  overflow-y: auto;
   overflow-x: hidden;
-  height: 100vh;
-  scrollbar-width: none;
-}
-
-.smb-landing::-webkit-scrollbar {
-  display: none;
-}
-
-.smb-hero {
-  scroll-snap-align: none;
 }
 
 .smb-section {
   scroll-snap-align: start;
-}
-
-.smb-footer-bar {
-  scroll-snap-align: end;
 }
 
 /* --- Hero --- */
@@ -743,4 +727,47 @@ aside[class*="sidebar"] a[aria-current="page"] {
   .smb-floating-nav {
     display: none;
   }
+}
+
+
+/* ==========================================================
+   LANDING PAGE — Kill white space below
+   ========================================================== */
+
+.smb-landing {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#content-area:has(.smb-landing),
+#content-container:has(.smb-landing),
+#body-content:has(.smb-landing),
+#content-side-layout:has(.smb-landing),
+.mdx-content:has(.smb-landing) {
+  padding: 0 !important;
+  margin: 0 !important;
+  gap: 0 !important;
+  max-width: none !important;
+}
+
+/* Hide everything Mintlify injects after the landing div */
+.smb-landing ~ * {
+  display: none !important;
+}
+
+/* Scroll snap — applied to Mintlify's scroll container when landing page is present */
+#content-container:has(.smb-landing) {
+  scroll-snap-type: y mandatory !important;
+}
+
+.smb-hero {
+  scroll-snap-align: start;
+}
+
+.smb-section {
+  scroll-snap-align: start;
+}
+
+.smb-footer-bar {
+  scroll-snap-align: end;
 }
