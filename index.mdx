@@ -241,20 +241,20 @@ mode: "custom"
 </div>
 
 <div className="smb-floating-nav" id="smb-floating-nav">
-  <a href="#quickstart" className="smb-fnav-dot smb-fnav-active" data-section="quickstart">
+  <a className="smb-fnav-dot smb-fnav-active" data-section="quickstart">
     <span className="smb-fnav-label">Quickstart</span>
   </a>
-  <a href="#models" className="smb-fnav-dot" data-section="models">
+  <a className="smb-fnav-dot" data-section="models">
     <span className="smb-fnav-label">Models</span>
   </a>
-  <a href="#papers" className="smb-fnav-dot" data-section="papers">
+  <a className="smb-fnav-dot" data-section="papers">
     <span className="smb-fnav-label">Papers</span>
   </a>
   <div className="smb-fnav-divider"></div>
-  <a href="#usecases" className="smb-fnav-dot" data-section="usecases">
+  <a className="smb-fnav-dot" data-section="usecases">
     <span className="smb-fnav-label">How to use</span>
   </a>
-  <a href="#nextsteps" className="smb-fnav-dot" data-section="nextsteps">
+  <a className="smb-fnav-dot" data-section="nextsteps">
     <span className="smb-fnav-label">Next steps</span>
   </a>
 </div>
@@ -262,76 +262,108 @@ mode: "custom"
 </div>
 
 <script dangerouslySetInnerHTML={{__html: `
-  (function() {
-    // Copy button
-    var cmd = 'bash -c "$(curl -fsSL https://docs.standardmodel.bio/quickstart.sh)"';
-    var btn = document.getElementById('smb-copy-btn');
-    if (btn) {
-      btn.addEventListener('click', function() {
-        navigator.clipboard.writeText(cmd).then(function() {
-          btn.textContent = 'Copied!';
-          setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
-        });
+(function() {
+  // Copy button
+  var cmd = 'bash -c "$(curl -fsSL https://docs.standardmodel.bio/quickstart.sh)"';
+  var btn = document.getElementById('smb-copy-btn');
+  if (btn) {
+    btn.addEventListener('click', function() {
+      navigator.clipboard.writeText(cmd).then(function() {
+        btn.textContent = 'Copied!';
+        setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
       });
-    }
+    });
+  }
 
-    // Infinite carousel — clone cards for seamless loop
-    var carousel = document.getElementById('smb-paper-carousel');
-    if (carousel) {
-      var cards = carousel.querySelectorAll('.smb-paper-card');
-      cards.forEach(function(card) {
-        var clone = card.cloneNode(true);
-        clone.setAttribute('aria-hidden', 'true');
-        carousel.appendChild(clone);
-      });
-    }
+  // Infinite carousel — clone cards for seamless loop
+  var carousel = document.getElementById('smb-paper-carousel');
+  if (carousel) {
+    var cards = carousel.querySelectorAll('.smb-paper-card');
+    cards.forEach(function(card) {
+      var clone = card.cloneNode(true);
+      clone.setAttribute('aria-hidden', 'true');
+      carousel.appendChild(clone);
+    });
+  }
 
-    // Floating nav — track active section + show/hide
-    var fnav = document.getElementById('smb-floating-nav');
-    if (fnav) {
-      var dots = fnav.querySelectorAll('.smb-fnav-dot');
-      var sectionIds = [];
-      dots.forEach(function(d) {
-        if (d.dataset.section) sectionIds.push(d.dataset.section);
-      });
+  // Floating nav — track active section + show/hide
+  var fnav = document.getElementById('smb-floating-nav');
+  if (fnav) {
+    var dots = fnav.querySelectorAll('.smb-fnav-dot');
+    var sectionIds = [];
+    dots.forEach(function(d) {
+      if (d.dataset.section) sectionIds.push(d.dataset.section);
+    });
 
-      dots.forEach(function(dot) {
-        dot.addEventListener('click', function(e) {
-          e.preventDefault();
-          var target = document.getElementById(dot.dataset.section);
-          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
-      });
+    // The scroll container is .smb-landing (overflow-y:auto, height:100vh)
+    var scroller = document.querySelector('.smb-landing');
 
-      var observer = new IntersectionObserver(function(entries) {
-        entries.forEach(function(entry) {
-          if (entry.isIntersecting) {
-            dots.forEach(function(d) { d.classList.remove('smb-fnav-active'); });
-            var active = fnav.querySelector('[data-section="' + entry.target.id + '"]');
-            if (active) active.classList.add('smb-fnav-active');
-          }
-        });
-      }, { rootMargin: '-30% 0px -60% 0px' });
+    // Manual scroll targets — pixels from top of scroll container
+    var scrollTargets = {
+      quickstart: 0,
+      models: 800,
+      papers: 2200,
+      usecases: 3200,
+      nextsteps: 4400
+    };
 
-      sectionIds.forEach(function(id) {
-        var el = document.getElementById(id);
-        if (el) observer.observe(el);
-      });
+    function doScroll(section) {
+      var targetPos = scrollTargets[section];
+      if (targetPos === undefined) return;
 
-      var scrollParent = document.querySelector('.smb-landing') || document.scrollingElement || document.documentElement;
-      var scrollTarget = scrollParent === document.documentElement ? window : scrollParent;
-
-      function checkScroll() {
-        var scrollTop = scrollParent.scrollTop || window.scrollY || 0;
-        if (scrollTop < 200) {
-          fnav.classList.add('smb-fnav-hidden');
-        } else {
-          fnav.classList.remove('smb-fnav-hidden');
-        }
+      // Scroll BOTH .smb-landing and window — one of them is the real scroller
+      if (scroller) {
+        scroller.scrollTop = targetPos;
+        scroller.scrollTo({ top: targetPos, behavior: 'smooth' });
       }
-
-      scrollTarget.addEventListener('scroll', checkScroll);
-      checkScroll();
+      window.scrollTo({ top: targetPos, behavior: 'smooth' });
+      document.documentElement.scrollTop = targetPos;
+      document.body.scrollTop = targetPos;
     }
-  })();
+
+    // Click handler
+    dots.forEach(function(dot) {
+      dot.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        doScroll(dot.dataset.section);
+        history.replaceState(null, '', '#' + dot.dataset.section);
+      });
+    });
+
+    // Observer — use .smb-landing as root so it fires correctly
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          dots.forEach(function(d) { d.classList.remove('smb-fnav-active'); });
+          var active = fnav.querySelector('[data-section="' + entry.target.id + '"]');
+          if (active) active.classList.add('smb-fnav-active');
+        }
+      });
+    }, {
+      root: scroller,
+      rootMargin: '-30% 0px -60% 0px'
+    });
+
+    sectionIds.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    // Show/hide nav based on scroll position within .smb-landing
+    function checkScroll() {
+      if (!scroller) return;
+      if (scroller.scrollTop < 200) {
+        fnav.classList.add('smb-fnav-hidden');
+      } else {
+        fnav.classList.remove('smb-fnav-hidden');
+      }
+    }
+
+    if (scroller) {
+      scroller.addEventListener('scroll', checkScroll, { passive: true });
+    }
+    checkScroll();
+  }
+})();
 `}} />
