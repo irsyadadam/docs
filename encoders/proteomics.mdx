@@ -1,0 +1,294 @@
+---
+title: "KRONOS"
+icon: "atom"
+description: "Loading and running KRONOS — Standard Model Bio's graph-LLM proteomics encoder for patient-specific clinical prediction from protein expression data."
+mode: "custom"
+---
+
+<div className="smb-encoder-wrap">
+
+{/* ==================== SIDENAV ==================== */}
+
+<aside className="smb-sidenav" aria-label="Page navigation">
+  <div className="smb-sidenav-group">
+    <span className="smb-sidenav-label">Encoders</span>
+    <a href="/encoders/vision" className="smb-sidenav-encoder">
+      <span className="smb-sidenav-encoder-icon">🫁</span>Vision
+    </a>
+    <a href="/encoders/genomics" className="smb-sidenav-encoder">
+      <span className="smb-sidenav-encoder-icon">🧬</span>Genomics
+    </a>
+    <a href="/encoders/proteomics" className="smb-sidenav-encoder smb-sidenav-encoder-active">
+      <span className="smb-sidenav-encoder-icon">🔬</span>Proteomics
+    </a>
+  </div>
+
+  <div className="smb-sidenav-divider"></div>
+
+  <div className="smb-sidenav-group">
+    <span className="smb-sidenav-label">On this page</span>
+    <nav className="smb-sidenav-track">
+      <a href="#differentiators" className="smb-sidenav-section">Key Differentiators</a>
+      <a href="#architecture" className="smb-sidenav-section">Architecture</a>
+      <a href="#input-format" className="smb-sidenav-section">Input Format</a>
+      <a href="#loading" className="smb-sidenav-section">Loading the Model</a>
+      <a href="#embeddings" className="smb-sidenav-section">Embeddings</a>
+      <a href="#use-cases" className="smb-sidenav-section">Use Cases</a>
+      <a href="#hardware" className="smb-sidenav-section">Hardware</a>
+    </nav>
+  </div>
+</aside>
+
+{/* ==================== MAIN CONTENT ==================== */}
+
+<div className="smb-page">
+
+  <div className="smb-page-header">
+    <div className="smb-page-icon">🔬</div>
+    <h1 className="smb-page-title">KRONOS</h1>
+    <p className="smb-page-desc">
+      <code>KRONOS</code> is a patient-specific graph-LLM that reasons over protein expression and protein-protein interaction networks to answer clinical questions in natural language. Given per-patient mass spectrometry measurements and a clinical instruction, it predicts outcomes such as cancer type, tumor stage, overall survival, and mortality.
+    </p>
+  </div>
+
+  <div className="smb-callout smb-callout-tip">
+    Read the preprint: <a href="https://arxiv.org/abs/2509.22853">arXiv:2509.22853</a> — <em>Patient-Specific Biomolecular Instruction Tuning of Graph-LLMs</em>.
+  </div>
+
+  {/* ==================== KEY DIFFERENTIATORS ==================== */}
+
+  <h2 id="differentiators" className="smb-h2">Key Differentiators</h2>
+
+  <div className="smb-card-grid smb-card-grid-3">
+    <div className="smb-card">
+      <div className="smb-card-icon">🔬</div>
+      <div className="smb-card-title">Graph + Language</div>
+      <div className="smb-card-desc">Combines a GAT graph encoder over the STRING PPI network with a Vicuna-7b language backbone for structured biological reasoning.</div>
+    </div>
+    <div className="smb-card">
+      <div className="smb-card-icon">🏥</div>
+      <div className="smb-card-title">Instruction-Tuned</div>
+      <div className="smb-card-desc">Fine-tuned on 381K clinical instruction examples from 1,000+ CPTAC cancer patients across multiple tumor types.</div>
+    </div>
+    <div className="smb-card">
+      <div className="smb-card-icon">📊</div>
+      <div className="smb-card-title">Strong Prognostics</div>
+      <div className="smb-card-desc">Achieves AUC up to 0.857 on prognostic tasks including survival prediction and tumor stage classification.</div>
+    </div>
+  </div>
+
+  {/* ==================== ARCHITECTURE ==================== */}
+
+  <h2 id="architecture" className="smb-h2">Architecture</h2>
+
+  <p className="smb-p">
+    KRONOS couples two components. A <strong>GAT graph encoder</strong> operates on the STRING protein-protein interaction network: each node represents one protein, and node features are the patient's measured protein abundances from mass spectrometry (~4,800 proteins per patient). Graph attention layers propagate information across the PPI network, producing a patient-specific graph embedding that captures the topology of dysregulated protein pathways.
+  </p>
+
+  <p className="smb-p">
+    This graph embedding is projected and prepended as a soft prefix to a <strong>Vicuna-7b-v1.5</strong> language model. A natural language clinical instruction is then appended, and the LLM generates the answer — either a classification label or a free-text response. The joint model is instruction-tuned on CPTAC-PROTSTRUCT, a dataset of 381K question-answer pairs derived from 1,000+ CPTAC cancer patients.
+  </p>
+
+  <h3 className="smb-h3">How It Works</h3>
+
+  <ol className="smb-steps">
+    <li className="smb-step">
+      <div className="smb-step-title">Build Patient Graph</div>
+      <div className="smb-step-desc">Load the STRING PPI network. For each protein node, set the node feature to the patient's measured protein abundance (log-normalized mass spectrometry intensity). Missing proteins are imputed with population means.</div>
+    </li>
+    <li className="smb-step">
+      <div className="smb-step-title">Encode with GAT</div>
+      <div className="smb-step-desc">The graph attention encoder aggregates neighborhood information across PPI edges, producing a per-patient graph embedding that reflects the topology of protein dysregulation.</div>
+    </li>
+    <li className="smb-step">
+      <div className="smb-step-title">Project to Language Space</div>
+      <div className="smb-step-desc">A learned linear projector maps the graph embedding into the token embedding space of Vicuna-7b, creating a soft prefix that conditions the LLM on the patient's proteomic state.</div>
+    </li>
+    <li className="smb-step">
+      <div className="smb-step-title">Answer Clinical Question</div>
+      <div className="smb-step-desc">Append a natural language instruction (e.g., "What is the predicted cancer type for this patient?") and run autoregressive decoding to generate the prediction.</div>
+    </li>
+  </ol>
+
+  {/* ==================== INPUT FORMAT ==================== */}
+
+  <h2 id="input-format" className="smb-h2">Input Format</h2>
+
+  <div className="smb-table-wrap">
+    <table className="smb-table">
+      <thead>
+        <tr><th>Input</th><th>Format</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Protein abundances</td><td>float vector, ~4,800 dims</td><td>Log-normalized mass spectrometry intensities per patient</td></tr>
+        <tr><td>PPI network</td><td>edge list (STRING)</td><td>Protein-protein interaction graph; node features = per-patient abundances</td></tr>
+        <tr><td>Clinical instruction</td><td>string</td><td>Natural language question about the patient (e.g., "Predict 2-year survival.")</td></tr>
+        <tr><td>Dataset</td><td>CPTAC-PROTSTRUCT</td><td>381K instruction examples from 1,000+ CPTAC patients; released via CPTAC</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  {/* ==================== LOADING THE MODEL ==================== */}
+
+  <h2 id="loading" className="smb-h2">Loading the Model</h2>
+
+  <div className="smb-callout smb-callout-tip">
+    The KRONOS code repository will be made public post-publication. The CPTAC-PROTSTRUCT dataset is released via the CPTAC data portal. Check <a href="https://github.com/standardmodelbio">github.com/standardmodelbio</a> for availability.
+  </div>
+
+  <div className="smb-code-wrap">
+    <div className="smb-code-label">python</div>
+    <pre className="smb-code-block"><code>{`from transformers import AutoModelForCausalLM, AutoTokenizer
+import torch
+
+# Load KRONOS (graph-LLM; Vicuna-7b backbone + GAT encoder)
+model = AutoModelForCausalLM.from_pretrained(
+    "standardmodelbio/kronos",
+    trust_remote_code=True,
+    torch_dtype=torch.float16,
+    device_map="auto",
+)
+tokenizer = AutoTokenizer.from_pretrained(
+    "standardmodelbio/kronos",
+    trust_remote_code=True,
+)
+model.eval()
+print("KRONOS loaded.")`}</code></pre>
+  </div>
+
+  {/* ==================== EXTRACTING EMBEDDINGS ==================== */}
+
+  <h2 id="embeddings" className="smb-h2">Extracting Embeddings</h2>
+
+  <div className="smb-code-wrap">
+    <div className="smb-code-label">python</div>
+    <pre className="smb-code-block"><code>{`import torch
+import numpy as np
+from torch_geometric.data import Data
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+# ----- 1. Load model -----
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model = AutoModelForCausalLM.from_pretrained(
+    "standardmodelbio/kronos",
+    trust_remote_code=True,
+    torch_dtype=torch.float16,
+    device_map="auto",
+).eval()
+tokenizer = AutoTokenizer.from_pretrained(
+    "standardmodelbio/kronos",
+    trust_remote_code=True,
+)
+
+# ----- 2. Build patient graph -----
+# protein_abundances: float array of shape (n_proteins,) = ~4800 values
+protein_abundances = np.load("/path/to/patient_proteomics.npy")  # (4800,)
+node_features = torch.tensor(protein_abundances, dtype=torch.float32)
+
+# edge_index: (2, n_edges) — STRING PPI edges pre-filtered to your protein set
+edge_index = torch.load("/path/to/string_ppi_edge_index.pt")
+
+patient_graph = Data(
+    x=node_features.unsqueeze(0),  # (1, n_proteins)
+    edge_index=edge_index,
+).to(device)
+
+# ----- 3. Encode clinical instruction -----
+instruction = "What is the predicted cancer type for this patient?"
+inputs = tokenizer(instruction, return_tensors="pt").to(device)
+
+# ----- 4. Run inference -----
+with torch.no_grad():
+    outputs = model.generate(
+        **inputs,
+        graph_data=patient_graph,   # patient proteomic graph
+        max_new_tokens=64,
+        do_sample=False,
+    )
+
+answer = tokenizer.decode(outputs[0], skip_special_tokens=True)
+print(f"Prediction: {answer}")
+
+# ----- 5. Extract patient graph embedding (for downstream use) -----
+with torch.no_grad():
+    graph_embedding = model.encode_graph(patient_graph)  # (1, hidden_dim)
+print(f"Patient embedding shape: {graph_embedding.shape}")`}</code></pre>
+  </div>
+
+  {/* ==================== USE CASES ==================== */}
+
+  <h2 id="use-cases" className="smb-h2">Use Cases</h2>
+
+  <div className="smb-card-grid smb-card-grid-2">
+    <div className="smb-card">
+      <div className="smb-card-icon">🎯</div>
+      <div className="smb-card-title">Cancer Type Classification</div>
+      <div className="smb-card-desc">Classify tumor type from proteomics alone — useful when histology is unavailable or ambiguous.</div>
+    </div>
+    <div className="smb-card">
+      <div className="smb-card-icon">⏱️</div>
+      <div className="smb-card-title">Survival Prediction</div>
+      <div className="smb-card-desc">Predict overall survival and mortality risk from protein expression profiles. AUC up to 0.857 on CPTAC cohorts.</div>
+    </div>
+    <div className="smb-card">
+      <div className="smb-card-icon">🏷️</div>
+      <div className="smb-card-title">Tumor Stage Estimation</div>
+      <div className="smb-card-desc">Estimate pathological tumor stage as a complementary signal to radiological staging.</div>
+    </div>
+    <div className="smb-card">
+      <div className="smb-card-icon">🔗</div>
+      <div className="smb-card-title">Multimodal Fusion</div>
+      <div className="smb-card-desc">Combine KRONOS graph embeddings with imaging and EHR signals in smb-v1 for whole-patient modeling.</div>
+    </div>
+  </div>
+
+  {/* ==================== HARDWARE REQUIREMENTS ==================== */}
+
+  <h2 id="hardware" className="smb-h2">Hardware Requirements</h2>
+
+  <div className="smb-table-wrap">
+    <table className="smb-table">
+      <thead>
+        <tr><th>Task</th><th>VRAM</th><th>Recommended GPU</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Inference</td><td>16 GB</td><td>A100 40GB, A6000</td></tr>
+        <tr><td>Fine-tuning</td><td>40 GB+</td><td>A100 80GB, H100</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  {/* ==================== CONTACT ==================== */}
+
+  <div className="smb-contact">
+    <div className="smb-contact-title">Contact Us</div>
+    <div className="smb-contact-desc">
+      Having trouble, or just want to talk about your project? Send an email to <a href="mailto:erik@standardmodel.bio">erik@standardmodel.bio</a>
+    </div>
+  </div>
+
+</div>
+
+</div>
+
+<script dangerouslySetInnerHTML={{__html: `
+  (function() {
+    var sections = document.querySelectorAll('.smb-h2[id]');
+    var links = document.querySelectorAll('.smb-sidenav-section');
+    if (!sections.length || !links.length) return;
+    var current = null;
+    var obs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (e.isIntersecting) {
+          var id = e.target.id;
+          if (id === current) return;
+          current = id;
+          links.forEach(function(l) { l.classList.remove('smb-sidenav-active'); });
+          var a = document.querySelector('.smb-sidenav-section[href="#' + id + '"]');
+          if (a) a.classList.add('smb-sidenav-active');
+        }
+      });
+    }, { rootMargin: '-10% 0px -80% 0px' });
+    sections.forEach(function(s) { obs.observe(s); });
+  })();
+`}} />

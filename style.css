@@ -21,8 +21,7 @@
 }
 
 /* ==========================================================
-   COLLAPSIBLE SIDEBAR
-   Collapsed by default, expands on hover
+   SIDEBAR — Always visible, Next.js-inspired
    ========================================================== */
 
 #sidebar,
@@ -30,71 +29,95 @@ nav[class*="sidebar"],
 aside[class*="sidebar"],
 div[class*="sidebar-container"],
 [data-testid="sidebar"] {
-  width: 52px !important;
-  min-width: 52px !important;
-  max-width: 52px !important;
-  overflow: hidden !important;
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  position: relative !important;
-  z-index: 100 !important;
-  border-right: 1px solid rgba(30,45,61,0.06) !important;
-}
-
-#sidebar:hover,
-nav[class*="sidebar"]:hover,
-aside[class*="sidebar"]:hover,
-div[class*="sidebar-container"]:hover,
-[data-testid="sidebar"]:hover {
   width: 260px !important;
   min-width: 260px !important;
   max-width: 260px !important;
-  box-shadow: 8px 0 40px rgba(18,28,39,0.08) !important;
   overflow-y: auto !important;
+  overflow-x: hidden !important;
+  position: sticky !important;
+  top: 0 !important;
+  height: 100vh !important;
+  z-index: 100 !important;
+  border-right: 1px solid rgba(30,45,61,0.06) !important;
+  background: #fafaf9 !important;
+  padding: 12px 0 32px !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(30,45,61,0.08) transparent !important;
 }
 
-/* Chevron hint when collapsed */
+/* Always show sidebar text */
+#sidebar a span,
+#sidebar a > *:not(svg),
+nav[class*="sidebar"] a span,
+aside[class*="sidebar"] a span {
+  opacity: 1 !important;
+  transition: none !important;
+  white-space: normal !important;
+}
+
+/* Remove chevron */
 #sidebar::after,
 nav[class*="sidebar"]::after,
 aside[class*="sidebar"]::after,
 div[class*="sidebar-container"]::after,
 [data-testid="sidebar"]::after {
-  content: '›';
-  position: absolute;
-  top: 50%;
-  right: 16px;
-  transform: translateY(-50%);
-  font-size: 20px;
-  color: rgba(30,45,61,0.2);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  pointer-events: none;
-  z-index: 101;
+  display: none !important;
+  content: none !important;
 }
 
-#sidebar:hover::after,
-nav[class*="sidebar"]:hover::after,
-aside[class*="sidebar"]:hover::after,
-div[class*="sidebar-container"]:hover::after,
-[data-testid="sidebar"]:hover::after {
-  opacity: 0;
-  transform: translateY(-50%) translateX(10px);
+/* Sidebar nav links */
+#sidebar a,
+nav[class*="sidebar"] a,
+aside[class*="sidebar"] a {
+  font-family: var(--font-display) !important;
+  font-size: 13.5px !important;
+  font-weight: 400 !important;
+  color: var(--smb-text-muted) !important;
+  padding: 6px 14px !important;
+  border-radius: 7px !important;
+  margin: 1px 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  text-decoration: none !important;
+  transition: color 0.15s ease, background 0.15s ease !important;
+  line-height: 1.45 !important;
 }
 
-/* Fade sidebar text */
-#sidebar a span,
-#sidebar a > *:not(svg),
-nav[class*="sidebar"] a span,
-aside[class*="sidebar"] a span {
-  opacity: 0;
-  transition: opacity 0.25s ease 0s;
-  white-space: nowrap;
+#sidebar a:hover,
+nav[class*="sidebar"] a:hover,
+aside[class*="sidebar"] a:hover {
+  color: var(--smb-navy) !important;
+  background: rgba(30,45,61,0.045) !important;
 }
 
-#sidebar:hover a span,
-#sidebar:hover a > *:not(svg),
-nav[class*="sidebar"]:hover a span,
-aside[class*="sidebar"]:hover a span {
-  opacity: 1;
-  transition: opacity 0.25s ease 0.1s;
+/* Group / section headers */
+#sidebar [class*="group"] p,
+#sidebar [class*="group"] span,
+#sidebar [class*="section"] p,
+#sidebar [class*="section"] span,
+nav[class*="sidebar"] [class*="group"] p,
+nav[class*="sidebar"] [class*="group"] span {
+  font-family: var(--font-mono) !important;
+  font-size: 10px !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  color: rgba(30,45,61,0.4) !important;
+  font-weight: 500 !important;
+  padding: 20px 14px 6px !important;
+  display: block !important;
+}
+
+/* Divider between groups */
+#sidebar [class*="group"],
+nav[class*="sidebar"] [class*="group"] {
+  padding-top: 4px !important;
+}
+
+#sidebar [class*="group"] + [class*="group"],
+nav[class*="sidebar"] [class*="group"] + [class*="group"] {
+  border-top: 1px solid rgba(30,45,61,0.05) !important;
+  margin-top: 8px !important;
+  padding-top: 8px !important;
 }
 
 
@@ -109,9 +132,12 @@ body, .mdx-content, #content-area {
 }
 
 #sidebar a[aria-current="page"],
-#sidebar a.active {
+#sidebar a.active,
+nav[class*="sidebar"] a[aria-current="page"],
+aside[class*="sidebar"] a[aria-current="page"] {
   color: var(--smb-orange) !important;
   font-weight: 600 !important;
+  background: rgba(232,87,58,0.07) !important;
 }
 
 #table-of-contents a[aria-current="true"],
@@ -754,8 +780,201 @@ body, .mdx-content, #content-area {
 
 
 /* ==========================================================
+   ENCODER SIDENAV LAYOUT
+   ========================================================== */
+
+.smb-encoder-wrap {
+  display: grid;
+  grid-template-columns: 172px 1fr;
+  gap: 52px;
+  max-width: 1064px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+  align-items: start;
+}
+
+.smb-encoder-wrap .smb-page {
+  max-width: none;
+  margin: 0;
+  padding: 0 0 80px;
+}
+
+/* --- Sidenav container --- */
+.smb-sidenav {
+  position: sticky;
+  top: 88px;
+  max-height: calc(100vh - 108px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  padding-top: 4px;
+}
+
+.smb-sidenav::-webkit-scrollbar { display: none; }
+
+/* --- Sidenav group --- */
+.smb-sidenav-group {
+  margin-bottom: 6px;
+}
+
+.smb-sidenav-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: rgba(30,45,61,0.3);
+  padding: 0 10px 8px;
+  display: block;
+}
+
+/* --- Encoder switcher items --- */
+.smb-sidenav-encoder {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  color: var(--smb-text-muted);
+  text-decoration: none !important;
+  transition: color 0.15s ease, background 0.15s ease;
+  line-height: 1.35;
+  font-weight: 400;
+  margin-bottom: 1px;
+}
+
+.smb-sidenav-encoder:hover {
+  color: var(--smb-navy);
+  background: rgba(30,45,61,0.04);
+}
+
+.smb-sidenav-encoder-active {
+  color: var(--smb-orange) !important;
+  font-weight: 600;
+  background: rgba(232,87,58,0.07) !important;
+}
+
+.smb-sidenav-encoder-icon {
+  font-size: 13px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* --- Divider --- */
+.smb-sidenav-divider {
+  height: 1px;
+  background: rgba(30,45,61,0.06);
+  margin: 14px 10px;
+}
+
+/* --- Section track --- */
+.smb-sidenav-track {
+  position: relative;
+  padding-left: 0;
+  isolation: isolate;
+}
+
+/* Static grey track line */
+.smb-sidenav-track::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 0;
+  width: 1px;
+  height: 100%;
+  background: rgba(30,45,61,0.07);
+  border-radius: 1px;
+}
+
+/* Scroll-driven orange fill (Chrome 115+, Firefox 110+) */
+@supports (animation-timeline: scroll()) {
+  .smb-sidenav-track::after {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 0;
+    width: 1px;
+    height: 0%;
+    background: linear-gradient(
+      to bottom,
+      rgba(232,87,58,0.0) 0%,
+      rgba(232,87,58,0.45) 40%,
+      rgba(232,87,58,0.6) 100%
+    );
+    border-radius: 1px;
+    animation: smb-track-fill linear both;
+    animation-timeline: scroll(root block);
+    z-index: 1;
+  }
+
+  @keyframes smb-track-fill {
+    from { height: 0%; }
+    to   { height: 100%; }
+  }
+}
+
+/* --- Section link items --- */
+.smb-sidenav-section {
+  display: block;
+  padding: 4.5px 10px 4.5px 22px;
+  font-size: 12px;
+  color: rgba(30,45,61,0.42);
+  text-decoration: none !important;
+  line-height: 1.45;
+  position: relative;
+  transition: color 0.15s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Active pip */
+.smb-sidenav-section::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 50%;
+  transform: translateY(-50%) scale(0);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--smb-orange);
+  transition: transform 0.2s cubic-bezier(0.16,1,0.3,1), opacity 0.2s ease;
+  opacity: 0;
+  z-index: 2;
+}
+
+.smb-sidenav-section:hover {
+  color: var(--smb-navy);
+}
+
+.smb-sidenav-active {
+  color: var(--smb-orange) !important;
+  font-weight: 500;
+}
+
+.smb-sidenav-active::before {
+  transform: translateY(-50%) scale(1);
+  opacity: 1;
+}
+
+
+/* ==========================================================
    RESPONSIVE — DOC PAGES
    ========================================================== */
+
+@media (max-width: 960px) {
+  .smb-encoder-wrap {
+    grid-template-columns: 1fr;
+    padding: 0 16px 60px;
+  }
+  .smb-sidenav {
+    display: none;
+  }
+  .smb-encoder-wrap .smb-page {
+    padding: 0 0 60px;
+  }
+}
 
 @media (max-width: 900px) {
   .smb-card-grid-2,
@@ -900,6 +1119,7 @@ body, .mdx-content, #content-area {
 
 .smb-next { background: #fff; }
 .smb-next-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; margin-top: 44px; }
+.smb-next-grid-4 { grid-template-columns: repeat(2,1fr); }
 .smb-next-card { border: 1px solid var(--smb-border); border-radius: 14px; padding: 32px 28px; text-decoration: none !important; display: block; color: var(--smb-text-dark) !important; transition: all 0.35s cubic-bezier(0.16,1,0.3,1); position: relative; overflow: hidden; }
 .smb-next-card::before { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--smb-orange), var(--smb-warm-orange)); transform: scaleX(0); transform-origin: left; transition: transform 0.4s cubic-bezier(0.16,1,0.3,1); }
 .smb-next-card:hover { border-color: rgba(30,45,61,0.15); transform: translateY(-4px); box-shadow: 0 12px 40px rgba(30,45,61,0.07); }
@@ -919,7 +1139,8 @@ body, .mdx-content, #content-area {
 @media (max-width: 900px) {
   .smb-model-grid { grid-template-columns: 1fr; }
   .smb-usecase-grid { grid-template-columns: 1fr; }
-  .smb-next-grid { grid-template-columns: 1fr; }
+  .smb-next-grid,
+  .smb-next-grid-4 { grid-template-columns: 1fr; }
   .smb-section { padding: 80px 24px; }
   .smb-hero { padding: 100px 24px 80px; min-height: auto; }
   .smb-arch-diagram { flex-direction: column; }

@@ -190,7 +190,7 @@ mode: "custom"
     <h2 className="smb-section-heading">
       Start here
     </h2>
-    <div className="smb-next-grid">
+    <div className="smb-next-grid smb-next-grid-4">
       <a href="/example" className="smb-next-card">
         <div className="smb-next-card-icon">🧪</div>
         <div className="smb-next-card-title">End-to-end example</div>
@@ -205,9 +205,15 @@ mode: "custom"
       </a>
       <a href="/model" className="smb-next-card">
         <div className="smb-next-card-icon">🔬</div>
-        <div className="smb-next-card-title">Model architecture</div>
+        <div className="smb-next-card-title">smb-v1 architecture</div>
         <div className="smb-next-card-desc">JEPA training objectives, fusion layer design, state prediction S(t) → S(t+1), and memory optimization for inference.</div>
         <div className="smb-next-card-arrow">Read details →</div>
+      </a>
+      <a href="/encoders/vision" className="smb-next-card">
+        <div className="smb-next-card-icon">🧬</div>
+        <div className="smb-next-card-title">Encoders</div>
+        <div className="smb-next-card-desc">Modality-specific encoders — smb-vision for CT volumes, GenVarFormer for whole-genome sequencing, and KRONOS for proteomics.</div>
+        <div className="smb-next-card-arrow">Browse encoders →</div>
       </a>
     </div>
   </div>

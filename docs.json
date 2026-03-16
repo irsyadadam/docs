@@ -56,11 +56,27 @@
         }
       ]
     },
-    "pages": [
-      "index",
-      "example",
-      "your-own-data",
-      "model"
+    "groups": [
+      {
+        "group": "Home",
+        "pages": ["index"]
+      },
+      {
+        "group": "World Model",
+        "pages": [
+          "example",
+          "your-own-data",
+          "model"
+        ]
+      },
+      {
+        "group": "Encoders",
+        "pages": [
+          "encoders/vision",
+          "encoders/genomics",
+          "encoders/proteomics"
+        ]
+      }
     ]
   },
   "footer": {

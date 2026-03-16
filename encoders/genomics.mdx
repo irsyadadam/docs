@@ -1,0 +1,297 @@
+---
+title: "GenVarFormer"
+icon: "dna"
+description: "Loading and running GenVarFormer — Standard Model Bio's somatic mutation encoder for predicting gene expression from long-range genomic variants."
+mode: "custom"
+---
+
+<div className="smb-encoder-wrap">
+
+{/* ==================== SIDENAV ==================== */}
+
+<aside className="smb-sidenav" aria-label="Page navigation">
+  <div className="smb-sidenav-group">
+    <span className="smb-sidenav-label">Encoders</span>
+    <a href="/encoders/vision" className="smb-sidenav-encoder">
+      <span className="smb-sidenav-encoder-icon">🫁</span>Vision
+    </a>
+    <a href="/encoders/genomics" className="smb-sidenav-encoder smb-sidenav-encoder-active">
+      <span className="smb-sidenav-encoder-icon">🧬</span>Genomics
+    </a>
+    <a href="/encoders/proteomics" className="smb-sidenav-encoder">
+      <span className="smb-sidenav-encoder-icon">🔬</span>Proteomics
+    </a>
+  </div>
+
+  <div className="smb-sidenav-divider"></div>
+
+  <div className="smb-sidenav-group">
+    <span className="smb-sidenav-label">On this page</span>
+    <nav className="smb-sidenav-track">
+      <a href="#differentiators" className="smb-sidenav-section">Key Differentiators</a>
+      <a href="#architecture" className="smb-sidenav-section">Architecture</a>
+      <a href="#input-format" className="smb-sidenav-section">Input Format</a>
+      <a href="#loading" className="smb-sidenav-section">Loading the Model</a>
+      <a href="#embeddings" className="smb-sidenav-section">Embeddings</a>
+      <a href="#use-cases" className="smb-sidenav-section">Use Cases</a>
+      <a href="#hardware" className="smb-sidenav-section">Hardware</a>
+    </nav>
+  </div>
+</aside>
+
+{/* ==================== MAIN CONTENT ==================== */}
+
+<div className="smb-page">
+
+  <div className="smb-page-header">
+    <div className="smb-page-icon">🧬</div>
+    <h1 className="smb-page-title">GenVarFormer</h1>
+    <p className="smb-page-desc">
+      <code>GenVarFormer</code> predicts gene expression changes from somatic mutations in cancer. It attends over all mutations within a 16 Mbp window around a gene's transcription start site — capturing long-range regulatory interactions that standard variant-effect models miss.
+    </p>
+  </div>
+
+  <div className="smb-callout smb-callout-tip">
+    Read the preprint: <a href="https://arxiv.org/abs/2509.25573">arXiv:2509.25573</a> — <em>Predicting Gene Expression from Long-Range Mutations in Cancer</em>.
+  </div>
+
+  {/* ==================== KEY DIFFERENTIATORS ==================== */}
+
+  <h2 id="differentiators" className="smb-h2">Key Differentiators</h2>
+
+  <div className="smb-card-grid smb-card-grid-3">
+    <div className="smb-card">
+      <div className="smb-card-icon">🧬</div>
+      <div className="smb-card-title">Long-Range Context</div>
+      <div className="smb-card-desc">Handles mutations up to 8 Mbp from the target gene's TSS — well beyond standard promoter-proximal models.</div>
+    </div>
+    <div className="smb-card">
+      <div className="smb-card-icon">⚡</div>
+      <div className="smb-card-title">Compact & Fast</div>
+      <div className="smb-card-desc">993K parameters, 4 transformer layers — inference runs on a consumer GPU or CPU in seconds per patient.</div>
+    </div>
+    <div className="smb-card">
+      <div className="smb-card-icon">🔀</div>
+      <div className="smb-card-title">Sparse Mutation Aware</div>
+      <div className="smb-card-desc">Designed for the extreme sparsity of somatic cancer mutations; generalizes to unseen genes and patient samples.</div>
+    </div>
+  </div>
+
+  {/* ==================== ARCHITECTURE ==================== */}
+
+  <h2 id="architecture" className="smb-h2">Architecture</h2>
+
+  <p className="smb-p">
+    GenVarFormer is a compact transformer (993K parameters) with 4 layers, 64-dimensional embeddings, and 4 attention heads. Each mutation is represented as a feature vector encoding sequence context, variant type, allele fraction, and chromosomal position. The model attends jointly over all mutations in a 16 Mbp window, learning which variants — individually or in combination — shift gene expression.
+  </p>
+
+  <p className="smb-p">
+    At the patient level, per-gene mutation embeddings are mean-pooled and concatenated into a patient-level representation suitable for downstream survival modeling, subtype classification, or multimodal fusion with smb-v1.
+  </p>
+
+  <h3 className="smb-h3">How It Works</h3>
+
+  <ol className="smb-steps">
+    <li className="smb-step">
+      <div className="smb-step-title">Identify Window</div>
+      <div className="smb-step-desc">For a target gene, collect all somatic mutations within ±8 Mbp of the transcription start site (TSS) from the patient's VCF.</div>
+    </li>
+    <li className="smb-step">
+      <div className="smb-step-title">Build Per-Mutation Features</div>
+      <div className="smb-step-desc">For each mutation, extract: alternative allele sequence (<code>ALT</code>), indel length (<code>ILEN</code>), variant allele fraction (<code>VAF</code>), 32 bp flanking sequences (<code>FLANK_5</code>, <code>FLANK_3</code>), and chromosomal position (<code>POS</code>).</div>
+    </li>
+    <li className="smb-step">
+      <div className="smb-step-title">Encode Mutations</div>
+      <div className="smb-step-desc">Pass the mutation feature matrix through GenVarFormer. The transformer attends over all mutations simultaneously to produce a 64-dim embedding per mutation.</div>
+    </li>
+    <li className="smb-step">
+      <div className="smb-step-title">Predict Gene Expression</div>
+      <div className="smb-step-desc">A scalar prediction head outputs the expected expression change for the target gene.</div>
+    </li>
+    <li className="smb-step">
+      <div className="smb-step-title">Build Patient Embedding</div>
+      <div className="smb-step-desc">Mean-pool mutation embeddings across all genes and concatenate to form a patient-level vector for downstream tasks.</div>
+    </li>
+  </ol>
+
+  {/* ==================== INPUT FORMAT ==================== */}
+
+  <h2 id="input-format" className="smb-h2">Input Format</h2>
+
+  <div className="smb-table-wrap">
+    <table className="smb-table">
+      <thead>
+        <tr><th>Feature</th><th>Type</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>ALT</code></td><td>string</td><td>Alternative allele DNA sequence</td></tr>
+        <tr><td><code>ILEN</code></td><td>int</td><td>Indel length: negative = deletion, 0 = substitution, positive = insertion</td></tr>
+        <tr><td><code>VAF</code></td><td>float [0, 1]</td><td>Variant allele fraction from tumor sequencing</td></tr>
+        <tr><td><code>FLANK_5</code></td><td>string (32 bp)</td><td>5′ flanking genomic sequence</td></tr>
+        <tr><td><code>FLANK_3</code></td><td>string (32 bp)</td><td>3′ flanking genomic sequence</td></tr>
+        <tr><td><code>POS</code></td><td>int</td><td>Chromosomal position (hg38)</td></tr>
+        <tr><td>Window</td><td>—</td><td>±8 Mbp around the target gene TSS (16 Mbp total)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  {/* ==================== LOADING THE MODEL ==================== */}
+
+  <h2 id="loading" className="smb-h2">Loading the Model</h2>
+
+  <div className="smb-callout smb-callout-tip">
+    Code and weights will be released publicly. Check <a href="https://github.com/standardmodelbio">github.com/standardmodelbio</a> for the latest release.
+  </div>
+
+  <div className="smb-code-wrap">
+    <div className="smb-code-label">python</div>
+    <pre className="smb-code-block"><code>{`from transformers import AutoModel, AutoConfig
+import torch
+
+model = AutoModel.from_pretrained(
+    "standardmodelbio/genvarformer",
+    trust_remote_code=True,
+)
+model.eval()
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model = model.to(device)
+
+print(f"Parameters: {sum(p.numel() for p in model.parameters()):,}")`}</code></pre>
+  </div>
+
+  {/* ==================== EXTRACTING EMBEDDINGS ==================== */}
+
+  <h2 id="embeddings" className="smb-h2">Extracting Embeddings</h2>
+
+  <div className="smb-code-wrap">
+    <div className="smb-code-label">python</div>
+    <pre className="smb-code-block"><code>{`import torch
+import pandas as pd
+from transformers import AutoModel, AutoTokenizer
+
+# ----- 1. Load model -----
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model = AutoModel.from_pretrained(
+    "standardmodelbio/genvarformer",
+    trust_remote_code=True,
+).to(device).eval()
+
+# ----- 2. Prepare mutation features for one gene -----
+# Each row = one somatic mutation within the 16 Mbp window
+mutations = pd.DataFrame({
+    "ALT":     ["T", "GCTA", "A"],
+    "ILEN":    [0, 3, -1],
+    "VAF":     [0.42, 0.15, 0.87],
+    "FLANK_5": ["ACGTACGT" * 4, "TTGCAACG" * 4, "CGATCGAT" * 4],
+    "FLANK_3": ["GCTAGCTA" * 4, "AATCGGCC" * 4, "TTAGCCGT" * 4],
+    "POS":     [12345678, 12400000, 12800000],
+})
+
+# ----- 3. Tokenize & encode -----
+tokenizer = AutoTokenizer.from_pretrained(
+    "standardmodelbio/genvarformer",
+    trust_remote_code=True,
+)
+inputs = tokenizer(mutations.to_dict("records"), return_tensors="pt").to(device)
+
+with torch.no_grad():
+    outputs = model(**inputs)
+
+# Gene-level: scalar expression prediction
+expression_pred = outputs.expression_logits      # (1,) or (n_genes,)
+
+# Mutation-level embeddings — mean-pool for gene embedding
+mutation_embeddings = outputs.last_hidden_state  # (1, n_mutations, 64)
+gene_embedding = mutation_embeddings.mean(dim=1) # (1, 64)
+
+print(f"Predicted expression delta: {expression_pred.item():.4f}")
+print(f"Gene embedding shape:       {gene_embedding.shape}")
+
+# ----- 4. Patient-level embedding -----
+# Repeat for all genes, then concatenate gene embeddings into one vector
+# patient_embedding = torch.cat([gene_emb_1, gene_emb_2, ...], dim=-1)`}</code></pre>
+  </div>
+
+  {/* ==================== USE CASES ==================== */}
+
+  <h2 id="use-cases" className="smb-h2">Use Cases</h2>
+
+  <div className="smb-card-grid smb-card-grid-2">
+    <div className="smb-card">
+      <div className="smb-card-icon">📉</div>
+      <div className="smb-card-title">Expression Prediction</div>
+      <div className="smb-card-desc">Predict how a patient's somatic mutation landscape shifts the expression of any gene — without needing matched RNA-seq.</div>
+    </div>
+    <div className="smb-card">
+      <div className="smb-card-icon">🏥</div>
+      <div className="smb-card-title">Cancer Subtyping</div>
+      <div className="smb-card-desc">Cluster patient-level embeddings to identify transcriptional subtypes driven by mutation patterns.</div>
+    </div>
+    <div className="smb-card">
+      <div className="smb-card-icon">💊</div>
+      <div className="smb-card-title">Treatment Response</div>
+      <div className="smb-card-desc">Use predicted expression profiles as features for therapy response or drug sensitivity models.</div>
+    </div>
+    <div className="smb-card">
+      <div className="smb-card-icon">🔗</div>
+      <div className="smb-card-title">Multimodal Fusion</div>
+      <div className="smb-card-desc">Feed patient-level genomic embeddings into smb-v1 alongside imaging and EHR for integrated modeling.</div>
+    </div>
+  </div>
+
+  {/* ==================== HARDWARE REQUIREMENTS ==================== */}
+
+  <h2 id="hardware" className="smb-h2">Hardware Requirements</h2>
+
+  <p className="smb-p">
+    GenVarFormer is compact at 993K parameters — it runs comfortably on a consumer GPU or CPU. No specialized hardware is required for inference.
+  </p>
+
+  <div className="smb-table-wrap">
+    <table className="smb-table">
+      <thead>
+        <tr><th>Task</th><th>VRAM / RAM</th><th>Hardware</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Inference (single patient)</td><td>&lt; 1 GB</td><td>Any GPU or modern CPU</td></tr>
+        <tr><td>Batch inference (cohort)</td><td>2–4 GB</td><td>RTX 3060 or better</td></tr>
+        <tr><td>Fine-tuning</td><td>4–8 GB</td><td>RTX 3080 / A10</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  {/* ==================== CONTACT ==================== */}
+
+  <div className="smb-contact">
+    <div className="smb-contact-title">Contact Us</div>
+    <div className="smb-contact-desc">
+      Having trouble, or just want to talk about your project? Send an email to <a href="mailto:erik@standardmodel.bio">erik@standardmodel.bio</a>
+    </div>
+  </div>
+
+</div>
+
+</div>
+
+<script dangerouslySetInnerHTML={{__html: `
+  (function() {
+    var sections = document.querySelectorAll('.smb-h2[id]');
+    var links = document.querySelectorAll('.smb-sidenav-section');
+    if (!sections.length || !links.length) return;
+    var current = null;
+    var obs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (e.isIntersecting) {
+          var id = e.target.id;
+          if (id === current) return;
+          current = id;
+          links.forEach(function(l) { l.classList.remove('smb-sidenav-active'); });
+          var a = document.querySelector('.smb-sidenav-section[href="#' + id + '"]');
+          if (a) a.classList.add('smb-sidenav-active');
+        }
+      });
+    }, { rootMargin: '-10% 0px -80% 0px' });
+    sections.forEach(function(s) { obs.observe(s); });
+  })();
+`}} />
