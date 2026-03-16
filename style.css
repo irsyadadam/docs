@@ -380,7 +380,7 @@ aside[class*="sidebar"] a[aria-current="page"] {
 
 /* --- Hero --- */
 .smb-hero {
-  position: relative;
+  position: auto;
   background: var(--smb-cream);
   min-height: 100vh;
   display: flex;
@@ -468,7 +468,7 @@ aside[class*="sidebar"] a[aria-current="page"] {
   min-width: 260px;
   max-width: 280px;
   flex-shrink: 0;
-  animation: smb-carousel-scroll 10s linear infinite;
+  animation: smb-carousel-scroll 30s linear infinite;
   animation-play-state: running;
 }
 
@@ -478,7 +478,7 @@ aside[class*="sidebar"] a[aria-current="page"] {
 
 @keyframes smb-carousel-scroll {
   0% { transform: translateX(0); }
-  100% { transform: translateX(calc(-100% - 16px)); }
+  100% { transform: translateX(calc(-400% - 1px)); }
 }
 
 /* --- Paper cards --- */
@@ -632,9 +632,14 @@ aside[class*="sidebar"] a[aria-current="page"] {
    FLOATING NAV — Right-edge section navigation
    ========================================================== */
 
+#quickstart {
+  scroll-margin-top: 0;
+}
+
+
 .smb-floating-nav {
   position: fixed;
-  right: 28px;
+  right: 100px;
   top: 50%;
   transform: translateY(-50%);
   z-index: 200;
@@ -734,11 +739,13 @@ aside[class*="sidebar"] a[aria-current="page"] {
    LANDING PAGE — Kill white space below
    ========================================================== */
 
-.smb-landing {
-  margin: 0 !important;
+.smb-landing ~ * {
+  display: none !important;
+  height: 0 !important;
+  overflow: hidden !important;
   padding: 0 !important;
+  margin: 0 !important;
 }
-
 #content-area:has(.smb-landing),
 #content-container:has(.smb-landing),
 #body-content:has(.smb-landing),
@@ -770,4 +777,12 @@ aside[class*="sidebar"] a[aria-current="page"] {
 
 .smb-footer-bar {
   scroll-snap-align: end;
+}
+
+#models, #papers{
+  scroll-margin-top: 100px;
+}
+
+#usecases, #nextsteps {
+  scroll-margin-top: 50px;
 }
