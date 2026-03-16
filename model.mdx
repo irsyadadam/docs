@@ -1,6 +1,8 @@
 ---
 title: "More about the Standard Model"
 icon: "brain-circuit"
+description: "Architecture, embeddings, use cases, and memory optimization for smb-v1-1.7b."
+mode: "custom"
 ---
 
 <div className="smb-tracker">
@@ -25,36 +27,58 @@ icon: "brain-circuit"
   </a>
 </div>
 
-`smb-v1-1.7b` is our flagship biological world model. Unlike traditional LLMs that predict tokens, it predicts **patient states** in latent space, modeling how patients evolve over time and respond to interventions.
+<div className="smb-page">
 
-<Tip>
-  Read more about our modeling approach and benchmarks at our [blog](https://blog.standardmodel.bio).
-</Tip>
+  <div className="smb-page-header">
+    <div className="smb-page-icon">🧠</div>
+    <h1 className="smb-page-title">More about the Standard Model</h1>
+    <p className="smb-page-desc">
+      <code>smb-v1-1.7b</code> is our flagship biological world model. Unlike traditional LLMs that predict tokens, it predicts <strong>patient states</strong> in latent space, modeling how patients evolve over time and respond to interventions.
+    </p>
+  </div>
 
-## Key Differentiators
+  <div className="smb-callout smb-callout-tip">
+    Read more about our modeling approach and benchmarks at our <a href="https://blog.standardmodel.bio">blog</a>.
+  </div>
 
-<CardGroup cols={3}>
-  <Card title="State Prediction" icon="brain">
-    Predicts future patient states in latent space, not text tokens
-  </Card>
-  <Card title="Causal Learning" icon="arrows-split-up-and-left">
-    Learns cause-and-effect: (Pre-State + Intervention) → Post-State
-  </Card>
-  <Card title="Multimodal Fusion" icon="layer-group">
-    Unifies genomics, imaging, EHR, and proteomics
-  </Card>
-</CardGroup>
+  {/* ==================== KEY DIFFERENTIATORS ==================== */}
 
-## Environment Activation
+  <h2 className="smb-h2">Key Differentiators</h2>
 
-```bash
-source standard_model/bin/activate
-```
+  <div className="smb-card-grid smb-card-grid-3">
+    <div className="smb-card">
+      <div className="smb-card-icon">🧠</div>
+      <div className="smb-card-title">State Prediction</div>
+      <div className="smb-card-desc">Predicts future patient states in latent space, not text tokens.</div>
+    </div>
+    <div className="smb-card">
+      <div className="smb-card-icon">🔀</div>
+      <div className="smb-card-title">Causal Learning</div>
+      <div className="smb-card-desc">Learns cause-and-effect: (Pre-State + Intervention) → Post-State.</div>
+    </div>
+    <div className="smb-card">
+      <div className="smb-card-icon">📚</div>
+      <div className="smb-card-title">Multimodal Fusion</div>
+      <div className="smb-card-desc">Unifies genomics, imaging, EHR, and proteomics.</div>
+    </div>
+  </div>
 
-## Usage
+  {/* ==================== ENVIRONMENT ==================== */}
 
-```python
-from transformers import AutoModel, AutoTokenizer
+  <h2 className="smb-h2">Environment Activation</h2>
+
+  <div className="smb-code-wrap">
+    <div className="smb-code-label">bash</div>
+    <pre className="smb-code-block"><code>{`source standard_model/bin/activate`}</code></pre>
+  </div>
+
+  {/* ==================== USAGE ==================== */}
+
+  <h2 className="smb-h2">Usage</h2>
+
+  <div className="smb-code-wrap">
+    <div className="smb-code-label">python</div>
+    <pre className="smb-code-block"><code>{`from transformers import AutoModel, AutoTokenizer
 import torch
 
 # Load model
@@ -64,40 +88,53 @@ tokenizer = AutoTokenizer.from_pretrained("standardmodelbio/smb-v1-1.7b")
 # Move to GPU
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model = model.to(device)
-model.eval()
-```
+model.eval()`}</code></pre>
+  </div>
 
-## Architecture
+  {/* ==================== ARCHITECTURE ==================== */}
 
-The Standard Model uses **Joint-Embedding Predictive Architecture (JEPA)** — treating the patient as a dynamic "world" and treatments as interventions that change that world.
+  <h2 className="smb-h2">Architecture</h2>
 
-<Frame>
-  ![Standard Model Architecture](/images/standard-model-architecture.png)
-</Frame>
+  <p className="smb-p">
+    The Standard Model uses <strong>Joint-Embedding Predictive Architecture (JEPA)</strong> — treating the patient as a dynamic "world" and treatments as interventions that change that world.
+  </p>
 
-### How It Works
+  <div className="smb-frame">
+    <img src="/images/standard-model-architecture.png" alt="Standard Model Architecture" />
+  </div>
 
-<Steps>
-  <Step title="Modality Ingestion">
-    Raw signals — genomics, proteomics, imaging, EHR data — pass through modality-specific encoders. Each encoder is trained to extract meaningful representations from its data type.
-  </Step>
-  <Step title="Fusion Layer">
-    A specialized projector maps these encodings into a universal latent space. This creates a "fused" patient state embedding that retains both high-level semantic context and low-level biological granularity.
-  </Step>
-  <Step title="State Prediction">
-    Given the current patient state _S(t)_ and an intervention _A(t)_, the model predicts the future state _S(t+1)_ in latent space — not as text, but as a dense embedding.
-  </Step>
-  <Step title="Hybrid Optimization">
-    The model combines supervised fine-tuning (anchoring to clinical outcomes) with JEPA objectives (learning dynamics), preventing training collapse.
-  </Step>
-</Steps>
+  {/* ==================== HOW IT WORKS ==================== */}
 
-## Extracting Embeddings
+  <h3 className="smb-h3">How It Works</h3>
 
-Get patient state embeddings for downstream tasks:
+  <ol className="smb-steps">
+    <li className="smb-step">
+      <div className="smb-step-title">Modality Ingestion</div>
+      <div className="smb-step-desc">Raw signals — genomics, proteomics, imaging, EHR data — pass through modality-specific encoders. Each encoder is trained to extract meaningful representations from its data type.</div>
+    </li>
+    <li className="smb-step">
+      <div className="smb-step-title">Fusion Layer</div>
+      <div className="smb-step-desc">A specialized projector maps these encodings into a universal latent space. This creates a "fused" patient state embedding that retains both high-level semantic context and low-level biological granularity.</div>
+    </li>
+    <li className="smb-step">
+      <div className="smb-step-title">State Prediction</div>
+      <div className="smb-step-desc">Given the current patient state <em>S(t)</em> and an intervention <em>A(t)</em>, the model predicts the future state <em>S(t+1)</em> in latent space — not as text, but as a dense embedding.</div>
+    </li>
+    <li className="smb-step">
+      <div className="smb-step-title">Hybrid Optimization</div>
+      <div className="smb-step-desc">The model combines supervised fine-tuning (anchoring to clinical outcomes) with JEPA objectives (learning dynamics), preventing training collapse.</div>
+    </li>
+  </ol>
 
-```python
-from transformers import AutoModel, AutoTokenizer
+  {/* ==================== EXTRACTING EMBEDDINGS ==================== */}
+
+  <h2 className="smb-h2">Extracting Embeddings</h2>
+
+  <p className="smb-p">Get patient state embeddings for downstream tasks:</p>
+
+  <div className="smb-code-wrap">
+    <div className="smb-code-label">python</div>
+    <pre className="smb-code-block"><code>{`from transformers import AutoModel, AutoTokenizer
 import torch
 
 model = AutoModel.from_pretrained("standardmodelbio/smb-v1-1.7b")
@@ -119,84 +156,120 @@ inputs = tokenizer(
 with torch.no_grad():
     outputs = model(**inputs)
     embeddings = outputs.last_hidden_state
-    
+
     # Pool to get single patient embedding
     patient_embedding = embeddings.mean(dim=1)  # [batch, hidden_dim]
 
-print(f"Embedding shape: {patient_embedding.shape}")
-```
+print(f"Embedding shape: {patient_embedding.shape}")`}</code></pre>
+  </div>
 
-## Use Cases
+  {/* ==================== USE CASES ==================== */}
 
-<CardGroup cols={2}>
-  <Card title="Treatment Simulation" icon="flask-vial">
-    Simulate how a tumor would evolve under Treatment A versus Treatment B by conditioning on different interventions.
-  </Card>
-  <Card title="Trajectory Prediction" icon="chart-line">
-    Predict disease progression over 3, 6, or 12 month windows.
-  </Card>
-  <Card title="Digital Twins" icon="users">
-    Create evolving patient representations that update as new data arrives.
-  </Card>
-  <Card title="Response Prediction" icon="heart-pulse">
-    Model probability of response to specific therapies.
-  </Card>
-</CardGroup>
+  <h2 className="smb-h2">Use Cases</h2>
 
-## Memory Optimization
+  <div className="smb-card-grid smb-card-grid-2">
+    <div className="smb-card">
+      <div className="smb-card-icon">🧪</div>
+      <div className="smb-card-title">Treatment Simulation</div>
+      <div className="smb-card-desc">Simulate how a tumor would evolve under Treatment A versus Treatment B by conditioning on different interventions.</div>
+    </div>
+    <div className="smb-card">
+      <div className="smb-card-icon">📈</div>
+      <div className="smb-card-title">Trajectory Prediction</div>
+      <div className="smb-card-desc">Predict disease progression over 3, 6, or 12 month windows.</div>
+    </div>
+    <div className="smb-card">
+      <div className="smb-card-icon">👥</div>
+      <div className="smb-card-title">Digital Twins</div>
+      <div className="smb-card-desc">Create evolving patient representations that update as new data arrives.</div>
+    </div>
+    <div className="smb-card">
+      <div className="smb-card-icon">💓</div>
+      <div className="smb-card-title">Response Prediction</div>
+      <div className="smb-card-desc">Model probability of response to specific therapies.</div>
+    </div>
+  </div>
 
-`smb-v1-1.7b` requires 16GB GPU memory at full precision. Memory usage can be reduced in several ways:
+  {/* ==================== MEMORY OPTIMIZATION ==================== */}
 
-<Tabs>
-  <Tab title="Float16">
-    ```python
-    model = AutoModel.from_pretrained(
-        "standardmodelbio/smb-v1-1.7b",
-        torch_dtype=torch.float16,
-        device_map="auto"
-    )
-    ```
+  <h2 className="smb-h2">Memory Optimization</h2>
 
-    **Memory:** ~8GB
-  </Tab>
-  <Tab title="8-bit Quantization">
-    ```python
-    # pip install bitsandbytes
-    model = AutoModel.from_pretrained(
-        "standardmodelbio/smb-v1-1.7b",
-        load_in_8bit=True,
-        device_map="auto"
-    )
-    ```
+  <p className="smb-p">
+    <code>smb-v1-1.7b</code> requires 16GB GPU memory at full precision. Memory usage can be reduced in several ways:
+  </p>
 
-    **Memory:** ~4GB
-  </Tab>
-  <Tab title="4-bit Quantization">
-    ```python
-    # pip install bitsandbytes
-    from transformers import BitsAndBytesConfig
-    
-    quantization_config = BitsAndBytesConfig(
-        load_in_4bit=True,
-        bnb_4bit_compute_dtype=torch.float16
-    )
-    
-    model = AutoModel.from_pretrained(
-        "standardmodelbio/smb-v1-1.7b",
-        quantization_config=quantization_config,
-        device_map="auto"
-    )
-    ```
+  <div className="smb-tabs">
+    <input type="radio" name="smb-mem-tab" id="smb-tab-1" defaultChecked />
+    <input type="radio" name="smb-mem-tab" id="smb-tab-2" />
+    <input type="radio" name="smb-mem-tab" id="smb-tab-3" />
 
-    **Memory:** ~2GB
-  </Tab>
-</Tabs>
+    <div className="smb-tab-labels">
+      <label className="smb-tab-label" htmlFor="smb-tab-1">Float16</label>
+      <label className="smb-tab-label" htmlFor="smb-tab-2">8-bit</label>
+      <label className="smb-tab-label" htmlFor="smb-tab-3">4-bit</label>
+    </div>
 
-## Hardware Requirements
+    <div className="smb-tab-panels">
+      <div className="smb-tab-panel">
+        <div className="smb-code-wrap">
+          <div className="smb-code-label">python — ~8GB memory</div>
+          <pre className="smb-code-block"><code>{`model = AutoModel.from_pretrained(
+    "standardmodelbio/smb-v1-1.7b",
+    torch_dtype=torch.float16,
+    device_map="auto"
+)`}</code></pre>
+        </div>
+      </div>
 
-| Precision | GPU Memory | Recommended GPU |
-| --------- | ---------- | --------------- |
-| float32   | 16 GB      | A100, A6000     |
-| float16   | 8 GB       | RTX 4090, A10   |
-| 8-bit     | 4 GB       | RTX 3080, T4    |
-| 4-bit     | 2 GB       | RTX 3060        |
+      <div className="smb-tab-panel">
+        <div className="smb-code-wrap">
+          <div className="smb-code-label">python — ~4GB memory</div>
+          <pre className="smb-code-block"><code>{`# pip install bitsandbytes
+model = AutoModel.from_pretrained(
+    "standardmodelbio/smb-v1-1.7b",
+    load_in_8bit=True,
+    device_map="auto"
+)`}</code></pre>
+        </div>
+      </div>
+
+      <div className="smb-tab-panel">
+        <div className="smb-code-wrap">
+          <div className="smb-code-label">python — ~2GB memory</div>
+          <pre className="smb-code-block"><code>{`# pip install bitsandbytes
+from transformers import BitsAndBytesConfig
+
+quantization_config = BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_compute_dtype=torch.float16
+)
+
+model = AutoModel.from_pretrained(
+    "standardmodelbio/smb-v1-1.7b",
+    quantization_config=quantization_config,
+    device_map="auto"
+)`}</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {/* ==================== HARDWARE REQUIREMENTS ==================== */}
+
+  <h2 className="smb-h2">Hardware Requirements</h2>
+
+  <div className="smb-table-wrap">
+    <table className="smb-table">
+      <thead>
+        <tr><th>Precision</th><th>GPU Memory</th><th>Recommended GPU</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>float32</td><td>16 GB</td><td>A100, A6000</td></tr>
+        <tr><td>float16</td><td>8 GB</td><td>RTX 4090, A10</td></tr>
+        <tr><td>8-bit</td><td>4 GB</td><td>RTX 3080, T4</td></tr>
+        <tr><td>4-bit</td><td>2 GB</td><td>RTX 3060</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>

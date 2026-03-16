@@ -1,7 +1,8 @@
 ---
 title: "End-to-end example"
 icon: "stethoscope"
-description: "This demo illustrates the data formats, core functions, and results for using the smb-v1-1.7b model. The Python script loads MIMIC-IV demo data in MEDS format, extracts patient-representative embeddings using the Standard Model, and trains 4 example classifiers on those embeddings to predict clinical outcomes."
+description: "This demo illustrates the data formats, core functions, and results for using the smb-v1-1.7b model."
+mode: "custom"
 ---
 
 <div className="smb-tracker">
@@ -26,104 +27,169 @@ description: "This demo illustrates the data formats, core functions, and result
   </a>
 </div>
 
-Two parquet files are used in the demo:
+<div className="smb-page">
 
-1. an **events** table in [MEDS (Medical Event Data Standard)](https://github.com/Medical-Event-Data-Standard/meds) format (one row per clinical event) used to create embeddings, and
-2. a **labels** table (one row per patient with task targets) used to record the clinical outcomes for the classifiers.
+  <div className="smb-page-header">
+    <div className="smb-page-icon">🩺</div>
+    <h1 className="smb-page-title">End-to-end example</h1>
+    <p className="smb-page-desc">
+      This demo illustrates the data formats, core functions, and results for using the <code>smb-v1-1.7b</code> model. The Python script loads MIMIC-IV demo data in MEDS format, extracts patient-representative embeddings using the Standard Model, and trains 4 example classifiers on those embeddings to predict clinical outcomes.
+    </p>
+  </div>
 
-This example contains a brief preview of each data file included in the demo, focused on the columns the model and classifiers use. We then give a description of how the demo script deploys the model to extract embeddings and provide clinical outcome predictions.
+  <p className="smb-p">Two parquet files are used in the demo:</p>
 
-<Info>
-  This example uses the [MIMIC-IV Clinical Database Demo](https://physionet.org/content/mimic-iv-demo-meds/) (a reduced, publicly available subset for teaching and development—not the full MIMIC-IV database) in MEDS format.
-</Info>
+  <p className="smb-p">
+    1. An <strong>events</strong> table in <a href="https://github.com/Medical-Event-Data-Standard/meds">MEDS (Medical Event Data Standard)</a> format (one row per clinical event) used to create embeddings, and<br/>
+    2. A <strong>labels</strong> table (one row per patient with task targets) used to record the clinical outcomes for the classifiers.
+  </p>
 
-## 1. Events data (MEDS event stream)
+  <p className="smb-p">
+    This example contains a brief preview of each data file included in the demo, focused on the columns the model and classifiers use. We then give a description of how the demo script deploys the model to extract embeddings and provide clinical outcome predictions.
+  </p>
 
-The events file is a long table of timestamped clinical events (e.g. diagnoses, medications, labs). Although the [MIMIC-IV Clinical Database Demo](https://physionet.org/content/mimic-iv-demo-meds/) parquet file contains other columns,  `prep_mimic_demo_data.py` reshapes it to focus only those listed below for this demo. The final demo parquet file contains ~916k rows for 100 subjects.
+  <div className="smb-callout smb-callout-info">
+    This example uses the <a href="https://physionet.org/content/mimic-iv-demo-meds/">MIMIC-IV Clinical Database Demo</a> (a reduced, publicly available subset for teaching and development—not the full MIMIC-IV database) in MEDS format.
+  </div>
 
-**Events Data Preview (example rows):**
+  {/* ==================== SECTION 1 ==================== */}
 
-| subject_id | time                | code          | table      | value |
-| ---------- | ------------------- | ------------- | ---------- | ----- |
-| 10000032   | 2022-01-15 08:00:00 | ICD10:I10     | condition  | —     |
-| 10000032   | 2022-01-15 09:30:00 | LOINC:2093-3  | lab        | 145.2 |
-| 10001217   | 2022-02-01 14:00:00 | RxNorm:861004 | medication | —     |
+  <h2 className="smb-h2">1. Events data (MEDS event stream)</h2>
 
-**Columns used:**
+  <p className="smb-p">
+    The events file is a long table of timestamped clinical events (e.g. diagnoses, medications, labs). Although the <a href="https://physionet.org/content/mimic-iv-demo-meds/">MIMIC-IV Clinical Database Demo</a> parquet file contains other columns, <code>prep_mimic_demo_data.py</code> reshapes it to focus only those listed below for this demo. The final demo parquet file contains ~916k rows for 100 subjects.
+  </p>
 
-| Column       | Description                                                                                                                                                            |
-| :----------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `subject_id` | Patient identifier; links events table to the labels table by patient.                                                                                                 |
-| `time`       | When the event occurred (used for ordering events and censoring them from the model).                                                                                  |
-| `code`       | Clinical code (e.g. `ICD10:`, `RxNorm:`, `LOINC:`); the primary categorical descriptor of the measurement (e.g., the performed laboratory test or recorded diagnosis). |
-| `table`      | Modality of the row's event data: `condition`, `medication`, `lab`, or `procedure` (used by the model's text serialization).                                           |
-| `value`      | Optional numeric value (e.g. lab result); may be null.                                                                                                                 |
+  <p className="smb-p"><strong>Events Data Preview (example rows):</strong></p>
 
-<Info>
-  Note that the **table** column is derived from the **code** column in this demo, using `prep_mimic_demo_data.py`. \
-  \
-  More information about these and other columns in the MEDS format schemas can be found [here](https://github.com/Medical-Event-Data-Standard/meds?tab=readme-ov-file#the-dataschema-schema).
+  <div className="smb-table-wrap">
+    <table className="smb-table">
+      <thead>
+        <tr><th>subject_id</th><th>time</th><th>code</th><th>table</th><th>value</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>10000032</td><td>2022-01-15 08:00:00</td><td><code>ICD10:I10</code></td><td>condition</td><td>—</td></tr>
+        <tr><td>10000032</td><td>2022-01-15 09:30:00</td><td><code>LOINC:2093-3</code></td><td>lab</td><td>145.2</td></tr>
+        <tr><td>10001217</td><td>2022-02-01 14:00:00</td><td><code>RxNorm:861004</code></td><td>medication</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
 
-  A collection of ETLs from common data formats, including OMOP, MIMIC-IV, and MEDS Unsorted can be found [here](https://github.com/Medical-Event-Data-Standard/meds_etl).
-</Info>
+  <p className="smb-p"><strong>Columns used:</strong></p>
 
-## 2. Labels data (one row per subject)
+  <div className="smb-table-wrap">
+    <table className="smb-table">
+      <thead>
+        <tr><th>Column</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>subject_id</code></td><td>Patient identifier; links events table to the labels table by patient.</td></tr>
+        <tr><td><code>time</code></td><td>When the event occurred (used for ordering events and censoring them from the model).</td></tr>
+        <tr><td><code>code</code></td><td>Clinical code (e.g. <code>ICD10:</code>, <code>RxNorm:</code>, <code>LOINC:</code>); the primary categorical descriptor of the measurement.</td></tr>
+        <tr><td><code>table</code></td><td>Modality of the row's event data: <code>condition</code>, <code>medication</code>, <code>lab</code>, or <code>procedure</code> (used by the model's text serialization).</td></tr>
+        <tr><td><code>value</code></td><td>Optional numeric value (e.g. lab result); may be null.</td></tr>
+      </tbody>
+    </table>
+  </div>
 
-The labels file contains columns recording the clinical outcomes for the four demo tasks we will predict, per subject. This will be used for training the classifiers and evaluating test prediction metrics.
+  <div className="smb-callout smb-callout-info">
+    Note that the <strong>table</strong> column is derived from the <strong>code</strong> column in this demo, using <code>prep_mimic_demo_data.py</code>.<br/><br/>
+    More information about these and other columns in the MEDS format schemas can be found <a href="https://github.com/Medical-Event-Data-Standard/meds?tab=readme-ov-file#the-dataschema-schema">here</a>. A collection of ETLs from common data formats, including OMOP, MIMIC-IV, and MEDS Unsorted can be found <a href="https://github.com/Medical-Event-Data-Standard/meds_etl">here</a>.
+  </div>
 
-<Info>
-  Outcome labels and `prediction_time` in this demo are **artificially generated** (see [data/README.md](https://github.com/standardmodelbio/quickstart/blob/main/data/README.md) for methodology); they are not directly derived from events data and are for demonstration purposes only.
+  {/* ==================== SECTION 2 ==================== */}
 
-  In a real use case, outcome labels should be directly derived from an events dataset, and `prediction_time` should be set as the timestamp strictly before the event that defines the label.
-</Info>
+  <h2 className="smb-h2">2. Labels data (one row per subject)</h2>
 
-**Preview (example rows):**
+  <p className="smb-p">
+    The labels file contains columns recording the clinical outcomes for the four demo tasks we will predict, per subject. This will be used for training the classifiers and evaluating test prediction metrics.
+  </p>
 
-| subject_id | prediction_time     | readmission_risk | phenotype_class | overall_survival_months | event_observed |
-| ---------- | ------------------- | ---------------- | --------------- | ----------------------- | -------------- |
-| 10000032   | 2022-06-15 12:00:00 | 0                | 0               | 68.1                    | 1              |
-| 10001217   | 2022-06-15 12:00:00 | 0                | 2               | 45.8                    | 1              |
-| 10002428   | 2022-06-15 12:00:00 | 1                | 1               | 35.5                    | 1              |
+  <div className="smb-callout smb-callout-info">
+    Outcome labels and <code>prediction_time</code> in this demo are <strong>artificially generated</strong> (see <a href="https://github.com/standardmodelbio/quickstart/blob/main/data/README.md">data/README.md</a> for methodology); they are not directly derived from events data and are for demonstration purposes only.<br/><br/>
+    In a real use case, outcome labels should be directly derived from an events dataset, and <code>prediction_time</code> should be set as the timestamp strictly before the event that defines the label.
+  </div>
 
-**Columns used:**
+  <p className="smb-p"><strong>Preview (example rows):</strong></p>
 
-| Column                    | Description                                                                                                                                          |
-| :------------------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `subject_id`              | Must match the events table order; one row per patient.                                                                                              |
-| `prediction_time`         | As-of time for the prediction (inclusive endpoint of data used). The model uses this time as the cutoff when considering events to build embeddings. |
-| `readmission_risk`        | Binary (0/1) for Task A, a classifier to predict subject readmission to the hospital.                                                                |
-| `phenotype_class`         | Integer (e.g. 0–3) for Task B, a phenotype classifier to predict cancer staging progression.                                                         |
-| `overall_survival_months` | Numeric; for Task C, a regression model to predict months survival for subjects who died, and Task D, a Cox survival prediction.                     |
-| `event_observed`          | 1 if the outcome of death was observed; used in Task D.                                                                                              |
+  <div className="smb-table-wrap">
+    <table className="smb-table">
+      <thead>
+        <tr><th>subject_id</th><th>prediction_time</th><th>readmission_risk</th><th>phenotype_class</th><th>overall_survival_months</th><th>event_observed</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>10000032</td><td>2022-06-15 12:00:00</td><td>0</td><td>0</td><td>68.1</td><td>1</td></tr>
+        <tr><td>10001217</td><td>2022-06-15 12:00:00</td><td>0</td><td>2</td><td>45.8</td><td>1</td></tr>
+        <tr><td>10002428</td><td>2022-06-15 12:00:00</td><td>1</td><td>1</td><td>35.5</td><td>1</td></tr>
+      </tbody>
+    </table>
+  </div>
 
----
+  <p className="smb-p"><strong>Columns used:</strong></p>
 
-## Running the demo via AI coding agent
+  <div className="smb-table-wrap">
+    <table className="smb-table">
+      <thead>
+        <tr><th>Column</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>subject_id</code></td><td>Must match the events table order; one row per patient.</td></tr>
+        <tr><td><code>prediction_time</code></td><td>As-of time for the prediction (inclusive endpoint of data used). The model uses this time as the cutoff when considering events to build embeddings.</td></tr>
+        <tr><td><code>readmission_risk</code></td><td>Binary (0/1) for Task A, a classifier to predict subject readmission to the hospital.</td></tr>
+        <tr><td><code>phenotype_class</code></td><td>Integer (e.g. 0–3) for Task B, a phenotype classifier to predict cancer staging progression.</td></tr>
+        <tr><td><code>overall_survival_months</code></td><td>Numeric; for Task C, a regression model to predict months survival for subjects who died, and Task D, a Cox survival prediction.</td></tr>
+        <tr><td><code>event_observed</code></td><td>1 if the outcome of death was observed; used in Task D.</td></tr>
+      </tbody>
+    </table>
+  </div>
 
-Copy and paste the prompt below into your coding assistant of choice (i.e., Claude Code, Codex, Gemini). Runtime from prompt through model download, inference, and classifier train/test to results should take ~5m.
+  <hr className="smb-divider" />
 
-<Prompt description={`Install the model, download the dummy data, and run the demo.`} actions={["cursor","copy"]}>
-  Use the Standard Model Biomedicine docs here (https://docs.standardmodel.bio) and the quickstart repo here (https://github.com/standardmodelbio/quickstart) to install the model with the provided one-line command, then run demo.py. Tell me about the outputs.
-</Prompt>
+  {/* ==================== RUNNING VIA AI ==================== */}
 
-## Running the demo manually
+  <h2 className="smb-h2">Running the demo via AI coding agent</h2>
 
-Running`demo.py` loads both pre-configured data files from the [quickstart repo](https://github.com/standardmodelbio/quickstart) (main branch) into memory, then:
+  <p className="smb-p">
+    Copy and paste the prompt below into your coding assistant of choice (i.e., Claude Code, Codex, Gemini). Runtime from prompt through model download, inference, and classifier train/test to results should take ~5m.
+  </p>
 
-1. **Events → Embeddings:** For each patient, it serializes that patient's events (using `subject_id`, `time`, `code`, `table`, `value`from the events data) into a token stream with `smb_utils` up to `prediction_time` from the labels file. The script then runs the Standard Model, and takes the last-token hidden state as the **patient embedding**.
-2. **Embeddings + Labels → Predictive Task Performance Metrics:** After extracting embeddings, `demo.py` trains four separate task heads designed to predict A) binary hospital readmission, B) multiclass classification of cancer staging, C) continuous survival regression in months, and D) Cox survival. Each predictive output layer is trained on an 80/20 train/test split of the embeddings and labels. ROC-AUC, accuracy, mean absolute error, and C-index are provided for each of these tasks, respectively.
+  <div className="smb-prompt">
+    <div className="smb-prompt-header">
+      <span className="smb-prompt-label">Prompt</span>
+    </div>
+    <div className="smb-prompt-body">
+      Use the Standard Model Biomedicine docs here (https://docs.standardmodel.bio) and the quickstart repo here (https://github.com/standardmodelbio/quickstart) to install the model with the provided one-line command, then run demo.py. Tell me about the outputs.
+    </div>
+  </div>
 
-If you ran the [quickstart](/) model installation, you can run the demo with:
+  {/* ==================== RUNNING MANUALLY ==================== */}
 
-```bash
-cd quickstart
-uv run python demo.py
-```
+  <h2 className="smb-h2">Running the demo manually</h2>
 
-You should see something like the following output:
+  <p className="smb-p">
+    Running <code>demo.py</code> loads both pre-configured data files from the <a href="https://github.com/standardmodelbio/quickstart">quickstart repo</a> (main branch) into memory, then:
+  </p>
 
-```text
-[1/4] Loading MIMIC-IV demo data from GitHub...
+  <p className="smb-p">
+    1. <strong>Events → Embeddings:</strong> For each patient, it serializes that patient's events (using <code>subject_id</code>, <code>time</code>, <code>code</code>, <code>table</code>, <code>value</code> from the events data) into a token stream with <code>smb_utils</code> up to <code>prediction_time</code> from the labels file. The script then runs the Standard Model, and takes the last-token hidden state as the <strong>patient embedding</strong>.<br/><br/>
+    2. <strong>Embeddings + Labels → Predictive Task Performance Metrics:</strong> After extracting embeddings, <code>demo.py</code> trains four separate task heads designed to predict A) binary hospital readmission, B) multiclass classification of cancer staging, C) continuous survival regression in months, and D) Cox survival. Each predictive output layer is trained on an 80/20 train/test split of the embeddings and labels. ROC-AUC, accuracy, mean absolute error, and C-index are provided for each of these tasks, respectively.
+  </p>
+
+  <p className="smb-p">
+    If you ran the <a href="/">quickstart</a> model installation, you can run the demo with:
+  </p>
+
+  <div className="smb-code-wrap">
+    <div className="smb-code-label">bash</div>
+    <pre className="smb-code-block"><code>{`cd quickstart
+uv run python demo.py`}</code></pre>
+  </div>
+
+  <p className="smb-p">You should see something like the following output:</p>
+
+  <div className="smb-code-wrap">
+    <div className="smb-code-label">output</div>
+    <pre className="smb-code-block smb-code-output"><code>{`[1/4] Loading MIMIC-IV demo data from GitHub...
    -> main  (data/README.md, PhysioNet ODbL)
    -> Loaded 916166 events, 100 subjects.
 
@@ -151,30 +217,42 @@ generation_config.json: 100%|██████████████| 127/127
 
    --- Task D: Survival Analysis (Cox Proportional Hazards) ---
    -> Projecting embeddings to 10D PCA for stability...
-   -> C-Index: 0.xxx
-```
+   -> C-Index: 0.xxx`}</code></pre>
+  </div>
 
-## Next Steps
+  {/* ==================== NEXT STEPS ==================== */}
 
-<Columns cols={2}>
-  <Card icon="code-fork" href="/your-own-data" title="Use the model on your own data">
-    
-  </Card>
-  <Card icon="brain-circuit" href="/model" title="More about the Standard Model">
-    
-  </Card>
-</Columns>
+  <h2 className="smb-h2">Next Steps</h2>
 
-### Contact Us
+  <div className="smb-card-grid smb-card-grid-2">
+    <a href="/your-own-data" className="smb-card">
+      <div className="smb-card-icon">🔀</div>
+      <div className="smb-card-title">Use the model on your own data</div>
+      <div className="smb-card-desc">Format your EHR data, extract embeddings, and train custom clinical predictors.</div>
+    </a>
+    <a href="/model" className="smb-card">
+      <div className="smb-card-icon">🧠</div>
+      <div className="smb-card-title">More about the Standard Model</div>
+      <div className="smb-card-desc">JEPA architecture, state prediction, fusion layers, and memory optimization.</div>
+    </a>
+  </div>
 
-Having trouble, or just want to talk about your project? Send an email to [erik@standardmodel.bio](mailto:erik@standardmodel.bio)
+  {/* ==================== CONTACT ==================== */}
 
-<Info>
-  **Attribution:** Events are from the MIMIC-IV Clinical Database Demo converted to MEDS
+  <div className="smb-contact">
+    <div className="smb-contact-title">Contact Us</div>
+    <div className="smb-contact-desc">
+      Having trouble, or just want to talk about your project? Send an email to <a href="mailto:erik@standardmodel.bio">erik@standardmodel.bio</a>
+    </div>
+  </div>
 
-  [van de Water et al. (2025). MIMIC-IV demo data in the Medical Event Data Standard (MEDS) (version 0.0.1). PhysioNet. RRID:SCR_007345.](https://doi.org/10.13026/t2y8-ea41)
+  {/* ==================== ATTRIBUTION ==================== */}
 
-  Licensed under the [Open Database License (ODbL)](https://opendatacommons.org/licenses/odbl/1.0/). Redistribution must be under ODbL (share-alike); do not apply technical measures that restrict reuse.
+  <div className="smb-attribution">
+    <strong>Attribution:</strong> Events are from the MIMIC-IV Clinical Database Demo converted to MEDS.<br/><br/>
+    <a href="https://doi.org/10.13026/t2y8-ea41">van de Water et al. (2025). MIMIC-IV demo data in the Medical Event Data Standard (MEDS) (version 0.0.1). PhysioNet. RRID:SCR_007345.</a><br/><br/>
+    Licensed under the <a href="https://opendatacommons.org/licenses/odbl/1.0/">Open Database License (ODbL)</a>. Redistribution must be under ODbL (share-alike); do not apply technical measures that restrict reuse.<br/><br/>
+    Predictive task labels are artificially generated.
+  </div>
 
-  Predictive task labels are artificially generated.
-</Info>
+</div>

@@ -1,7 +1,8 @@
 ---
 title: "Use the Standard Model on your data"
 icon: "code-fork"
-description: "This guide explains how to leverage the Standard Model on your own EHR data, including reshaping and tokenizing medical events, building a labels table, and training 4 types of classifiers on Standard Model embeddings."
+description: "This guide explains how to leverage the Standard Model on your own EHR data."
+mode: "custom"
 ---
 
 <div className="smb-tracker">
@@ -26,68 +27,110 @@ description: "This guide explains how to leverage the Standard Model on your own
   </a>
 </div>
 
-The workflow consists of three stages:
+<div className="smb-page">
 
-1. **Format data and tokenize data:** Organize your data into the required [MEDS](https://github.com/Medical-Event-Data-Standard/meds) format to record medical **events** and a **labels** table which includes the ground truth for your task targets. Convert these into serial tokens using `smb_utils`.
-2. **Represent data as embeddings:** Ingest MEDS **events** tokens into the Standard Model to produce high-dimensional patient-level embeddings.
-3. **Train clinical predictors:** Use embeddings plus **labels** to train task heads (e.g., readmission, phenotyping, survival).
+  <div className="smb-page-header">
+    <div className="smb-page-icon">🔀</div>
+    <h1 className="smb-page-title">Use the Standard Model on your data</h1>
+    <p className="smb-page-desc">
+      This guide explains how to leverage the Standard Model on your own EHR data, including reshaping and tokenizing medical events, building a labels table, and training 4 types of classifiers on Standard Model embeddings.
+    </p>
+  </div>
 
-<Check>
-  Make sure you've completed the [quickstart](/) setup. Commands below assume `quickstart/` as the working directory and use `uv run`.
-</Check>
+  <p className="smb-p">The workflow consists of three stages:</p>
 
-# Format and tokenize data
+  <p className="smb-p">
+    1. <strong>Format data and tokenize data:</strong> Organize your data into the required <a href="https://github.com/Medical-Event-Data-Standard/meds">MEDS</a> format to record medical <strong>events</strong> and a <strong>labels</strong> table which includes the ground truth for your task targets. Convert these into serial tokens using <code>smb_utils</code>.<br/><br/>
+    2. <strong>Represent data as embeddings:</strong> Ingest MEDS <strong>events</strong> tokens into the Standard Model to produce high-dimensional patient-level embeddings.<br/><br/>
+    3. <strong>Train clinical predictors:</strong> Use embeddings plus <strong>labels</strong> to train task heads (e.g., readmission, phenotyping, survival).
+  </p>
 
-To apply the Standard Model, you must first have an **events** table in [MEDS (Medical Event Data Standard)](https://github.com/Medical-Event-Data-Standard/meds) format (one row per clinical event). A collection of ETLs from common data formats, including OMOP, MIMIC-IV, and MEDS Unsorted can be found [here](https://github.com/Medical-Event-Data-Standard/meds_etl). The [end-to-end example](/example) further describes the input data format.
+  <div className="smb-callout smb-callout-check">
+    Make sure you've completed the <a href="/">quickstart</a> setup. Commands below assume <code>quickstart/</code> as the working directory and use <code>uv run</code>.
+  </div>
 
-<Note>
-  The Standard Model was built to operate on multiple modalities. For simplicity, this tutorial focuses on EHR text data. A more advanced multi-modal tutorial is forthcoming.
-</Note>
+  {/* ==================== FORMAT + TOKENIZE ==================== */}
 
-**Events data example rows:**
+  <h2 className="smb-h2">Format and tokenize data</h2>
 
-| subject_id | time                | code          | table      | value |
-| :--------- | :------------------ | :------------ | :--------- | :---- |
-| 10000032   | 2022-01-15 08:00:00 | ICD10:I10     | condition  | —     |
-| 10000032   | 2022-01-15 09:30:00 | LOINC:2093-3  | lab        | 145.2 |
-| 10001217   | 2022-02-01 14:00:00 | RxNorm:861004 | medication | —     |
+  <p className="smb-p">
+    To apply the Standard Model, you must first have an <strong>events</strong> table in <a href="https://github.com/Medical-Event-Data-Standard/meds">MEDS (Medical Event Data Standard)</a> format (one row per clinical event). A collection of ETLs from common data formats, including OMOP, MIMIC-IV, and MEDS Unsorted can be found <a href="https://github.com/Medical-Event-Data-Standard/meds_etl">here</a>. The <a href="/example">end-to-end example</a> further describes the input data format.
+  </p>
 
-You should also have a **labels** table with one row per subject, in the same order as your **events** table. Columns set the ground truth for prediction tasks, and are used for performance evaluation.
+  <div className="smb-callout smb-callout-note">
+    The Standard Model was built to operate on multiple modalities. For simplicity, this tutorial focuses on EHR text data. A more advanced multi-modal tutorial is forthcoming.
+  </div>
 
-**Labels data example rows:**
+  <p className="smb-p"><strong>Events data example rows:</strong></p>
 
-| subject_id | prediction_time     | readmission_risk | phenotype_class | overall_survival_months | event_observed |
-| :--------- | :------------------ | :--------------- | :-------------- | :---------------------- | :------------- |
-| 10000032   | 2022-04-12 12:00:00 | 0                | 0               | 68.1                    | 1              |
-| 10001217   | 2022-06-15 08:00:00 | 0                | 2               | 45.8                    | 1              |
-| 10002428   | 2022-02-14 13:30:00 | 1                | 1               | 35.5                    | 1              |
+  <div className="smb-table-wrap">
+    <table className="smb-table">
+      <thead>
+        <tr><th>subject_id</th><th>time</th><th>code</th><th>table</th><th>value</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>10000032</td><td>2022-01-15 08:00:00</td><td><code>ICD10:I10</code></td><td>condition</td><td>—</td></tr>
+        <tr><td>10000032</td><td>2022-01-15 09:30:00</td><td><code>LOINC:2093-3</code></td><td>lab</td><td>145.2</td></tr>
+        <tr><td>10001217</td><td>2022-02-01 14:00:00</td><td><code>RxNorm:861004</code></td><td>medication</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
 
-Your **labels** should be derived from linked patient data and should reflect the data types used by your clinical outcome classifier or model type.
+  <p className="smb-p">
+    You should also have a <strong>labels</strong> table with one row per subject, in the same order as your <strong>events</strong> table. Columns set the ground truth for prediction tasks, and are used for performance evaluation.
+  </p>
 
-The model tokenizer uses `prediction_time` in the **labels** table as the cutoff when considering events to build embeddings. Think of this date as the "as-of" time for the prediction, or the inclusive endpoint of data the model can use to generate embeddings.
+  <p className="smb-p"><strong>Labels data example rows:</strong></p>
 
-We next provide `smb_utils.process_ehr_info` to convert the MEDS **events** table into a tokenizable XML-like stream (e.g., [timestamp]: \<conditions\>\</conditions\>, \<measurements\>\</measurements\>).
+  <div className="smb-table-wrap">
+    <table className="smb-table">
+      <thead>
+        <tr><th>subject_id</th><th>prediction_time</th><th>readmission_risk</th><th>phenotype_class</th><th>overall_survival_months</th><th>event_observed</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>10000032</td><td>2022-04-12 12:00:00</td><td>0</td><td>0</td><td>68.1</td><td>1</td></tr>
+        <tr><td>10001217</td><td>2022-06-15 08:00:00</td><td>0</td><td>2</td><td>45.8</td><td>1</td></tr>
+        <tr><td>10002428</td><td>2022-02-14 13:30:00</td><td>1</td><td>1</td><td>35.5</td><td>1</td></tr>
+      </tbody>
+    </table>
+  </div>
 
-Time in our setting is measured in days. All events recorded at the same timestamp will be grouped by the event type/category with the XML-style tag, in chronological order. The timestamp is an explicit token in the string as well (see `input_text` in the example below).
+  <p className="smb-p">
+    Your <strong>labels</strong> should be derived from linked patient data and should reflect the data types used by your clinical outcome classifier or model type.
+  </p>
 
-<Warning>
-  Note that smb-v1-1.7B only supports a max token length of 4096, yet many patient histories exceed this constraint.
+  <p className="smb-p">
+    The model tokenizer uses <code>prediction_time</code> in the <strong>labels</strong> table as the cutoff when considering events to build embeddings. Think of this date as the "as-of" time for the prediction, or the inclusive endpoint of data the model can use to generate embeddings.
+  </p>
 
-  Our [smb-utils](https://github.com/standardmodelbio/smb-utils) package offers functionality to solve this via multiple strategies as a temporary solution to efficiently manage context:
+  <p className="smb-p">
+    We next provide <code>smb_utils.process_ehr_info</code> to convert the MEDS <strong>events</strong> table into a tokenizable XML-like stream (e.g., [timestamp]: &lt;conditions&gt;&lt;/conditions&gt;, &lt;measurements&gt;&lt;/measurements&gt;).
+  </p>
 
-  1. filter events data by modality (i.e., code or table columns),
-  2. organize events into time bins with the most recent events from an anchor date, or
-  3. flexibly define custom event categories.
+  <p className="smb-p">
+    Time in our setting is measured in days. All events recorded at the same timestamp will be grouped by the event type/category with the XML-style tag, in chronological order. The timestamp is an explicit token in the string as well (see <code>input_text</code> in the example below).
+  </p>
 
-  Supporting longer context length is always a to-do on our list and we are almost ready to roll out something better pretty soon!
-</Warning>
+  <div className="smb-callout smb-callout-warning">
+    Note that <code>smb-v1-1.7B</code> only supports a max token length of 4096, yet many patient histories exceed this constraint.<br/><br/>
+    Our <a href="https://github.com/standardmodelbio/smb-utils">smb-utils</a> package offers functionality to solve this via multiple strategies as a temporary solution to efficiently manage context:<br/><br/>
+    1. filter events data by modality (i.e., code or table columns),<br/>
+    2. organize events into time bins with the most recent events from an anchor date, or<br/>
+    3. flexibly define custom event categories.<br/><br/>
+    Supporting longer context length is always a to-do on our list and we are almost ready to roll out something better pretty soon!
+  </div>
 
-#### ETL example
+  {/* ==================== ETL EXAMPLE ==================== */}
 
-Assume your events are saved as `internal_cohort_meds.parquet` with the schema above. Load and verify, then serialize one patient:
+  <h3 className="smb-h4">ETL example</h3>
 
-```python
-import pandas as pd
+  <p className="smb-p">
+    Assume your events are saved as <code>internal_cohort_meds.parquet</code> with the schema above. Load and verify, then serialize one patient:
+  </p>
+
+  <div className="smb-code-wrap">
+    <div className="smb-code-label">python</div>
+    <pre className="smb-code-block"><code>{`import pandas as pd
 from smb_utils import process_ehr_info
 
 # Load events (MEDS format: subject_id, time, code, table, value)
@@ -110,35 +153,58 @@ print(input_text)
 # </conditions>
 # <medications>
 # RxNorm:583214
-# </medications>
-```
+# </medications>`}</code></pre>
+  </div>
 
-Labels must be aligned to the same patient order as your embedding matrix (i.e., same `subject_id` order as the events you passed to the model). This is important to resolve the correct `end_time` for each patient when creating embeddings.
+  <p className="smb-p">
+    Labels must be aligned to the same patient order as your embedding matrix (i.e., same <code>subject_id</code> order as the events you passed to the model). This is important to resolve the correct <code>end_time</code> for each patient when creating embeddings.
+  </p>
 
-If you're using a coding agent (like Claude Code, Codex, Gemini, etc.), you can derive a new labels table from your events data with the prompt below. In this example we've specified the kinds of outcomes we're looking for and the data type we'll use when making predictions downstream. We recommend chatting with the agent to explore your events data if you're unsure of what clinical outcomes you may want to predict.  The prompt below runs in ~1m. 
+  <p className="smb-p">
+    If you're using a coding agent (like Claude Code, Codex, Gemini, etc.), you can derive a new labels table from your events data with the prompt below. In this example we've specified the kinds of outcomes we're looking for and the data type we'll use when making predictions downstream. We recommend chatting with the agent to explore your events data if you're unsure of what clinical outcomes you may want to predict. The prompt below runs in ~1m.
+  </p>
 
-<Prompt description={`Create a new labels table by referencing your events data. This prompt assumes that you've already downloaded the model and that the MIMIC-IV demo events data file is available for use.`} actions={["copy","cursor"]}>
-  Use the Standard Model Biomedicine documentation here (https://docs.standardmodel.bio/your-own-data) and my MEDS-formatted events data to write a new labels table. The outcomes I'd like to include are a binary  for mortality, a multi-class category for disposition at final discharge (i.e., went home, institutionalized, death/hospice, other), and a continuous variable for survival days after last admission. Since all of these correspond to the end of each patient's history, record the prediction_time as the time stamp strictly before their last hospital discharge.
-</Prompt>
+  <div className="smb-prompt">
+    <div className="smb-prompt-header">
+      <span className="smb-prompt-label">Prompt — Create labels table</span>
+    </div>
+    <div className="smb-prompt-body">
+      Use the Standard Model Biomedicine documentation here (https://docs.standardmodel.bio/your-own-data) and my MEDS-formatted events data to write a new labels table. The outcomes I'd like to include are a binary for mortality, a multi-class category for disposition at final discharge (i.e., went home, institutionalized, death/hospice, other), and a continuous variable for survival days after last admission. Since all of these correspond to the end of each patient's history, record the prediction_time as the time stamp strictly before their last hospital discharge.
+    </div>
+  </div>
 
-# Get embeddings and train classifiers with AI
+  {/* ==================== EMBEDDINGS + CLASSIFIERS VIA AI ==================== */}
 
-From here, a coding agent is generally able to run inference, train classifiers, and give you evaluation results with a single prompt. The following example resolves in 3-4m.
+  <h2 className="smb-h2">Get embeddings and train classifiers with AI</h2>
 
-<Prompt description={`Represent patients as embeddings, train 4 types of classifiers, and get prediction results. This prompt assumes you have completed all previous steps`} actions={["copy"]}>
-  Use my MEDS event data and labels table to extract embeddings using the appropriate script from this documentation page (https://docs.standardmodel.bio/your-own-data). Use the page as a guide to then train binary, multi-class, regression, and COX classifiers with the resulting embeddings and provide results for each model's performance.
-</Prompt>
+  <p className="smb-p">
+    From here, a coding agent is generally able to run inference, train classifiers, and give you evaluation results with a single prompt. The following example resolves in 3-4m.
+  </p>
 
-## Represent data as embeddings
+  <div className="smb-prompt">
+    <div className="smb-prompt-header">
+      <span className="smb-prompt-label">Prompt — Embeddings + classifiers</span>
+    </div>
+    <div className="smb-prompt-body">
+      Use my MEDS event data and labels table to extract embeddings using the appropriate script from this documentation page (https://docs.standardmodel.bio/your-own-data). Use the page as a guide to then train binary, multi-class, regression, and COX classifiers with the resulting embeddings and provide results for each model's performance.
+    </div>
+  </div>
 
-We now provide example code for `get_embeddings`, a function to load the model, serialize MEDS data into text, tokenize the text stream, and perform inference through the model for a full dataframe of patients.
+  {/* ==================== REPRESENT AS EMBEDDINGS ==================== */}
 
-<Info>
-  We use **Last Token Pooling** to extract the final hidden state, which represents the patient's entire causal trajectory up to the `end_time`(inclusive).
-</Info>
+  <h2 className="smb-h2">Represent data as embeddings</h2>
 
-```python
-import pandas as pd
+  <p className="smb-p">
+    We now provide example code for <code>get_embeddings</code>, a function to load the model, serialize MEDS data into text, tokenize the text stream, and perform inference through the model for a full dataframe of patients.
+  </p>
+
+  <div className="smb-callout smb-callout-info">
+    We use <strong>Last Token Pooling</strong> to extract the final hidden state, which represents the patient's entire causal trajectory up to the <code>end_time</code> (inclusive).
+  </div>
+
+  <div className="smb-code-wrap">
+    <div className="smb-code-label">python</div>
+    <pre className="smb-code-block"><code>{`import pandas as pd
 import torch
 from smb_utils import process_ehr_info
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -181,23 +247,32 @@ def get_embeddings(df, pids, end_time):
 
     return torch.cat(embeddings, dim=0).numpy()
 
-# Execute (use prediction_time from your labels table if it has that column; otherwise set a single cutoff)
+# Execute
 pids = df["subject_id"].unique()
-# If your labels table has prediction_time (e.g. from the quickstart demo)
+# If your labels table has prediction_time
 end_times = labels_df.set_index("subject_id")["prediction_time"]
-X = get_embeddings(df, pids, end_times)
-```
+X = get_embeddings(df, pids, end_times)`}</code></pre>
+  </div>
 
-The output `X` is a list of **embeddings** (fixed-length, 1-dimensional PyTorch tensor) that represent the patients' medical history from `df`. This list is in the same patient order as your MEDS data and labels table.
+  <p className="smb-p">
+    The output <code>X</code> is a list of <strong>embeddings</strong> (fixed-length, 1-dimensional PyTorch tensor) that represent the patients' medical history from <code>df</code>. This list is in the same patient order as your MEDS data and labels table.
+  </p>
 
-# Train clinical predictors
+  {/* ==================== TRAIN CLINICAL PREDICTORS ==================== */}
 
-We can now use the embeddings (`X`) and the **labels** table to train multiple types of task heads to predict clinical outcomes.
+  <h2 className="smb-h2">Train clinical predictors</h2>
 
-After importing the necessary packages and splitting our data into training and test sets, we complete **Task A**: a binary classifier to predict subject readmission to the hospital, as recorded in the `readmission_risk` column. ROC-AUC is given as the evaluation metric for Task A.
+  <p className="smb-p">
+    We can now use the embeddings (<code>X</code>) and the <strong>labels</strong> table to train multiple types of task heads to predict clinical outcomes.
+  </p>
 
-```python
-# --- Setup ---
+  <p className="smb-p">
+    After importing the necessary packages and splitting our data into training and test sets, we complete <strong>Task A</strong>: a binary classifier to predict subject readmission to the hospital, as recorded in the <code>readmission_risk</code> column. ROC-AUC is given as the evaluation metric for Task A.
+  </p>
+
+  <div className="smb-code-wrap">
+    <div className="smb-code-label">python — setup + task a</div>
+    <pre className="smb-code-block"><code>{`# --- Setup ---
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LogisticRegression, Ridge
@@ -217,43 +292,52 @@ print(f"Training on {len(X_train)} samples, testing on {len(X_test)}")
 
 
 # --- Task A: Binary (Readmission Risk) ---
-print("\n--- Task A: Binary Classification ---")
+print("\\n--- Task A: Binary Classification ---")
 clf_bin = LogisticRegression(max_iter=1000)
 clf_bin.fit(X_train, labels_train["readmission_risk"])
 y_prob = clf_bin.predict_proba(X_test)[:, 1]
 auc = roc_auc_score(labels_test["readmission_risk"], y_prob)
-print(f"-> ROC-AUC: {auc:.3f}")
-```
+print(f"-> ROC-AUC: {auc:.3f}")`}</code></pre>
+  </div>
 
-**Task B** is a multi-class classifier to predict cancer stage 1-4, as recorded in the `phenotype_class` column. Accuracy score, or fraction of correctly classified samples, is given as evaluation metric.
+  <p className="smb-p">
+    <strong>Task B</strong> is a multi-class classifier to predict cancer stage 1-4, as recorded in the <code>phenotype_class</code> column. Accuracy score, or fraction of correctly classified samples, is given as evaluation metric.
+  </p>
 
-```python
-# --- Task B: Multiclass (Phenotype) ---
-print("\n--- Task B: Multiclass Phenotyping ---")
+  <div className="smb-code-wrap">
+    <div className="smb-code-label">python — task b</div>
+    <pre className="smb-code-block"><code>{`# --- Task B: Multiclass (Phenotype) ---
+print("\\n--- Task B: Multiclass Phenotyping ---")
 clf_multi = LogisticRegression(max_iter=1000)
 clf_multi.fit(X_train, labels_train["phenotype_class"])
 y_pred_class = clf_multi.predict(X_test)
 acc = accuracy_score(labels_test["phenotype_class"], y_pred_class)
-print(f"-> Accuracy: {acc:.3f}")
-```
+print(f"-> Accuracy: {acc:.3f}")`}</code></pre>
+  </div>
 
-**Task C** uses the continuous variable in `overall_survival_months` to train a regression model and predict months survival for subjects who died. Mean absolute error is reported for Task C.
+  <p className="smb-p">
+    <strong>Task C</strong> uses the continuous variable in <code>overall_survival_months</code> to train a regression model and predict months survival for subjects who died. Mean absolute error is reported for Task C.
+  </p>
 
-```python
-# --- Task C: Regression (Survival months) ---
-print("\n--- Task C: Regression ---")
+  <div className="smb-code-wrap">
+    <div className="smb-code-label">python — task c</div>
+    <pre className="smb-code-block"><code>{`# --- Task C: Regression (Survival months) ---
+print("\\n--- Task C: Regression ---")
 reg = Ridge(alpha=1.0)
 reg.fit(X_train, labels_train["overall_survival_months"])
 y_pred_reg = reg.predict(X_test)
 mae = mean_absolute_error(labels_test["overall_survival_months"], y_pred_reg)
-print(f"-> MAE: {mae:.2f}")
-```
+print(f"-> MAE: {mae:.2f}")`}</code></pre>
+  </div>
 
-Finally, **Task D** predicts the Cox proportional hazard between arbitrary groups of patients for risk of death, using the `overall_survival_months` and `event_observed` columns. The concordance index is reported as the evaluation metric.
+  <p className="smb-p">
+    Finally, <strong>Task D</strong> predicts the Cox proportional hazard between arbitrary groups of patients for risk of death, using the <code>overall_survival_months</code> and <code>event_observed</code> columns. The concordance index is reported as the evaluation metric.
+  </p>
 
-```python
-# --- Task D: Survival (Cox PH) ---
-print("\n--- Task D: Survival Analysis ---")
+  <div className="smb-code-wrap">
+    <div className="smb-code-label">python — task d</div>
+    <pre className="smb-code-block"><code>{`# --- Task D: Survival (Cox PH) ---
+print("\\n--- Task D: Survival Analysis ---")
 pca = PCA(n_components=10)
 X_train_pca = pca.fit_transform(X_train)
 X_test_pca = pca.transform(X_test)
@@ -266,11 +350,20 @@ test_cox_df = pd.DataFrame(X_test_pca, columns=[f"PC{i}" for i in range(10)])
 test_cox_df["T"] = labels_test["overall_survival_months"].values
 test_cox_df["E"] = labels_test["event_observed"].values
 c_index = cph.score(test_cox_df, scoring_method="concordance_index")
-print(f"-> C-Index: {c_index:.3f}")
-```
+print(f"-> C-Index: {c_index:.3f}")`}</code></pre>
+  </div>
 
-You may similarly abstract these concepts to use the Standard Model embeddings as input to other classifier types, including more complex downstream models!
+  <p className="smb-p">
+    You may similarly abstract these concepts to use the Standard Model embeddings as input to other classifier types, including more complex downstream models!
+  </p>
 
-### Contact Us
+  {/* ==================== CONTACT ==================== */}
 
-Having trouble, or just want to talk about your project? Send an email to [erik@standardmodel.bio](mailto:erik@standardmodel.bio)
+  <div className="smb-contact">
+    <div className="smb-contact-title">Contact Us</div>
+    <div className="smb-contact-desc">
+      Having trouble, or just want to talk about your project? Send an email to <a href="mailto:erik@standardmodel.bio">erik@standardmodel.bio</a>
+    </div>
+  </div>
+
+</div>
