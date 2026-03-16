@@ -1,168 +1,227 @@
 ---
-title: "Install the Standard Model"
-icon: "rocket"
-description: "This guide walks you through how to set up your environment and download our flagship JEPA-based multimodal foundation model."
+title: "Standard Model Biomedicine"
+description: "Open-weight JEPA foundation models for longitudinal EHR and 3D medical imaging. Extract patient embeddings in minutes."
+mode: "custom"
 ---
 
-## Quickstart (Recommended)
+<div className="smb-landing">
 
-```bash
-bash -c "$(curl -fsSL https://docs.standardmodel.bio/quickstart.sh)"
-```
+<div className="smb-hero">
+  <div className="smb-hero-inner">
+    <div className="smb-hero-badge">
+      <span className="smb-hero-badge-dot"></span>
+      Open weights · Hugging Face
+    </div>
+    <h1 className="smb-hero-title">
+      A <strong>foundation model</strong><br />
+      for biomedicine
+    </h1>
+    <p className="smb-hero-sub">
+      JEPA-based world model and 3D vision encoders trained on longitudinal oncology data and 1M CT studies. Extract patient-level embeddings, then train downstream task heads with a linear probe.
+    </p>
+    <div className="smb-hero-install">
+      <div className="smb-hero-install-label">Quickstart</div>
+      <div className="smb-hero-install-code">
+        <span className="smb-code-prompt">$ </span><span className="smb-code-cmd">bash -c "$(curl -fsSL https://docs.standardmodel.bio/quickstart.sh)"</span>
+      </div>
+    </div>
+    <div className="smb-hero-actions">
+      <a href="/example" className="smb-btn smb-btn-primary">
+        End-to-end example <span className="smb-btn-arrow">→</span>
+      </a>
+      <a href="https://huggingface.co/standardmodelbio" className="smb-btn smb-btn-secondary">
+        Browse models
+      </a>
+      <a href="https://blog.standardmodel.bio" className="smb-btn smb-btn-secondary">
+        Read the blog
+      </a>
+    </div>
+  </div>
+</div>
 
-This script will:
+<div className="smb-section smb-models">
+  <div className="smb-section-inner">
+    <div className="smb-section-label">Model Families</div>
+    <h2 className="smb-section-heading">
+      Two model families.<br /><strong>One patient representation.</strong>
+    </h2>
+    <p className="smb-section-desc">
+      A longitudinal world model for structured EHR and modality-specific vision encoders for 3D medical imaging — designed to compose into a unified embedding.
+    </p>
+    <div className="smb-model-grid">
+      <div className="smb-model-card smb-model-card-navy">
+        <div className="smb-model-icon smb-model-icon-navy">🧬</div>
+        <div className="smb-model-family">World Model · EHR</div>
+        <h3 className="smb-model-name">smb-v1</h3>
+        <p className="smb-model-desc">
+          Joint-Embedding Predictive Architecture trained on longitudinal oncology records. Conditions on patient state S(t) and intervention A(t) to predict S(t+1) in latent space. Last-token pooling yields a fixed-length embedding for downstream probing.
+        </p>
+        <div className="smb-model-variants">
+          <span className="smb-variant-chip">smb-v1-1.7b <span className="smb-variant-size">· 1.7B params</span></span>
+          <span className="smb-variant-chip">smb-v1-8b <span className="smb-variant-size">· 8B params</span></span>
+        </div>
+        <div className="smb-model-tags">
+          <span className="smb-tag smb-tag-navy">JEPA</span>
+          <span className="smb-tag smb-tag-navy">Causal Inference</span>
+          <span className="smb-tag smb-tag-navy">MEDS Format</span>
+          <span className="smb-tag smb-tag-navy">Longitudinal</span>
+        </div>
+        <a href="https://huggingface.co/standardmodelbio/smb-v1-1.7b" className="smb-model-hf">
+          View on Hugging Face →
+        </a>
+      </div>
+      <div className="smb-model-card smb-model-card-coral">
+        <div className="smb-model-icon smb-model-icon-coral">🫁</div>
+        <div className="smb-model-family">Vision Encoder · Radiology</div>
+        <h3 className="smb-model-name">smb-vision</h3>
+        <p className="smb-model-desc">
+          3D Vision Transformer backbones for CT volumes. Self-supervised with MIM and JEPA objectives on 1M proprietary CT studies. Supports 3D patch embedding, rotary position encodings, and multi-scale feature extraction via DeepStack.
+        </p>
+        <div className="smb-model-variants">
+          <span className="smb-variant-chip">smb-vision-v0 <span className="smb-variant-size">· V-JEPA2 · ViT-L</span></span>
+          <span className="smb-variant-chip">smb-vision-v1 <span className="smb-variant-size">· Qwen3-VL init · 0.6B</span></span>
+        </div>
+        <div className="smb-model-tags">
+          <span className="smb-tag smb-tag-coral">MIM + JEPA</span>
+          <span className="smb-tag smb-tag-coral">3D ViT</span>
+          <span className="smb-tag smb-tag-coral">CT Volumes</span>
+          <span className="smb-tag smb-tag-coral">RoPE</span>
+        </div>
+        <a href="https://huggingface.co/standardmodelbio/smb-vision-v1" className="smb-model-hf">
+          View on Hugging Face →
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
 
-1. Clone the [quickstart repo](https://github.com/standardmodelbio/quickstart) with `demo.py` and all dependencies.
-2. Install [uv](https://docs.astral.sh/uv/) if not already present.
-3. Run `uv sync` to install the exact locked dependency set (PyTorch, transformers, `smb_utils`, etc.).
+<div className="smb-section smb-usecases">
+  <div className="smb-section-inner">
+    <div className="smb-section-label">How to Use</div>
+    <h2 className="smb-section-heading">
+      From embeddings to<br /><strong>clinical predictions</strong>
+    </h2>
+    <p className="smb-section-desc">
+      Three ways to deploy Standard Model encoders — from a frozen linear probe to full multimodal instruction tuning.
+    </p>
+    <div className="smb-usecase-grid">
+      <div className="smb-usecase-card">
+        <div className="smb-usecase-number">01</div>
+        <h3 className="smb-usecase-title">Linear Probe</h3>
+        <p className="smb-usecase-desc">
+          Freeze smb-v1, extract embeddings via last-token pooling, and train a lightweight head — logistic regression, Ridge, or CoxPH — for classification, phenotyping, regression, or survival analysis.
+        </p>
+        <div className="smb-usecase-stack">
+          <span className="smb-usecase-stack-item">smb-v1 (frozen)</span>
+          <span className="smb-usecase-stack-item">Last-token pooling</span>
+          <span className="smb-usecase-stack-item">sklearn / lifelines</span>
+        </div>
+        <a href="/example" className="smb-usecase-link">
+          Run the demo <span className="smb-btn-arrow">→</span>
+        </a>
+      </div>
+      <div className="smb-usecase-card">
+        <div className="smb-usecase-number">02</div>
+        <h3 className="smb-usecase-title">Multimodal Fusion</h3>
+        <p className="smb-usecase-desc">
+          Use smb-v1 as a longitudinal encoder alongside smb-vision or third-party pathology and genomics encoders. Project modality embeddings into a shared latent space via a learned projection layer.
+        </p>
+        <div className="smb-usecase-stack">
+          <span className="smb-usecase-stack-item">smb-v1 + smb-vision</span>
+          <span className="smb-usecase-stack-item">Projection layer</span>
+          <span className="smb-usecase-stack-item">Fused embedding</span>
+        </div>
+        <a href="/model" className="smb-usecase-link">
+          Architecture details <span className="smb-btn-arrow">→</span>
+        </a>
+      </div>
+      <div className="smb-usecase-card">
+        <div className="smb-usecase-number">03</div>
+        <h3 className="smb-usecase-title">Instruction Tuning</h3>
+        <p className="smb-usecase-desc">
+          Integrate smb-v1 and smb-vision embeddings as modality tokens within an instruction-tuned LLM backbone for clinical VQA, radiology report generation, and multi-turn reasoning.
+        </p>
+        <div className="smb-usecase-stack">
+          <span className="smb-usecase-stack-item">smb-v1 + smb-vision</span>
+          <span className="smb-usecase-stack-item">LLM backbone</span>
+          <span className="smb-usecase-stack-item">VQA / Report Gen</span>
+        </div>
+        <a href="/model" className="smb-usecase-link">
+          Learn more <span className="smb-btn-arrow">→</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
 
-<Tip>
-  GPU support is strongly recommended. `smb-v1-1.7b` has 1.7B parameters and requires approximately 16GB GPU memory for inference.
-</Tip>
+<div className="smb-section smb-arch">
+  <div className="smb-section-inner">
+    <div className="smb-section-label">Architecture</div>
+    <h2 className="smb-section-heading">
+      From <strong>any modality</strong><br />to <strong>any task</strong>
+    </h2>
+    <p className="smb-section-desc">
+      Modality encoders produce patient-level embeddings. Domain experts own the downstream task head.
+    </p>
+    <div className="smb-arch-diagram">
+      <div className="smb-arch-col">
+        <div className="smb-arch-node smb-arch-input">CT Volumes</div>
+        <div className="smb-arch-node smb-arch-input">EHR Events</div>
+        <div className="smb-arch-node smb-arch-input">Genomics</div>
+      </div>
+      <div className="smb-arch-arrow">→</div>
+      <div className="smb-arch-node smb-arch-model">
+        Standard Model
+        <div className="smb-arch-model-sub">Patient embedding · S(t)</div>
+      </div>
+      <div className="smb-arch-arrow">→</div>
+      <div className="smb-arch-col">
+        <div className="smb-arch-node smb-arch-output">Prognosis</div>
+        <div className="smb-arch-node smb-arch-output">Treatment Response</div>
+        <div className="smb-arch-node smb-arch-output">Phenotyping</div>
+      </div>
+    </div>
+  </div>
+</div>
 
-<Accordion title="Manual Installation">
-  **Requirements:** Python 3.11+, Git, and [uv](https://docs.astral.sh/uv/).
+<div className="smb-section smb-next">
+  <div className="smb-section-inner">
+    <div className="smb-section-label">Next Steps</div>
+    <h2 className="smb-section-heading">
+      Start here
+    </h2>
+    <div className="smb-next-grid">
+      <a href="/example" className="smb-next-card">
+        <div className="smb-next-card-icon">🧪</div>
+        <div className="smb-next-card-title">End-to-end example</div>
+        <div className="smb-next-card-desc">Load MIMIC-IV demo data, extract embeddings, and train four classifiers — readmission, phenotyping, survival regression, and Cox PH.</div>
+        <div className="smb-next-card-arrow">View example →</div>
+      </a>
+      <a href="/your-own-data" className="smb-next-card">
+        <div className="smb-next-card-icon">📂</div>
+        <div className="smb-next-card-title">Use your own data</div>
+        <div className="smb-next-card-desc">Format EHR data in MEDS, tokenize with smb_utils, extract embeddings, and train custom task heads on your cohort.</div>
+        <div className="smb-next-card-arrow">Read guide →</div>
+      </a>
+      <a href="/model" className="smb-next-card">
+        <div className="smb-next-card-icon">🔬</div>
+        <div className="smb-next-card-title">Model architecture</div>
+        <div className="smb-next-card-desc">JEPA training objectives, fusion layer design, state prediction S(t) → S(t+1), and memory optimization for inference.</div>
+        <div className="smb-next-card-arrow">Read details →</div>
+      </a>
+    </div>
+  </div>
+</div>
 
-  <Note>
-    The quickstart uses [uv](https://docs.astral.sh/uv/) for dependency management. If you prefer a different tool (conda, pip, etc.), refer to `pyproject.toml` in the [quickstart repo](https://github.com/standardmodelbio/quickstart) for the list of dependencies.
-  </Note>
-  <Steps>
-    <Step title="Install uv">
-      ```bash
-      curl -LsSf https://astral.sh/uv/install.sh | sh
-      ```
-    </Step>
-    <Step title="Clone and install">
-      Once complete, run the demo:
+<div className="smb-footer-bar">
+  <div className="smb-footer-left">© 2025 Standard Model Biomedicine, Inc.</div>
+  <div className="smb-footer-links">
+    <a href="https://www.standardmodel.bio">Website</a>
+    <a href="https://blog.standardmodel.bio">Blog</a>
+    <a href="https://huggingface.co/standardmodelbio">Hugging Face</a>
+    <a href="https://github.com/standardmodelbio">GitHub</a>
+    <a href="https://www.linkedin.com/company/standardmodel-bio/">LinkedIn</a>
+  </div>
+</div>
 
-      ```bash
-      cd quickstart
-      uv run python demo.py
-      ```
-
-      ```bash
-      git clone https://github.com/standardmodelbio/quickstart.git
-      cd quickstart
-      uv sync
-      ```
-    </Step>
-  </Steps>
-  All dependencies (PyTorch, transformers, `smb_utils`, etc.) are installed from the lockfile, ensuring a reproducible environment.
-
-  ### Verify Your Installation
-
-  From the `quickstart/` directory, verify that everything is working:
-
-  ```bash
-  uv run python -c "
-  import torch
-  from transformers import AutoModelForCausalLM, AutoTokenizer
-  
-  # Check PyTorch and CUDA
-  print(f'PyTorch version: {torch.__version__}')
-  print(f'CUDA available: {torch.cuda.is_available()}')
-  
-  # Load smb-v1-1.7b
-  model_id = 'standardmodelbio/smb-v1-1.7b'
-  tokenizer = AutoTokenizer.from_pretrained(model_id)
-  model = AutoModelForCausalLM.from_pretrained(
-      model_id,
-      trust_remote_code=True,
-      device_map='auto'
-  )
-  
-  print('smb-v1-1.7b loaded successfully!')
-  "
-  ```
-</Accordion>
-
-## Next Steps
-
-<Columns cols={2}>
-  <Card icon="stethoscope" href="/example" title="Try a full example with synthetic data">
-    
-  </Card>
-  <Card icon="code-fork" href="https://docs.standardmodel.bio/your-own-data" title="Use the model on your own data">
-    
-  </Card>
-</Columns>
-
-### Troubleshooting
-
-<CardGroup cols={2}>
-  <Card icon="microchip" title="CUDA Not Detected">
-    Ensure NVIDIA drivers are up to date. Run `nvidia-smi` to verify GPU is accessible.
-  </Card>
-  <Card icon="memory" title="Out of Memory">
-    Reduce memory use via `torch.float16` or quantization (see below).
-  </Card>
-  <Card icon="lock" title="Model Access Denied">
-    Some models may require authentication. Run `huggingface-cli login` with your token.
-  </Card>
-  <Card icon="gauge" title="Slow Download">
-    Model downloads can be large (several GB). Ensure stable connection and sufficient disk space.
-  </Card>
-</CardGroup>
-
-### Memory optimization
-
-For large cohorts and/or limited GPU memory, use half-precision or quantization:
-
-<Tabs>
-  <Tab title="Float16">
-    ```python
-    model = AutoModelForCausalLM.from_pretrained(
-        model_id,
-        trust_remote_code=True,
-        torch_dtype=torch.float16,
-        device_map="auto"
-    )
-    ```
-
-    **Memory:** ~8GB
-  </Tab>
-  <Tab title="8-bit Quantization">
-    ```python
-    model = AutoModelForCausalLM.from_pretrained(
-        model_id,
-        trust_remote_code=True,
-        load_in_8bit=True,
-        device_map="auto"
-    )
-    ```
-
-    **Memory:** ~4GB
-  </Tab>
-</Tabs>
-
-{/* 
-
-
-## Hardware Requirements
-
-We suggest a minimum of 16 GB of GPU memory and recommend 32 GB.
-
----
-
-## Next Steps
-
-<CardGroup cols={2}>
-<Card title="Embeddings" icon="code" href="/guides/embeddings">
-Extract patient embeddings with dummy data examples.
-</Card>
-<Card title="Linear Probing" icon="magnifying-glass" href="/guides/linear-probing">
-Train classifiers on embeddings for prediction tasks.
-</Card>
-<Card title="Models" icon="cube" href="/get-started/models">
-Explore the full model catalog and capabilities.
-</Card>
-<Card title="HuggingFace" icon="face-smile" href="https://huggingface.co/standardmodelbio">
-Browse all models on HuggingFace.
-</Card>
-</CardGroup>
-
-*/}
-
-### Contact Us
-
-Having trouble, or just want to talk about your project? Send an email to [danielle@standardmodel.bio](mailto:danielle@standardmodel.bio)
+</div>

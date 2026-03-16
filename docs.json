@@ -1,92 +1,90 @@
 {
-    "$schema": "https://mintlify.com/docs.json",
-    "name": "Standard Model Bio",
-    "theme": "mint",
-    "logo": {
-      "light": "images/Brandmark-Isolated-OnLight.png",
-      "dark": "images//Brandmark-Isolated-OnLight.png",
-      "height": 40,
-      "href": "https://www.standardmodel.bio"
-    },
-    "favicon": "images/favicon.svg",
-    "colors": {
-      "primary": "#2B3E50",
-      "light": "#FF6B6B",
-      "dark": "#1E2D3D"
-    },
-    "topbarLinks": [
-      {
-        "name": "Blog",
-        "url": "https://blog.standardmodel.bio"
-      }
-    ],
-    "topbarCtaButton": {
-      "name": "Contact",
-      "url": "mailto:erik@standardmodel.bio"
-    },
-    "search": {
-      "prompt": "Search documentation..."
-    },
-    "navigation": {
-      "global": {
-        "anchors": [
-          {
-            "anchor": "Website",
-            "icon": "globe",
-            "hidden": true,
-            "href": "https://www.standardmodel.bio"
-          },
-          {
-            "anchor": "Blog",
-            "icon": "newspaper",
-            "hidden": true,
-            "href": "https://blog.standardmodel.bio"
-          },
-          {
-            "anchor": "Hugging Face",
-            "icon": "face-smile",
-            "hidden": true,
-            "href": "https://huggingface.co/standardmodelbio"
-          },
-          {
-            "anchor": "GitHub",
-            "icon": "github",
-            "hidden": true,
-            "href": "https://github.com/standardmodelbio"
-          }
-        ]
-      },
-      "pages": [
-        "index",
-        "example",
-        "your-own-data",
-        "model"
+  "$schema": "https://mintlify.com/docs.json",
+  "name": "Standard Model Bio",
+  "theme": "mint",
+  "logo": {
+    "light": "images/Brandmark-Isolated-OnLight.png",
+    "dark": "images/Brandmark-Isolated-OnLight.png",
+    "height": 40,
+    "href": "https://www.standardmodel.bio"
+  },
+  "favicon": "images/favicon.svg",
+  "colors": {
+    "primary": "#2B3E50",
+    "light": "#FF6B6B",
+    "dark": "#1E2D3D"
+  },
+  "topbarLinks": [
+    {
+      "name": "Blog",
+      "url": "https://blog.standardmodel.bio"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Contact",
+    "url": "mailto:erik@standardmodel.bio"
+  },
+  "search": {
+    "prompt": "Search documentation..."
+  },
+  "navigation": {
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Website",
+          "icon": "globe",
+          "hidden": true,
+          "href": "https://www.standardmodel.bio"
+        },
+        {
+          "anchor": "Blog",
+          "icon": "newspaper",
+          "hidden": true,
+          "href": "https://blog.standardmodel.bio"
+        },
+        {
+          "anchor": "Hugging Face",
+          "icon": "face-smile",
+          "hidden": true,
+          "href": "https://huggingface.co/standardmodelbio"
+        },
+        {
+          "anchor": "GitHub",
+          "icon": "github",
+          "hidden": true,
+          "href": "https://github.com/standardmodelbio"
+        }
       ]
     },
-    "footer": {
-      "socials": {
-        "website": "https://www.standardmodel.bio",
-        "linkedin": "https://www.linkedin.com/company/standardmodel-bio/"
-      }
-    },
-    "modeToggle": {
-      "default": "light"
-    },
-    "redirects": [
-      {
-        "source": "/quickstart.sh",
-        "destination": "https://raw.githubusercontent.com/standardmodelbio/quickstart/main/quickstart.sh"
-      }
-    ],
-    "contextual": {
-   "options": [
-     "copy",
-     "assistant",
-     "chatgpt",
-     "claude",
-     "perplexity"
-   ]
- }
-
+    "pages": [
+      "index",
+      "example",
+      "your-own-data",
+      "model"
+    ]
+  },
+  "footer": {
+    "socials": {
+      "website": "https://www.standardmodel.bio",
+      "linkedin": "https://www.linkedin.com/company/standardmodel-bio/"
+    }
+  },
+  "modeToggle": {
+    "default": "light"
+  },
+  "redirects": [
+    {
+      "source": "/quickstart.sh",
+      "destination": "https://raw.githubusercontent.com/standardmodelbio/quickstart/main/quickstart.sh"
+    }
+  ],
+  "contextual": {
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity"
+    ]
   }
-  
+}

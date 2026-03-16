@@ -4,7 +4,29 @@ icon: "code-fork"
 description: "This guide explains how to leverage the Standard Model on your own EHR data, including reshaping and tokenizing medical events, building a labels table, and training 4 types of classifiers on Standard Model embeddings."
 ---
 
-UThe workflow consists of three stages:
+<div className="smb-tracker">
+  <a href="/" className="smb-tracker-step smb-tracker-step-done">
+    <span className="smb-tracker-dot"></span>
+    <span className="smb-tracker-label">Install</span>
+  </a>
+  <div className="smb-tracker-line smb-tracker-line-done"></div>
+  <a href="/example" className="smb-tracker-step smb-tracker-step-done">
+    <span className="smb-tracker-dot"></span>
+    <span className="smb-tracker-label">Example</span>
+  </a>
+  <div className="smb-tracker-line smb-tracker-line-done"></div>
+  <a href="/your-own-data" className="smb-tracker-step smb-tracker-step-active">
+    <span className="smb-tracker-dot"></span>
+    <span className="smb-tracker-label">Your Data</span>
+  </a>
+  <div className="smb-tracker-line"></div>
+  <a href="/model" className="smb-tracker-step">
+    <span className="smb-tracker-dot"></span>
+    <span className="smb-tracker-label">Architecture</span>
+  </a>
+</div>
+
+The workflow consists of three stages:
 
 1. **Format data and tokenize data:** Organize your data into the required [MEDS](https://github.com/Medical-Event-Data-Standard/meds) format to record medical **events** and a **labels** table which includes the ground truth for your task targets. Convert these into serial tokens using `smb_utils`.
 2. **Represent data as embeddings:** Ingest MEDS **events** tokens into the Standard Model to produce high-dimensional patient-level embeddings.
@@ -135,35 +157,35 @@ model.eval()
 def get_embeddings(df, pids, end_time):
     embeddings = []
     for pid in tqdm(pids):
-        
-		# Resolve per-patient end_time if a mapping is provided
-          if isinstance(end_time, (pd.Series, dict)):
-              patient_end_time = pd.Timestamp(end_time[pid])
-          else:
-              patient_end_time = end_time
 
-		# A. Serialize (MEDS -> Text)
-        text = process_ehr_info(df, subject_id=pid, end_time=end_time)
-        
+        # Resolve per-patient end_time if a mapping is provided
+        if isinstance(end_time, (pd.Series, dict)):
+            patient_end_time = pd.Timestamp(end_time[pid])
+        else:
+            patient_end_time = end_time
+
+        # A. Serialize (MEDS -> Text)
+        text = process_ehr_info(df, subject_id=pid, end_time=patient_end_time)
+
         # B. Tokenize
         inputs = tokenizer(
             text, return_tensors="pt", truncation=True, max_length=4096
         ).to(model.device)
-        
+
         # C. Inference (Hidden States)
         with torch.no_grad():
             outputs = model(inputs.input_ids, output_hidden_states=True)
             # Extract last token vector
             vec = outputs.hidden_states[-1][:, -1, :].cpu()
             embeddings.append(vec)
-            
+
     return torch.cat(embeddings, dim=0).numpy()
 
 # Execute (use prediction_time from your labels table if it has that column; otherwise set a single cutoff)
 pids = df["subject_id"].unique()
 # If your labels table has prediction_time (e.g. from the quickstart demo)
 end_times = labels_df.set_index("subject_id")["prediction_time"]
-X = get_embeddings(df, pids, end_time)
+X = get_embeddings(df, pids, end_times)
 ```
 
 The output `X` is a list of **embeddings** (fixed-length, 1-dimensional PyTorch tensor) that represent the patients' medical history from `df`. This list is in the same patient order as your MEDS data and labels table.
@@ -195,60 +217,60 @@ print(f"Training on {len(X_train)} samples, testing on {len(X_test)}")
 
 
 # --- Task A: Binary (Readmission Risk) ---
-print("\\n--- Task A: Binary Classification ---")
+print("\n--- Task A: Binary Classification ---")
 clf_bin = LogisticRegression(max_iter=1000)
 clf_bin.fit(X_train, labels_train["readmission_risk"])
 y_prob = clf_bin.predict_proba(X_test)[:, 1]
 auc = roc_auc_score(labels_test["readmission_risk"], y_prob)
-print(f"-\> ROC-AUC: {auc:.3f}")
+print(f"-> ROC-AUC: {auc:.3f}")
 ```
 
 **Task B** is a multi-class classifier to predict cancer stage 1-4, as recorded in the `phenotype_class` column. Accuracy score, or fraction of correctly classified samples, is given as evaluation metric.
 
 ```python
 # --- Task B: Multiclass (Phenotype) ---
-print("\\n--- Task B: Multiclass Phenotyping ---")
+print("\n--- Task B: Multiclass Phenotyping ---")
 clf_multi = LogisticRegression(max_iter=1000)
 clf_multi.fit(X_train, labels_train["phenotype_class"])
 y_pred_class = clf_multi.predict(X_test)
 acc = accuracy_score(labels_test["phenotype_class"], y_pred_class)
-print(f"-\> Accuracy: {acc:.3f}"
+print(f"-> Accuracy: {acc:.3f}")
 ```
 
 **Task C** uses the continuous variable in `overall_survival_months` to train a regression model and predict months survival for subjects who died. Mean absolute error is reported for Task C.
 
 ```python
 # --- Task C: Regression (Survival months) ---
-print("\\n--- Task C: Regression ---")
+print("\n--- Task C: Regression ---")
 reg = Ridge(alpha=1.0)
 reg.fit(X_train, labels_train["overall_survival_months"])
 y_pred_reg = reg.predict(X_test)
 mae = mean_absolute_error(labels_test["overall_survival_months"], y_pred_reg)
-print(f"-\> MAE: {mae:.2f}")
+print(f"-> MAE: {mae:.2f}")
 ```
 
 Finally, **Task D** predicts the Cox proportional hazard between arbitrary groups of patients for risk of death, using the `overall_survival_months` and `event_observed` columns. The concordance index is reported as the evaluation metric.
 
 ```python
-# --- Task D: Survival (Cox PH) ---\
-print("\\n--- Task D: Survival Analysis ---")\
-pca = PCA(n_components=10)\
-X_train_pca = pca.fit_transform(X_train)\
-X_test_pca = pca.transform(X_test)\
-cox_df = pd.DataFrame(X_train_pca, columns=[f"PC{i}" for i in range(10)])\
-cox_df["T"] = labels_train["overall_survival_months"].values\
-cox_df["E"] = labels_train["event_observed"].values\
-cph = CoxPHFitter()\
-cph.fit(cox_df, duration_col="T", event_col="E")\
-test_cox_df = pd.DataFrame(X_test_pca, columns=[f"PC{i}" for i in range(10)])\
-test_cox_df["T"] = labels_test["overall_survival_months"].values\
-test_cox_df["E"] = labels_test["event_observed"].values\
-c_index = cph.score(test_cox_df, scoring_method="concordance_index")\
-print(f"-\> C-Index: {c_index:.3f}")
+# --- Task D: Survival (Cox PH) ---
+print("\n--- Task D: Survival Analysis ---")
+pca = PCA(n_components=10)
+X_train_pca = pca.fit_transform(X_train)
+X_test_pca = pca.transform(X_test)
+cox_df = pd.DataFrame(X_train_pca, columns=[f"PC{i}" for i in range(10)])
+cox_df["T"] = labels_train["overall_survival_months"].values
+cox_df["E"] = labels_train["event_observed"].values
+cph = CoxPHFitter()
+cph.fit(cox_df, duration_col="T", event_col="E")
+test_cox_df = pd.DataFrame(X_test_pca, columns=[f"PC{i}" for i in range(10)])
+test_cox_df["T"] = labels_test["overall_survival_months"].values
+test_cox_df["E"] = labels_test["event_observed"].values
+c_index = cph.score(test_cox_df, scoring_method="concordance_index")
+print(f"-> C-Index: {c_index:.3f}")
 ```
 
 You may similarly abstract these concepts to use the Standard Model embeddings as input to other classifier types, including more complex downstream models!
 
 ### Contact Us
 
-Having trouble, or just want to talk about your project? Send an email to [danielle@standardmodel.bio](mailto:danielle@standardmodel.bio)
+Having trouble, or just want to talk about your project? Send an email to [erik@standardmodel.bio](mailto:erik@standardmodel.bio)

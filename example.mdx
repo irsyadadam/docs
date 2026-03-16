@@ -4,6 +4,28 @@ icon: "stethoscope"
 description: "This demo illustrates the data formats, core functions, and results for using the smb-v1-1.7b model. The Python script loads MIMIC-IV demo data in MEDS format, extracts patient-representative embeddings using the Standard Model, and trains 4 example classifiers on those embeddings to predict clinical outcomes."
 ---
 
+<div className="smb-tracker">
+  <a href="/" className="smb-tracker-step smb-tracker-step-done">
+    <span className="smb-tracker-dot"></span>
+    <span className="smb-tracker-label">Install</span>
+  </a>
+  <div className="smb-tracker-line smb-tracker-line-done"></div>
+  <a href="/example" className="smb-tracker-step smb-tracker-step-active">
+    <span className="smb-tracker-dot"></span>
+    <span className="smb-tracker-label">Example</span>
+  </a>
+  <div className="smb-tracker-line"></div>
+  <a href="/your-own-data" className="smb-tracker-step">
+    <span className="smb-tracker-dot"></span>
+    <span className="smb-tracker-label">Your Data</span>
+  </a>
+  <div className="smb-tracker-line"></div>
+  <a href="/model" className="smb-tracker-step">
+    <span className="smb-tracker-dot"></span>
+    <span className="smb-tracker-label">Architecture</span>
+  </a>
+</div>
+
 Two parquet files are used in the demo:
 
 1. an **events** table in [MEDS (Medical Event Data Standard)](https://github.com/Medical-Event-Data-Standard/meds) format (one row per clinical event) used to create embeddings, and
@@ -34,7 +56,7 @@ The events file is a long table of timestamped clinical events (e.g. diagnoses, 
 | `subject_id` | Patient identifier; links events table to the labels table by patient.                                                                                                 |
 | `time`       | When the event occurred (used for ordering events and censoring them from the model).                                                                                  |
 | `code`       | Clinical code (e.g. `ICD10:`, `RxNorm:`, `LOINC:`); the primary categorical descriptor of the measurement (e.g., the performed laboratory test or recorded diagnosis). |
-| `table`      | Modality of the row's event data: `condition`, `medication`, `lab`, or `procedure` (used by the model’s text serialization).                                           |
+| `table`      | Modality of the row's event data: `condition`, `medication`, `lab`, or `procedure` (used by the model's text serialization).                                           |
 | `value`      | Optional numeric value (e.g. lab result); may be null.                                                                                                                 |
 
 <Info>
@@ -50,7 +72,7 @@ The events file is a long table of timestamped clinical events (e.g. diagnoses, 
 The labels file contains columns recording the clinical outcomes for the four demo tasks we will predict, per subject. This will be used for training the classifiers and evaluating test prediction metrics.
 
 <Info>
-  Outcome labels and `prediction_time `in this demo are **artificially generated** (see [data/README.md](https://github.com/standardmodelbio/quickstart/blob/main/data/README.md) for methodology); they are not directly derived from events data and are for demonstration purposes only.
+  Outcome labels and `prediction_time` in this demo are **artificially generated** (see [data/README.md](https://github.com/standardmodelbio/quickstart/blob/main/data/README.md) for methodology); they are not directly derived from events data and are for demonstration purposes only.
 
   In a real use case, outcome labels should be directly derived from an events dataset, and `prediction_time` should be set as the timestamp strictly before the event that defines the label.
 </Info>
@@ -88,7 +110,7 @@ Copy and paste the prompt below into your coding assistant of choice (i.e., Clau
 
 Running`demo.py` loads both pre-configured data files from the [quickstart repo](https://github.com/standardmodelbio/quickstart) (main branch) into memory, then:
 
-1. **Events → Embeddings:** For each patient, it serializes that patient’s events (using `subject_id`, `time`, `code`, `table`, `value`from the events data) into a token stream with `smb_utils` up to `prediction_time` from the labels file. The script then runs the Standard Model, and takes the last-token hidden state as the **patient embedding**.
+1. **Events → Embeddings:** For each patient, it serializes that patient's events (using `subject_id`, `time`, `code`, `table`, `value`from the events data) into a token stream with `smb_utils` up to `prediction_time` from the labels file. The script then runs the Standard Model, and takes the last-token hidden state as the **patient embedding**.
 2. **Embeddings + Labels → Predictive Task Performance Metrics:** After extracting embeddings, `demo.py` trains four separate task heads designed to predict A) binary hospital readmission, B) multiclass classification of cancer staging, C) continuous survival regression in months, and D) Cox survival. Each predictive output layer is trained on an 80/20 train/test split of the embeddings and labels. ROC-AUC, accuracy, mean absolute error, and C-index are provided for each of these tasks, respectively.
 
 If you ran the [quickstart](/) model installation, you can run the demo with:
@@ -138,14 +160,14 @@ generation_config.json: 100%|██████████████| 127/127
   <Card icon="code-fork" href="/your-own-data" title="Use the model on your own data">
     
   </Card>
-  <Card icon="brain-circuit" href="/model" title="Learn more about the Standard Model">
+  <Card icon="brain-circuit" href="/model" title="More about the Standard Model">
     
   </Card>
 </Columns>
 
 ### Contact Us
 
-Having trouble, or just want to talk about your project? Send an email to [danielle@standardmodel.bio](mailto:danielle@standardmodel.bio)
+Having trouble, or just want to talk about your project? Send an email to [erik@standardmodel.bio](mailto:erik@standardmodel.bio)
 
 <Info>
   **Attribution:** Events are from the MIMIC-IV Clinical Database Demo converted to MEDS
