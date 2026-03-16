@@ -1,41 +1,33 @@
 ---
 title: "Install the Standard Model"
 icon: "download"
-description: "This guide walks you through how to set up your environment and download our flagship JEPA-based multimodal foundation model."
+description: "Set up your environment and download our flagship JEPA-based multimodal foundation model."
 mode: "custom"
 ---
 
-<nav className="smb-breadcrumb">
-  <a href="/" className="smb-breadcrumb-item">Home</a>
-  <span className="smb-breadcrumb-sep">/</span>
-  <a href="/" className="smb-breadcrumb-item">World Model</a>
-  <span className="smb-breadcrumb-sep">/</span>
-  <span className="smb-breadcrumb-item smb-breadcrumb-current">Install</span>
-</nav>
-
-<div className="smb-tracker">
-  <a href="/install" className="smb-tracker-step smb-tracker-step-active">
-    <span className="smb-tracker-dot"></span>
-    <span className="smb-tracker-label">Install</span>
-  </a>
-  <div className="smb-tracker-line"></div>
-  <a href="/example" className="smb-tracker-step">
-    <span className="smb-tracker-dot"></span>
-    <span className="smb-tracker-label">Example</span>
-  </a>
-  <div className="smb-tracker-line"></div>
-  <a href="/your-own-data" className="smb-tracker-step">
-    <span className="smb-tracker-dot"></span>
-    <span className="smb-tracker-label">Your Data</span>
-  </a>
-  <div className="smb-tracker-line"></div>
-  <a href="/model" className="smb-tracker-step">
-    <span className="smb-tracker-dot"></span>
-    <span className="smb-tracker-label">Architecture</span>
-  </a>
-</div>
-
 <div className="smb-page">
+
+  <div className="smb-tracker">
+    <a href="/install" className="smb-tracker-step smb-tracker-step-active">
+      <span className="smb-tracker-dot"></span>
+      <span className="smb-tracker-label">Install</span>
+    </a>
+    <div className="smb-tracker-line"></div>
+    <a href="/example" className="smb-tracker-step">
+      <span className="smb-tracker-dot"></span>
+      <span className="smb-tracker-label">Example</span>
+    </a>
+    <div className="smb-tracker-line"></div>
+    <a href="/your-own-data" className="smb-tracker-step">
+      <span className="smb-tracker-dot"></span>
+      <span className="smb-tracker-label">Your Data</span>
+    </a>
+    <div className="smb-tracker-line"></div>
+    <a href="/model" className="smb-tracker-step">
+      <span className="smb-tracker-dot"></span>
+      <span className="smb-tracker-label">Architecture</span>
+    </a>
+  </div>
 
   <div className="smb-page-header">
     <div className="smb-page-icon">⚡</div>
@@ -45,34 +37,30 @@ mode: "custom"
     </p>
   </div>
 
-  {/* ==================== QUICKSTART ==================== */}
-
-  <h2 id="quickstart-recommended" className="smb-h2">Quickstart (Recommended)</h2>
+  <h2 id="quickstart" className="smb-h2">Quickstart (Recommended)</h2>
 
   <div className="smb-code-wrap">
     <div className="smb-code-label">bash</div>
-    <pre className="smb-code-block"><code>{`bash -c "$(curl -fsSL https://docs.standardmodel.bio/quickstart.sh)"`}</code></pre>
+    <pre className="smb-code-block"><code>bash -c "$(curl -fsSL https://docs.standardmodel.bio/quickstart.sh)"</code></pre>
   </div>
 
   <p className="smb-p">This script will:</p>
 
   <p className="smb-p">
-    1. Clone the <a href="https://github.com/standardmodelbio/quickstart">quickstart repo</a> with <code>demo.py</code> and all dependencies.<br/>
+    1. Clone the <a href="https://github.com/standardmodelbio/quickstart">quickstart repo</a> with demo.py and all dependencies.<br/>
     2. Install <a href="https://docs.astral.sh/uv/">uv</a> if not already present.<br/>
-    3. Run <code>uv sync</code> to install the exact locked dependency set (PyTorch, transformers, <code>smb_utils</code>, etc.).
+    3. Run uv sync to install the exact locked dependency set (PyTorch, transformers, smb_utils, etc.).
   </p>
 
   <div className="smb-callout smb-callout-info">
-    GPU support is strongly recommended. <code>smb-v1-1.7b</code> has 1.7B parameters and requires approximately 16GB GPU memory for inference.
+    GPU support is strongly recommended. smb-v1-1.7b has 1.7B parameters and requires approximately 16 GB GPU memory for inference.
   </div>
-
-  {/* ==================== MANUAL INSTALLATION ==================== */}
 
   <h2 id="manual-installation" className="smb-h2">Manual Installation</h2>
 
   <div className="smb-callout smb-callout-note">
     <strong>Requirements:</strong> Python 3.11+, Git, and <a href="https://docs.astral.sh/uv/">uv</a>.<br/><br/>
-    The quickstart uses <a href="https://docs.astral.sh/uv/">uv</a> for dependency management. If you prefer a different tool (conda, pip, etc.), refer to <code>pyproject.toml</code> in the <a href="https://github.com/standardmodelbio/quickstart">quickstart repo</a> for the list of dependencies.
+    The quickstart uses <a href="https://docs.astral.sh/uv/">uv</a> for dependency management. If you prefer a different tool (conda, pip, etc.), refer to pyproject.toml in the <a href="https://github.com/standardmodelbio/quickstart">quickstart repo</a> for the list of dependencies.
   </div>
 
   <ol className="smb-steps">
@@ -81,7 +69,7 @@ mode: "custom"
       <div className="smb-step-desc">
         <div className="smb-code-wrap">
           <div className="smb-code-label">bash</div>
-          <pre className="smb-code-block"><code>{`curl -LsSf https://astral.sh/uv/install.sh | sh`}</code></pre>
+          <pre className="smb-code-block"><code>curl -LsSf https://astral.sh/uv/install.sh | sh</code></pre>
         </div>
       </div>
     </li>
@@ -90,12 +78,12 @@ mode: "custom"
       <div className="smb-step-desc">
         <div className="smb-code-wrap">
           <div className="smb-code-label">bash</div>
-          <pre className="smb-code-block"><code>{`git clone https://github.com/standardmodelbio/quickstart.git
+          <pre className="smb-code-block"><code>git clone https://github.com/standardmodelbio/quickstart.git
 cd quickstart
-uv sync`}</code></pre>
+uv sync</code></pre>
         </div>
         <p className="smb-p" style={{marginTop: '12px'}}>
-          All dependencies (PyTorch, transformers, <code>smb_utils</code>, etc.) are installed from the lockfile, ensuring a reproducible environment.
+          All dependencies (PyTorch, transformers, smb_utils, etc.) are installed from the lockfile, ensuring a reproducible environment.
         </p>
       </div>
     </li>
@@ -104,32 +92,27 @@ uv sync`}</code></pre>
       <div className="smb-step-desc">
         <div className="smb-code-wrap">
           <div className="smb-code-label">bash</div>
-          <pre className="smb-code-block"><code>{`cd quickstart
-uv run python demo.py`}</code></pre>
+          <pre className="smb-code-block"><code>cd quickstart
+uv run python demo.py</code></pre>
         </div>
       </div>
     </li>
   </ol>
 
-  {/* ==================== VERIFY ==================== */}
-
   <h3 id="verify-installation" className="smb-h3">Verify Your Installation</h3>
 
   <p className="smb-p">
-    From the <code>quickstart/</code> directory, verify that everything is working:
+    From the quickstart/ directory, verify that everything is working:
   </p>
 
-  <div className="smb-code-wrap">
-    <div className="smb-code-label">python</div>
-    <pre className="smb-code-block"><code>{`uv run python -c "
+```python
+uv run python -c "
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-# Check PyTorch and CUDA
 print(f'PyTorch version: {torch.__version__}')
 print(f'CUDA available: {torch.cuda.is_available()}')
 
-# Load smb-v1-1.7b
 model_id = 'standardmodelbio/smb-v1-1.7b'
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 model = AutoModelForCausalLM.from_pretrained(
@@ -139,10 +122,8 @@ model = AutoModelForCausalLM.from_pretrained(
 )
 
 print('smb-v1-1.7b loaded successfully!')
-"`}</code></pre>
-  </div>
-
-  {/* ==================== NEXT STEPS ==================== */}
+"
+```
 
   <h2 id="next-steps" className="smb-h2">Next Steps</h2>
 
@@ -159,25 +140,23 @@ print('smb-v1-1.7b loaded successfully!')
     </a>
   </div>
 
-  {/* ==================== TROUBLESHOOTING ==================== */}
-
   <h2 id="troubleshooting" className="smb-h2">Troubleshooting</h2>
 
   <div className="smb-card-grid smb-card-grid-2">
     <div className="smb-card">
       <div className="smb-card-icon">🖥️</div>
       <div className="smb-card-title">CUDA Not Detected</div>
-      <div className="smb-card-desc">Ensure NVIDIA drivers are up to date. Run <code>nvidia-smi</code> to verify GPU is accessible.</div>
+      <div className="smb-card-desc">Ensure NVIDIA drivers are up to date. Run nvidia-smi to verify GPU is accessible.</div>
     </div>
     <div className="smb-card">
       <div className="smb-card-icon">💾</div>
       <div className="smb-card-title">Out of Memory</div>
-      <div className="smb-card-desc">Reduce memory use via <code>torch.float16</code> or quantization (see memory optimization below).</div>
+      <div className="smb-card-desc">Reduce memory use via torch.float16 or quantization (see memory optimization below).</div>
     </div>
     <div className="smb-card">
       <div className="smb-card-icon">🔒</div>
       <div className="smb-card-title">Model Access Denied</div>
-      <div className="smb-card-desc">Some models may require authentication. Run <code>huggingface-cli login</code> with your token.</div>
+      <div className="smb-card-desc">Some models may require authentication. Run huggingface-cli login with your token.</div>
     </div>
     <div className="smb-card">
       <div className="smb-card-icon">🌐</div>
@@ -186,50 +165,56 @@ print('smb-v1-1.7b loaded successfully!')
     </div>
   </div>
 
-  {/* ==================== MEMORY OPTIMIZATION ==================== */}
-
   <h2 id="memory-optimization" className="smb-h2">Memory Optimization</h2>
 
   <p className="smb-p">
     For large cohorts and/or limited GPU memory, use half-precision or quantization:
   </p>
 
-  <div className="smb-tabs">
-    <input type="radio" name="smb-mem-tab" id="smb-tab-1" defaultChecked />
-    <input type="radio" name="smb-mem-tab" id="smb-tab-2" />
-
-    <div className="smb-tab-labels">
-      <label className="smb-tab-label" htmlFor="smb-tab-1">Float16</label>
-      <label className="smb-tab-label" htmlFor="smb-tab-2">8-bit Quantization</label>
+  <div className="smb-pill-tabs">
+    <div className="smb-pill-tab-labels">
+      <div className="smb-pill-tab-label smb-pill-tab-active" data-tab="fp16">Float16</div>
+      <div className="smb-pill-tab-label" data-tab="int8">8-bit Quantization</div>
     </div>
+    <div className="smb-pill-tab-panel" data-panel="fp16">
 
-    <div className="smb-tab-panels">
-      <div className="smb-tab-panel">
-        <div className="smb-code-wrap">
-          <div className="smb-code-label">python — ~8 GB VRAM</div>
-          <pre className="smb-code-block"><code>{`model = AutoModelForCausalLM.from_pretrained(
+```python
+model = AutoModelForCausalLM.from_pretrained(
     model_id,
     trust_remote_code=True,
     torch_dtype=torch.float16,
     device_map="auto"
-)`}</code></pre>
-        </div>
-      </div>
-      <div className="smb-tab-panel">
-        <div className="smb-code-wrap">
-          <div className="smb-code-label">python — ~4 GB VRAM</div>
-          <pre className="smb-code-block"><code>{`model = AutoModelForCausalLM.from_pretrained(
+)
+```
+
+    </div>
+    <div className="smb-pill-tab-panel smb-hidden" data-panel="int8">
+
+```python
+model = AutoModelForCausalLM.from_pretrained(
     model_id,
     trust_remote_code=True,
     load_in_8bit=True,
     device_map="auto"
-)`}</code></pre>
-        </div>
-      </div>
+)
+```
+
     </div>
   </div>
 
-  {/* ==================== CONTACT ==================== */}
+  <div className="smb-table-wrap">
+    <table className="smb-table">
+      <thead>
+        <tr><th>Precision</th><th>GPU Memory</th><th>Recommended GPU</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>float32</td><td>16 GB</td><td>A100, A6000</td></tr>
+        <tr><td>float16</td><td>8 GB</td><td>RTX 4090, A10</td></tr>
+        <tr><td>8-bit</td><td>4 GB</td><td>RTX 3080, T4</td></tr>
+        <tr><td>4-bit</td><td>2 GB</td><td>RTX 3060</td></tr>
+      </tbody>
+    </table>
+  </div>
 
   <div className="smb-contact">
     <div className="smb-contact-title">Contact Us</div>
