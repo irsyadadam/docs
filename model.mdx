@@ -5,6 +5,15 @@ description: "Architecture, training objectives, embeddings, and memory optimiza
 mode: "custom"
 ---
 
+
+<nav className="smb-breadcrumb">
+  <a href="/" className="smb-breadcrumb-item">Home</a>
+  <span className="smb-breadcrumb-sep">/</span>
+  <a href="/" className="smb-breadcrumb-item">World Model</a>
+  <span className="smb-breadcrumb-sep">/</span>
+  <span className="smb-breadcrumb-item smb-breadcrumb-current">Architecture</span>
+</nav>
+
 <div className="smb-tracker">
   <a href="/" className="smb-tracker-step smb-tracker-step-done">
     <span className="smb-tracker-dot"></span>
@@ -41,6 +50,29 @@ mode: "custom"
     Read more about our modeling approach and benchmarks at our <a href="https://blog.standardmodel.bio">blog</a>.
   </div>
 
+  {/* ==================== MODEL CARD ==================== */}
+
+  <h2 className="smb-h2">Model Card</h2>
+
+  <div className="smb-table-wrap">
+    <table className="smb-table">
+      <thead>
+        <tr><th>Property</th><th>smb-v1-1.7b</th><th>smb-v1-8b</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Parameters</td><td>1.7B</td><td>8B</td></tr>
+        <tr><td>Hidden dimension</td><td>2048</td><td>4096</td></tr>
+        <tr><td>Max sequence length</td><td>4096 tokens</td><td>4096 tokens</td></tr>
+        <tr><td>Embedding output</td><td><code>(batch, 2048)</code></td><td><code>(batch, 4096)</code></td></tr>
+        <tr><td>Pooling strategy</td><td>Last-token</td><td>Last-token</td></tr>
+        <tr><td>Architecture</td><td>Causal transformer + JEPA</td><td>Causal transformer + JEPA</td></tr>
+        <tr><td>Input format</td><td>MEDS events → serialized text via <code>smb_utils</code></td><td>MEDS events → serialized text via <code>smb_utils</code></td></tr>
+        <tr><td>HuggingFace class</td><td><code>AutoModelForCausalLM</code></td><td><code>AutoModelForCausalLM</code></td></tr>
+        <tr><td>Weights</td><td><a href="https://huggingface.co/standardmodelbio/smb-v1-1.7b">Public</a></td><td><a href="https://huggingface.co/standardmodelbio/smb-v1-8b">Public</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+
   {/* ==================== KEY DIFFERENTIATORS ==================== */}
 
   <h2 className="smb-h2">Key Differentiators</h2>
@@ -65,30 +97,54 @@ mode: "custom"
 
   {/* ==================== ENVIRONMENT ==================== */}
 
-  <h2 className="smb-h2">Environment Activation</h2>
+  <h2 className="smb-h2">Environment Setup</h2>
+
+  <p className="smb-p">
+    If you installed via the <a href="/">quickstart</a>, activate the environment:
+  </p>
 
   <div className="smb-code-wrap">
     <div className="smb-code-label">bash</div>
     <pre className="smb-code-block"><code>{`source standard_model/bin/activate`}</code></pre>
   </div>
 
+  <p className="smb-p">
+    If setting up manually, the core dependencies are:
+  </p>
+
+  <div className="smb-code-wrap">
+    <div className="smb-code-label">bash</div>
+    <pre className="smb-code-block"><code>{`pip install torch transformers accelerate
+pip install smb-utils        # serialization & tokenization
+pip install scikit-learn lifelines  # downstream task heads (optional)`}</code></pre>
+  </div>
+
   {/* ==================== USAGE ==================== */}
 
-  <h2 className="smb-h2">Usage</h2>
+  <h2 className="smb-h2">Loading the Model</h2>
+
+  <div className="smb-callout smb-callout-warning">
+    <strong>Use <code>AutoModelForCausalLM</code></strong>, not <code>AutoModel</code>. smb-v1 is a causal language model — you need the causal LM class to access hidden states for embedding extraction. Also note <code>trust_remote_code=True</code> is required.
+  </div>
 
   <div className="smb-code-wrap">
     <div className="smb-code-label">python</div>
-    <pre className="smb-code-block"><code>{`from transformers import AutoModel, AutoTokenizer
+    <pre className="smb-code-block"><code>{`from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 
-# Load model
-model = AutoModel.from_pretrained("standardmodelbio/smb-v1-1.7b")
-tokenizer = AutoTokenizer.from_pretrained("standardmodelbio/smb-v1-1.7b")
+MODEL_ID = "standardmodelbio/smb-v1-1.7b"
 
-# Move to GPU
-device = "cuda" if torch.cuda.is_available() else "cpu"
-model = model.to(device)
-model.eval()`}</code></pre>
+tokenizer = AutoTokenizer.from_pretrained(MODEL_ID)
+model = AutoModelForCausalLM.from_pretrained(
+    MODEL_ID,
+    trust_remote_code=True,
+    device_map="auto",
+)
+model.eval()
+
+# Verify
+n_params = sum(p.numel() for p in model.parameters())
+print(f"Loaded {MODEL_ID} — {n_params/1e9:.1f}B parameters")`}</code></pre>
   </div>
 
   {/* ==================== ARCHITECTURE ==================== */}
@@ -130,37 +186,79 @@ model.eval()`}</code></pre>
 
   <h2 className="smb-h2">Extracting Embeddings</h2>
 
-  <p className="smb-p">Get patient state embeddings for downstream tasks:</p>
+  <p className="smb-p">
+    smb-v1 is a <strong>causal</strong> model — use <strong>last-token pooling</strong> to extract the patient embedding. The final token's hidden state captures the model's full causal representation of the patient trajectory up to that point.
+  </p>
+
+  <div className="smb-callout smb-callout-info">
+    <strong>Why last-token pooling?</strong> In causal (autoregressive) transformers, each token can only attend to itself and prior tokens. The last token is the only position that has attended over the entire input sequence, making it the natural summary vector. Mean pooling would dilute this with early-token states that lack full context.
+  </div>
 
   <div className="smb-code-wrap">
     <div className="smb-code-label">python</div>
-    <pre className="smb-code-block"><code>{`from transformers import AutoModel, AutoTokenizer
+    <pre className="smb-code-block"><code>{`from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 
-model = AutoModel.from_pretrained("standardmodelbio/smb-v1-1.7b")
-tokenizer = AutoTokenizer.from_pretrained("standardmodelbio/smb-v1-1.7b")
+MODEL_ID = "standardmodelbio/smb-v1-1.7b"
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
-model = model.to(device)
+tokenizer = AutoTokenizer.from_pretrained(MODEL_ID)
+model = AutoModelForCausalLM.from_pretrained(
+    MODEL_ID,
+    trust_remote_code=True,
+    device_map="auto",
+)
 model.eval()
 
-# Prepare input
+# Prepare input (in practice, use smb_utils.process_ehr_info to serialize MEDS data)
+text = "patient clinical data here"
 inputs = tokenizer(
-    "patient clinical data here",
+    text,
     return_tensors="pt",
-    padding=True,
-    truncation=True
-).to(device)
+    truncation=True,
+    max_length=4096,
+).to(model.device)
 
-# Extract embeddings
+# Extract embedding via last-token pooling
 with torch.no_grad():
-    outputs = model(**inputs)
-    embeddings = outputs.last_hidden_state
+    outputs = model(
+        inputs.input_ids,
+        attention_mask=inputs.attention_mask,
+        output_hidden_states=True,
+    )
+    # Last layer, last token → patient embedding
+    patient_embedding = outputs.hidden_states[-1][:, -1, :]  # (batch, 2048)
 
-    # Pool to get single patient embedding
-    patient_embedding = embeddings.mean(dim=1)  # [batch, hidden_dim]
+print(f"Embedding shape: {patient_embedding.shape}")  # (1, 2048) for smb-v1-1.7b`}</code></pre>
+  </div>
 
-print(f"Embedding shape: {patient_embedding.shape}")`}</code></pre>
+  {/* ==================== CONTEXT LENGTH ==================== */}
+
+  <h2 className="smb-h2">Context Length & Long Histories</h2>
+
+  <p className="smb-p">
+    <code>smb-v1-1.7b</code> supports a maximum of <strong>4096 tokens</strong>. Many patient histories exceed this when serialized. The <a href="https://github.com/standardmodelbio/smb-utils"><code>smb-utils</code></a> package provides strategies to manage this:
+  </p>
+
+  <div className="smb-card-grid smb-card-grid-3">
+    <div className="smb-card">
+      <div className="smb-card-icon">🔍</div>
+      <div className="smb-card-title">Modality Filtering</div>
+      <div className="smb-card-desc">Filter events by <code>code</code> or <code>table</code> column to include only relevant modalities (e.g., conditions + labs only).</div>
+    </div>
+    <div className="smb-card">
+      <div className="smb-card-icon">⏱️</div>
+      <div className="smb-card-title">Recency Binning</div>
+      <div className="smb-card-desc">Organize events into time bins, prioritizing the most recent events from the prediction anchor date.</div>
+    </div>
+    <div className="smb-card">
+      <div className="smb-card-icon">🏷️</div>
+      <div className="smb-card-title">Custom Categories</div>
+      <div className="smb-card-desc">Define custom event categories to control which codes are serialized and in what grouping.</div>
+    </div>
+  </div>
+
+  <div className="smb-callout smb-callout-tip">
+    Extended context length support is in active development. Check the <a href="https://github.com/standardmodelbio">GitHub</a> for updates.
   </div>
 
   {/* ==================== USE CASES ==================== */}
@@ -195,7 +293,7 @@ print(f"Embedding shape: {patient_embedding.shape}")`}</code></pre>
   <h2 className="smb-h2">Memory Optimization</h2>
 
   <p className="smb-p">
-    <code>smb-v1-1.7b</code> requires 16GB GPU memory at full precision. Memory usage can be reduced in several ways:
+    <code>smb-v1-1.7b</code> requires 16 GB GPU memory at full precision. Use quantization to reduce this:
   </p>
 
   <div className="smb-tabs">
@@ -212,42 +310,45 @@ print(f"Embedding shape: {patient_embedding.shape}")`}</code></pre>
     <div className="smb-tab-panels">
       <div className="smb-tab-panel">
         <div className="smb-code-wrap">
-          <div className="smb-code-label">python — ~8GB memory</div>
-          <pre className="smb-code-block"><code>{`model = AutoModel.from_pretrained(
+          <div className="smb-code-label">python — ~8 GB VRAM</div>
+          <pre className="smb-code-block"><code>{`model = AutoModelForCausalLM.from_pretrained(
     "standardmodelbio/smb-v1-1.7b",
+    trust_remote_code=True,
     torch_dtype=torch.float16,
-    device_map="auto"
+    device_map="auto",
 )`}</code></pre>
         </div>
       </div>
 
       <div className="smb-tab-panel">
         <div className="smb-code-wrap">
-          <div className="smb-code-label">python — ~4GB memory</div>
+          <div className="smb-code-label">python — ~4 GB VRAM</div>
           <pre className="smb-code-block"><code>{`# pip install bitsandbytes
-model = AutoModel.from_pretrained(
+model = AutoModelForCausalLM.from_pretrained(
     "standardmodelbio/smb-v1-1.7b",
+    trust_remote_code=True,
     load_in_8bit=True,
-    device_map="auto"
+    device_map="auto",
 )`}</code></pre>
         </div>
       </div>
 
       <div className="smb-tab-panel">
         <div className="smb-code-wrap">
-          <div className="smb-code-label">python — ~2GB memory</div>
+          <div className="smb-code-label">python — ~2 GB VRAM</div>
           <pre className="smb-code-block"><code>{`# pip install bitsandbytes
 from transformers import BitsAndBytesConfig
 
 quantization_config = BitsAndBytesConfig(
     load_in_4bit=True,
-    bnb_4bit_compute_dtype=torch.float16
+    bnb_4bit_compute_dtype=torch.float16,
 )
 
-model = AutoModel.from_pretrained(
+model = AutoModelForCausalLM.from_pretrained(
     "standardmodelbio/smb-v1-1.7b",
+    trust_remote_code=True,
     quantization_config=quantization_config,
-    device_map="auto"
+    device_map="auto",
 )`}</code></pre>
         </div>
       </div>
@@ -270,6 +371,42 @@ model = AutoModel.from_pretrained(
         <tr><td>4-bit</td><td>2 GB</td><td>RTX 3060</td></tr>
       </tbody>
     </table>
+  </div>
+
+  {/* ==================== KNOWN LIMITATIONS ==================== */}
+
+  <h2 className="smb-h2">Known Limitations</h2>
+
+  <div className="smb-card-grid smb-card-grid-2">
+    <div className="smb-card">
+      <div className="smb-card-icon">📏</div>
+      <div className="smb-card-title">4096 Token Ceiling</div>
+      <div className="smb-card-desc">Patients with long histories require truncation or filtering. Extended context support is in development.</div>
+    </div>
+    <div className="smb-card">
+      <div className="smb-card-icon">🏥</div>
+      <div className="smb-card-title">Oncology-Centric Pretraining</div>
+      <div className="smb-card-desc">smb-v1 was pretrained on longitudinal oncology records. Performance on non-oncology tasks (e.g., cardiology, pediatrics) may require fine-tuning.</div>
+    </div>
+    <div className="smb-card">
+      <div className="smb-card-icon">🔒</div>
+      <div className="smb-card-title">Frozen Embeddings Only (for now)</div>
+      <div className="smb-card-desc">The current recommended workflow is linear probing on frozen embeddings. Fine-tuning recipes (LoRA, adapters) are forthcoming.</div>
+    </div>
+    <div className="smb-card">
+      <div className="smb-card-icon">📊</div>
+      <div className="smb-card-title">EHR Text Only</div>
+      <div className="smb-card-desc">smb-v1 currently accepts serialized EHR text. Multimodal fusion with imaging/genomics encoders requires a projection layer (see encoder docs).</div>
+    </div>
+  </div>
+
+  {/* ==================== CONTACT ==================== */}
+
+  <div className="smb-contact">
+    <div className="smb-contact-title">Contact Us</div>
+    <div className="smb-contact-desc">
+      Having trouble, or just want to talk about your project? Send an email to <a href="mailto:erik@standardmodel.bio">erik@standardmodel.bio</a>
+    </div>
   </div>
 
 </div>

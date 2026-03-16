@@ -10,92 +10,132 @@ mode: "custom"
   <div className="smb-hero-inner">
     <div className="smb-hero-badge">
       <span className="smb-hero-badge-dot"></span>
-      Open weights · Hugging Face
+      Standard Model Biomedicine Documentation · Open weights on Hugging Face
     </div>
     <h1 className="smb-hero-title">
       A <strong>foundation model</strong><br />
       for biomedicine
     </h1>
     <p className="smb-hero-sub">
-      JEPA-based world model and 3D vision encoders trained on longitudinal oncology data and 1M CT studies. Extract patient-level embeddings, then train downstream task heads with a linear probe.
+      Technical documentation for the Standard Model — a multimodal foundation model that integrates biomedical data across scales and modalities into a universal patient representation. Install the model, extract embeddings, and build clinical predictors.
     </p>
-    <div className="smb-hero-install">
+    <div className="smb-hero-install" id="quickstart">
       <div className="smb-hero-install-label">Quickstart</div>
-      <div className="smb-hero-install-code">
-        <span className="smb-code-prompt">$ </span><span className="smb-code-cmd">bash -c "$(curl -fsSL https://docs.standardmodel.bio/quickstart.sh)"</span>
+      <div className="smb-hero-install-code" id="smb-install-block">
+        <code className="smb-hero-install-cmd">bash -c "$(curl -fsSL https://docs.standardmodel.bio/quickstart.sh)"</code>
+        <button className="smb-copy-btn" id="smb-copy-btn" aria-label="Copy to clipboard">Copy</button>
       </div>
-    </div>
-    <div className="smb-hero-actions">
-      <a href="/example" className="smb-btn smb-btn-primary">
+      <a href="/example" className="smb-btn smb-btn-primary smb-hero-example-below">
         End-to-end example <span className="smb-btn-arrow">→</span>
       </a>
+    </div>
+
+    <div className="smb-hero-models" id="models">
+      <div className="smb-hero-install-label">Available Model Families</div>
+      <div className="smb-model-grid">
+        <div className="smb-model-card smb-model-card-navy">
+          <div className="smb-model-icon smb-model-icon-navy">🧬</div>
+          <div className="smb-model-family">World Model Patient Encoders for Biomedicine</div>
+          <h3 className="smb-model-name">smb-series</h3>
+          <p className="smb-model-desc">
+            JEPA world models trained on longitudinal oncology data. Predicts future patient state S(t+1) from current state and intervention in latent space. Extract patient embeddings predictive of every clinical task.
+          </p>
+          <div className="smb-model-tags-label">Model Variants</div>
+          <div className="smb-model-variants">
+            <span className="smb-variant-chip">smb-v1-1.7b <span className="smb-variant-size">· 1.7B params</span></span>
+            <span className="smb-variant-chip">smb-v1-8b <span className="smb-variant-size">· 8B params</span></span>
+          </div>
+          <div className="smb-model-tags-label">Supported Modalities</div>
+          <div className="smb-model-tags">
+            <span className="smb-tag smb-tag-coral">EHR</span>
+            <span className="smb-tag smb-tag-coral">EHR + CT</span>
+          </div>
+          <a href="https://huggingface.co/standardmodelbio/smb-v1-1.7b" className="smb-model-hf">
+            Browse world model variants →
+          </a>
+        </div>
+        <div className="smb-model-card smb-model-card-coral">
+          <div className="smb-model-icon smb-model-icon-coral">🫁</div>
+          <div className="smb-model-family">Modality Encoders for Biomedical Data</div>
+          <h3 className="smb-model-name">smb-encoders</h3>
+          <p className="smb-model-desc">
+            Biomedical encoders for 3D CT, somatic genomics, and proteomics. Embeddings fuse into a unified patient representation through smb-v1's projection layer.
+          </p>
+          <div className="smb-model-tags-label">Model Variants</div>
+          <div className="smb-model-variants">
+            <span className="smb-variant-chip">smb-vision-v1 <span className="smb-variant-size">· 0.6B params</span></span>
+            <span className="smb-variant-chip">GenVarFormer <span className="smb-variant-size">· 993K params</span></span>
+            <span className="smb-variant-chip">KRONOS <span className="smb-variant-size">· 7B params</span></span>
+          </div>
+          <div className="smb-model-tags-label">Supported Modalities</div>
+          <div className="smb-model-tags">
+            <span className="smb-tag smb-tag-coral">CT Volumes</span>
+            <span className="smb-tag smb-tag-coral">Genomics</span>
+            <span className="smb-tag smb-tag-coral">Proteomics</span>
+          </div>
+          <a href="/encoders/vision" className="smb-model-hf">
+            Browse encoder variants →
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div className="smb-hero-papers" id="papers">
+      <div className="smb-hero-install-label">Associated Works</div>
+      <div className="smb-paper-carousel" id="smb-paper-carousel">
+        <a href="https://blog.standardmodel.bio/p/the-patient-is-not-a-document-moving" className="smb-paper-card">
+          <div className="smb-paper-venue">Case Study · 2025</div>
+          <div className="smb-paper-title">Validating the World Model at Memorial Sloan Kettering: Part 1</div>
+          <div className="smb-paper-models">smb-v1</div>
+          <div className="smb-paper-link">Read post →</div>
+        </a>
+        <a href="https://blog.standardmodel.bio/p/the-patient-is-not-a-document-moving-f88" className="smb-paper-card">
+          <div className="smb-paper-venue">Case Study · 2025</div>
+          <div className="smb-paper-title">Validating the World Model at Memorial Sloan Kettering: Part 2</div>
+          <div className="smb-paper-models">smb-v1</div>
+          <div className="smb-paper-link">Read post →</div>
+        </a>
+        <a href="https://arxiv.org/abs/2601.22128" className="smb-paper-card">
+          <div className="smb-paper-venue">Paper · 2026</div>
+          <div className="smb-paper-title">The Patient is Not a Document: A World Model Training Paradigm for Oncology</div>
+          <div className="smb-paper-models">smb-v1</div>
+          <div className="smb-paper-link">Read paper →</div>
+        </a>
+        <a href="https://arxiv.org/abs/2509.22853" className="smb-paper-card">
+          <div className="smb-paper-venue">Paper · 2025</div>
+          <div className="smb-paper-title">Patient-Specific Biomolecular Instruction Tuning of Graph-LLMs</div>
+          <div className="smb-paper-models">KRONOS</div>
+          <div className="smb-paper-link">Read paper →</div>
+        </a>
+        <a href="https://arxiv.org/abs/2509.25573" className="smb-paper-card">
+          <div className="smb-paper-venue">Paper · 2025</div>
+          <div className="smb-paper-title">Predicting Gene Expression from Long-Range Mutations in Cancer</div>
+          <div className="smb-paper-models">GenVarFormer</div>
+          <div className="smb-paper-link">Read paper →</div>
+        </a>
+        <a href="https://blog.standardmodel.bio/p/introducing-standard-model-biomedicine" className="smb-paper-card">
+          <div className="smb-paper-venue">Case Study · 2025</div>
+          <div className="smb-paper-title">Introducing Standard Model Biomedicine</div>
+          <div className="smb-paper-models">smb-v1 · GenVarFormer · KRONOS</div>
+          <div className="smb-paper-link">Read post →</div>
+        </a>
+      </div>
+    </div>
+
+    <div className="smb-hero-actions">
       <a href="https://huggingface.co/standardmodelbio" className="smb-btn smb-btn-secondary">
-        Browse models
+        <img src="/images/huggingface-color.svg" alt="" width="18" height="18" className="smb-btn-icon" />
+        Hugging Face
       </a>
       <a href="https://blog.standardmodel.bio" className="smb-btn smb-btn-secondary">
-        Read the blog
+        <img src="/images/substack-icon.png" alt="" width="18" height="18" className="smb-btn-icon" />
+        Substack
       </a>
     </div>
   </div>
 </div>
 
-<div className="smb-section smb-models">
-  <div className="smb-section-inner">
-    <div className="smb-section-label">Model Families</div>
-    <h2 className="smb-section-heading">
-      Two model families.<br /><strong>One patient representation.</strong>
-    </h2>
-    <p className="smb-section-desc">
-      A longitudinal world model for structured EHR and modality-specific vision encoders for 3D medical imaging — designed to compose into a unified embedding.
-    </p>
-    <div className="smb-model-grid">
-      <div className="smb-model-card smb-model-card-navy">
-        <div className="smb-model-icon smb-model-icon-navy">🧬</div>
-        <div className="smb-model-family">World Model · EHR</div>
-        <h3 className="smb-model-name">smb-v1</h3>
-        <p className="smb-model-desc">
-          Joint-Embedding Predictive Architecture trained on longitudinal oncology records. Conditions on patient state S(t) and intervention A(t) to predict S(t+1) in latent space. Last-token pooling yields a fixed-length embedding for downstream probing.
-        </p>
-        <div className="smb-model-variants">
-          <span className="smb-variant-chip">smb-v1-1.7b <span className="smb-variant-size">· 1.7B params</span></span>
-          <span className="smb-variant-chip">smb-v1-8b <span className="smb-variant-size">· 8B params</span></span>
-        </div>
-        <div className="smb-model-tags">
-          <span className="smb-tag smb-tag-navy">JEPA</span>
-          <span className="smb-tag smb-tag-navy">Causal Inference</span>
-          <span className="smb-tag smb-tag-navy">MEDS Format</span>
-          <span className="smb-tag smb-tag-navy">Longitudinal</span>
-        </div>
-        <a href="https://huggingface.co/standardmodelbio/smb-v1-1.7b" className="smb-model-hf">
-          View on Hugging Face →
-        </a>
-      </div>
-      <div className="smb-model-card smb-model-card-coral">
-        <div className="smb-model-icon smb-model-icon-coral">🫁</div>
-        <div className="smb-model-family">Vision Encoder · Radiology</div>
-        <h3 className="smb-model-name">smb-vision</h3>
-        <p className="smb-model-desc">
-          3D Vision Transformer backbones for CT volumes. Self-supervised with MIM and JEPA objectives on 1M proprietary CT studies. Supports 3D patch embedding, rotary position encodings, and multi-scale feature extraction via DeepStack.
-        </p>
-        <div className="smb-model-variants">
-          <span className="smb-variant-chip">smb-vision-v0 <span className="smb-variant-size">· V-JEPA2 · ViT-L</span></span>
-          <span className="smb-variant-chip">smb-vision-v1 <span className="smb-variant-size">· Qwen3-VL init · 0.6B</span></span>
-        </div>
-        <div className="smb-model-tags">
-          <span className="smb-tag smb-tag-coral">MIM + JEPA</span>
-          <span className="smb-tag smb-tag-coral">3D ViT</span>
-          <span className="smb-tag smb-tag-coral">CT Volumes</span>
-          <span className="smb-tag smb-tag-coral">RoPE</span>
-        </div>
-        <a href="https://huggingface.co/standardmodelbio/smb-vision-v1" className="smb-model-hf">
-          View on Hugging Face →
-        </a>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div className="smb-section smb-usecases">
+<div className="smb-section smb-usecases" id="usecases">
   <div className="smb-section-inner">
     <div className="smb-section-label">How to Use</div>
     <h2 className="smb-section-heading">
@@ -124,10 +164,10 @@ mode: "custom"
         <div className="smb-usecase-number">02</div>
         <h3 className="smb-usecase-title">Multimodal Fusion</h3>
         <p className="smb-usecase-desc">
-          Use smb-v1 as a longitudinal encoder alongside smb-vision or third-party pathology and genomics encoders. Project modality embeddings into a shared latent space via a learned projection layer.
+          Use smb-v1 as a longitudinal encoder alongside smb-encoders or third-party pathology and genomics encoders. Project modality embeddings into a shared latent space via a learned projection layer.
         </p>
         <div className="smb-usecase-stack">
-          <span className="smb-usecase-stack-item">smb-v1 + smb-vision</span>
+          <span className="smb-usecase-stack-item">smb-v1 + smb-encoders</span>
           <span className="smb-usecase-stack-item">Projection layer</span>
           <span className="smb-usecase-stack-item">Fused embedding</span>
         </div>
@@ -139,10 +179,10 @@ mode: "custom"
         <div className="smb-usecase-number">03</div>
         <h3 className="smb-usecase-title">Instruction Tuning</h3>
         <p className="smb-usecase-desc">
-          Integrate smb-v1 and smb-vision embeddings as modality tokens within an instruction-tuned LLM backbone for clinical VQA, radiology report generation, and multi-turn reasoning.
+          Integrate smb-v1 and smb-encoder embeddings as modality tokens within an instruction-tuned LLM backbone for clinical VQA, radiology report generation, and multi-turn reasoning.
         </p>
         <div className="smb-usecase-stack">
-          <span className="smb-usecase-stack-item">smb-v1 + smb-vision</span>
+          <span className="smb-usecase-stack-item">smb-v1 + smb-encoders</span>
           <span className="smb-usecase-stack-item">LLM backbone</span>
           <span className="smb-usecase-stack-item">VQA / Report Gen</span>
         </div>
@@ -154,37 +194,7 @@ mode: "custom"
   </div>
 </div>
 
-<div className="smb-section smb-arch">
-  <div className="smb-section-inner">
-    <div className="smb-section-label">Architecture</div>
-    <h2 className="smb-section-heading">
-      From <strong>any modality</strong><br />to <strong>any task</strong>
-    </h2>
-    <p className="smb-section-desc">
-      Modality encoders produce patient-level embeddings. Domain experts own the downstream task head.
-    </p>
-    <div className="smb-arch-diagram">
-      <div className="smb-arch-col">
-        <div className="smb-arch-node smb-arch-input">CT Volumes</div>
-        <div className="smb-arch-node smb-arch-input">EHR Events</div>
-        <div className="smb-arch-node smb-arch-input">Genomics</div>
-      </div>
-      <div className="smb-arch-arrow">→</div>
-      <div className="smb-arch-node smb-arch-model">
-        Standard Model
-        <div className="smb-arch-model-sub">Patient embedding · S(t)</div>
-      </div>
-      <div className="smb-arch-arrow">→</div>
-      <div className="smb-arch-col">
-        <div className="smb-arch-node smb-arch-output">Prognosis</div>
-        <div className="smb-arch-node smb-arch-output">Treatment Response</div>
-        <div className="smb-arch-node smb-arch-output">Phenotyping</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div className="smb-section smb-next">
+<div className="smb-section smb-next" id="nextsteps">
   <div className="smb-section-inner">
     <div className="smb-section-label">Next Steps</div>
     <h2 className="smb-section-heading">
@@ -212,7 +222,7 @@ mode: "custom"
       <a href="/encoders/vision" className="smb-next-card">
         <div className="smb-next-card-icon">🧬</div>
         <div className="smb-next-card-title">Encoders</div>
-        <div className="smb-next-card-desc">Modality-specific encoders — smb-vision for CT volumes, GenVarFormer for whole-genome sequencing, and KRONOS for proteomics.</div>
+        <div className="smb-next-card-desc">Modality-specific encoders — smb-vision for CT volumes, GenVarFormer for somatic genomics, and KRONOS for proteomics.</div>
         <div className="smb-next-card-arrow">Browse encoders →</div>
       </a>
     </div>
@@ -230,4 +240,98 @@ mode: "custom"
   </div>
 </div>
 
+<div className="smb-floating-nav" id="smb-floating-nav">
+  <a href="#quickstart" className="smb-fnav-dot smb-fnav-active" data-section="quickstart">
+    <span className="smb-fnav-label">Quickstart</span>
+  </a>
+  <a href="#models" className="smb-fnav-dot" data-section="models">
+    <span className="smb-fnav-label">Models</span>
+  </a>
+  <a href="#papers" className="smb-fnav-dot" data-section="papers">
+    <span className="smb-fnav-label">Papers</span>
+  </a>
+  <div className="smb-fnav-divider"></div>
+  <a href="#usecases" className="smb-fnav-dot" data-section="usecases">
+    <span className="smb-fnav-label">How to use</span>
+  </a>
+  <a href="#nextsteps" className="smb-fnav-dot" data-section="nextsteps">
+    <span className="smb-fnav-label">Next steps</span>
+  </a>
 </div>
+
+</div>
+
+<script dangerouslySetInnerHTML={{__html: `
+  (function() {
+    // Copy button
+    var cmd = 'bash -c "$(curl -fsSL https://docs.standardmodel.bio/quickstart.sh)"';
+    var btn = document.getElementById('smb-copy-btn');
+    if (btn) {
+      btn.addEventListener('click', function() {
+        navigator.clipboard.writeText(cmd).then(function() {
+          btn.textContent = 'Copied!';
+          setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
+        });
+      });
+    }
+
+    // Infinite carousel — clone cards for seamless loop
+    var carousel = document.getElementById('smb-paper-carousel');
+    if (carousel) {
+      var cards = carousel.querySelectorAll('.smb-paper-card');
+      cards.forEach(function(card) {
+        var clone = card.cloneNode(true);
+        clone.setAttribute('aria-hidden', 'true');
+        carousel.appendChild(clone);
+      });
+    }
+
+    // Floating nav — track active section + show/hide
+    var fnav = document.getElementById('smb-floating-nav');
+    if (fnav) {
+      var dots = fnav.querySelectorAll('.smb-fnav-dot');
+      var sectionIds = [];
+      dots.forEach(function(d) {
+        if (d.dataset.section) sectionIds.push(d.dataset.section);
+      });
+
+      dots.forEach(function(dot) {
+        dot.addEventListener('click', function(e) {
+          e.preventDefault();
+          var target = document.getElementById(dot.dataset.section);
+          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            dots.forEach(function(d) { d.classList.remove('smb-fnav-active'); });
+            var active = fnav.querySelector('[data-section="' + entry.target.id + '"]');
+            if (active) active.classList.add('smb-fnav-active');
+          }
+        });
+      }, { rootMargin: '-30% 0px -60% 0px' });
+
+      sectionIds.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) observer.observe(el);
+      });
+
+      var scrollParent = document.querySelector('.smb-landing') || document.scrollingElement || document.documentElement;
+      var scrollTarget = scrollParent === document.documentElement ? window : scrollParent;
+
+      function checkScroll() {
+        var scrollTop = scrollParent.scrollTop || window.scrollY || 0;
+        if (scrollTop < 200) {
+          fnav.classList.add('smb-fnav-hidden');
+        } else {
+          fnav.classList.remove('smb-fnav-hidden');
+        }
+      }
+
+      scrollTarget.addEventListener('scroll', checkScroll);
+      checkScroll();
+    }
+  })();
+`}} />

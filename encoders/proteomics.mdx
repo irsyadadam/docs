@@ -5,43 +5,19 @@ description: "Loading and running KRONOS — Standard Model Bio's graph-LLM prot
 mode: "custom"
 ---
 
-<div className="smb-encoder-wrap">
-
-{/* ==================== SIDENAV ==================== */}
-
-<aside className="smb-sidenav" aria-label="Page navigation">
-  <div className="smb-sidenav-group">
-    <span className="smb-sidenav-label">Encoders</span>
-    <a href="/encoders/vision" className="smb-sidenav-encoder">
-      <span className="smb-sidenav-encoder-icon">🫁</span>Vision
-    </a>
-    <a href="/encoders/genomics" className="smb-sidenav-encoder">
-      <span className="smb-sidenav-encoder-icon">🧬</span>Genomics
-    </a>
-    <a href="/encoders/proteomics" className="smb-sidenav-encoder smb-sidenav-encoder-active">
-      <span className="smb-sidenav-encoder-icon">🔬</span>Proteomics
-    </a>
-  </div>
-
-  <div className="smb-sidenav-divider"></div>
-
-  <div className="smb-sidenav-group">
-    <span className="smb-sidenav-label">On this page</span>
-    <nav className="smb-sidenav-track">
-      <a href="#differentiators" className="smb-sidenav-section">Key Differentiators</a>
-      <a href="#architecture" className="smb-sidenav-section">Architecture</a>
-      <a href="#input-format" className="smb-sidenav-section">Input Format</a>
-      <a href="#loading" className="smb-sidenav-section">Loading the Model</a>
-      <a href="#embeddings" className="smb-sidenav-section">Embeddings</a>
-      <a href="#use-cases" className="smb-sidenav-section">Use Cases</a>
-      <a href="#hardware" className="smb-sidenav-section">Hardware</a>
-    </nav>
-  </div>
-</aside>
-
-{/* ==================== MAIN CONTENT ==================== */}
-
 <div className="smb-page">
+
+  <div className="smb-encoder-switcher">
+    <a href="/encoders/vision">
+      <span className="smb-switcher-icon">🫁</span>Vision
+    </a>
+    <a href="/encoders/genomics">
+      <span className="smb-switcher-icon">🧬</span>Genomics
+    </a>
+    <a href="/encoders/proteomics" className="smb-switcher-active">
+      <span className="smb-switcher-icon">🔬</span>Proteomics
+    </a>
+  </div>
 
   <div className="smb-page-header">
     <div className="smb-page-icon">🔬</div>
@@ -54,8 +30,6 @@ mode: "custom"
   <div className="smb-callout smb-callout-tip">
     Read the preprint: <a href="https://arxiv.org/abs/2509.22853">arXiv:2509.22853</a> — <em>Patient-Specific Biomolecular Instruction Tuning of Graph-LLMs</em>.
   </div>
-
-  {/* ==================== KEY DIFFERENTIATORS ==================== */}
 
   <h2 id="differentiators" className="smb-h2">Key Differentiators</h2>
 
@@ -76,8 +50,6 @@ mode: "custom"
       <div className="smb-card-desc">Achieves AUC up to 0.857 on prognostic tasks including survival prediction and tumor stage classification.</div>
     </div>
   </div>
-
-  {/* ==================== ARCHITECTURE ==================== */}
 
   <h2 id="architecture" className="smb-h2">Architecture</h2>
 
@@ -110,8 +82,6 @@ mode: "custom"
     </li>
   </ol>
 
-  {/* ==================== INPUT FORMAT ==================== */}
-
   <h2 id="input-format" className="smb-h2">Input Format</h2>
 
   <div className="smb-table-wrap">
@@ -127,8 +97,6 @@ mode: "custom"
       </tbody>
     </table>
   </div>
-
-  {/* ==================== LOADING THE MODEL ==================== */}
 
   <h2 id="loading" className="smb-h2">Loading the Model</h2>
 
@@ -155,8 +123,6 @@ tokenizer = AutoTokenizer.from_pretrained(
 model.eval()
 print("KRONOS loaded.")`}</code></pre>
   </div>
-
-  {/* ==================== EXTRACTING EMBEDDINGS ==================== */}
 
   <h2 id="embeddings" className="smb-h2">Extracting Embeddings</h2>
 
@@ -215,8 +181,6 @@ with torch.no_grad():
 print(f"Patient embedding shape: {graph_embedding.shape}")`}</code></pre>
   </div>
 
-  {/* ==================== USE CASES ==================== */}
-
   <h2 id="use-cases" className="smb-h2">Use Cases</h2>
 
   <div className="smb-card-grid smb-card-grid-2">
@@ -242,8 +206,6 @@ print(f"Patient embedding shape: {graph_embedding.shape}")`}</code></pre>
     </div>
   </div>
 
-  {/* ==================== HARDWARE REQUIREMENTS ==================== */}
-
   <h2 id="hardware" className="smb-h2">Hardware Requirements</h2>
 
   <div className="smb-table-wrap">
@@ -258,8 +220,6 @@ print(f"Patient embedding shape: {graph_embedding.shape}")`}</code></pre>
     </table>
   </div>
 
-  {/* ==================== CONTACT ==================== */}
-
   <div className="smb-contact">
     <div className="smb-contact-title">Contact Us</div>
     <div className="smb-contact-desc">
@@ -269,26 +229,3 @@ print(f"Patient embedding shape: {graph_embedding.shape}")`}</code></pre>
 
 </div>
 
-</div>
-
-<script dangerouslySetInnerHTML={{__html: `
-  (function() {
-    var sections = document.querySelectorAll('.smb-h2[id]');
-    var links = document.querySelectorAll('.smb-sidenav-section');
-    if (!sections.length || !links.length) return;
-    var current = null;
-    var obs = new IntersectionObserver(function(entries) {
-      entries.forEach(function(e) {
-        if (e.isIntersecting) {
-          var id = e.target.id;
-          if (id === current) return;
-          current = id;
-          links.forEach(function(l) { l.classList.remove('smb-sidenav-active'); });
-          var a = document.querySelector('.smb-sidenav-section[href="#' + id + '"]');
-          if (a) a.classList.add('smb-sidenav-active');
-        }
-      });
-    }, { rootMargin: '-10% 0px -80% 0px' });
-    sections.forEach(function(s) { obs.observe(s); });
-  })();
-`}} />
