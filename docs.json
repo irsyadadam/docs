@@ -6,9 +6,9 @@
     "light": "images/Brandmark-Isolated-OnLight.png",
     "dark": "images/Brandmark-Isolated-OnLight.png",
     "height": 40,
-    "href": "https://www.standardmodel.bio"
+    "href": "/index"
   },
-  "favicon": "images/favicon.svg",
+  "favicon": "images/Brandmark-Isolated-OnLight.png",
   "colors": {
     "primary": "#2B3E50",
     "light": "#FF6B6B",
@@ -64,6 +64,7 @@
       {
         "group": "World Model",
         "pages": [
+          "install",
           "example",
           "your-own-data",
           "model"

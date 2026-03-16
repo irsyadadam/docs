@@ -1,191 +1,236 @@
 ---
 title: "smb-vision"
 icon: "eye"
-description: "Loading, preprocessing, and extracting embeddings from smb-vision-v0 and smb-vision-v1 — Standard Model Bio's 3D CT imaging encoders."
+description: "Loading, preprocessing, and extracting embeddings from smb-vision — Standard Model Bio's 3D CT imaging encoders."
 mode: "custom"
 ---
 
-<div className="smb-page">
+<nav className="smb-breadcrumb">
+  <a href="/" className="smb-breadcrumb-item">Home</a>
+  <span className="smb-breadcrumb-sep">/</span>
+  <a href="/encoders/vision" className="smb-breadcrumb-item">Encoders</a>
+  <span className="smb-breadcrumb-sep">/</span>
+  <span className="smb-breadcrumb-item smb-breadcrumb-current">Vision</span>
+</nav>
 
-  <div className="smb-encoder-switcher">
-    <a href="/encoders/vision" className="smb-switcher-active">
-      <span className="smb-switcher-icon">🫁</span>Vision
-    </a>
-    <a href="/encoders/genomics">
-      <span className="smb-switcher-icon">🧬</span>Genomics
-    </a>
-    <a href="/encoders/proteomics">
-      <span className="smb-switcher-icon">🔬</span>Proteomics
-    </a>
-  </div>
+<div className="smb-tracker smb-tracker-encoder">
+  <a href="/encoders/vision" className="smb-tracker-step smb-tracker-step-active">
+    <span className="smb-tracker-dot"></span>
+    <span className="smb-tracker-label">Vision</span>
+  </a>
+  <div className="smb-tracker-line"></div>
+  <a href="/encoders/genomics" className="smb-tracker-step">
+    <span className="smb-tracker-dot"></span>
+    <span className="smb-tracker-label">Genomics</span>
+  </a>
+  <div className="smb-tracker-line"></div>
+  <a href="/encoders/proteomics" className="smb-tracker-step">
+    <span className="smb-tracker-dot"></span>
+    <span className="smb-tracker-label">Proteomics</span>
+  </a>
+</div>
+
+<div className="smb-page">
 
   <div className="smb-page-header">
     <div className="smb-page-icon">🫁</div>
     <h1 className="smb-page-title">smb-vision</h1>
     <p className="smb-page-desc">
-      <code>smb-vision</code> is a family of 3D medical imaging encoders pre-trained on over 1 million CT studies. Given a volumetric CT scan, the encoder produces rich spatial embeddings that capture anatomy, pathology, and tissue texture — ready to plug into any downstream task.
+      3D medical imaging encoders pre-trained on over 1 million CT studies. Given a volumetric scan, the encoder produces rich spatial embeddings capturing anatomy, pathology, and tissue texture — ready for any downstream task.
     </p>
   </div>
 
-  <div className="smb-callout smb-callout-tip">
-    Read the technical report and benchmarks at our <a href="https://blog.standardmodel.bio">blog</a>.
-  </div>
-
-  <h2 id="differentiators" className="smb-h2">Key Differentiators</h2>
-
-  <div className="smb-card-grid smb-card-grid-3">
-    <div className="smb-card">
-      <div className="smb-card-icon">🫁</div>
-      <div className="smb-card-title">3D-Native</div>
-      <div className="smb-card-desc">Processes full volumetric CT scans as 3D patch tubelets — no slice-by-slice approximation.</div>
-    </div>
-    <div className="smb-card">
-      <div className="smb-card-icon">📏</div>
-      <div className="smb-card-title">Scale</div>
-      <div className="smb-card-desc">Pre-trained on 1M+ CT studies spanning diverse anatomies and pathologies.</div>
-    </div>
-    <div className="smb-card">
-      <div className="smb-card-icon">🔗</div>
-      <div className="smb-card-title">Multimodal Ready</div>
-      <div className="smb-card-desc">Embeddings are designed to fuse with EHR, genomics, and proteomics representations in smb-v1.</div>
+  <div className="smb-model-banner">
+    <div className="smb-model-banner-specs">
+      <div className="smb-model-banner-spec">
+        <div className="smb-model-banner-label">Architecture</div>
+        <div className="smb-model-banner-value">V-JEPA2 / ViT-L</div>
+      </div>
+      <div className="smb-model-banner-spec">
+        <div className="smb-model-banner-label">v1 params</div>
+        <div className="smb-model-banner-value">0.6B (Qwen3-VL)</div>
+      </div>
+      <div className="smb-model-banner-spec">
+        <div className="smb-model-banner-label">Output</div>
+        <div className="smb-model-banner-value"><code>(B, seq, 1024)</code></div>
+      </div>
+      <div className="smb-model-banner-spec">
+        <div className="smb-model-banner-label">Input</div>
+        <div className="smb-model-banner-value">384 x 384 x 256</div>
+      </div>
     </div>
   </div>
 
-  <h2 id="architecture" className="smb-h2">Architecture</h2>
-
-  <p className="smb-p">
-    <strong>smb-vision-v0</strong> is built on V-JEPA2 with a ViT-L backbone (<code>standardmodelbio/smb-vision-vjepa2-vitl-384-256</code>). It processes 3D volumes as non-overlapping patch tubelets of size 16×16×16, using Rotary Position Encodings (RoPE) to model spatial relationships across the full volume. Multi-scale context is captured via DeepStack layers that aggregate features at different resolutions.
-  </p>
-
-  <p className="smb-p">
-    <strong>smb-vision-v1</strong> (<code>standardmodelbio/smb-vision-v1</code>) initializes from Qwen3-VL and scales to 0.6B parameters with improved visual grounding. It shares the same input preprocessing pipeline and output embedding format as v0, making the two variants drop-in replaceable.
-  </p>
-
-  <h3 className="smb-h3">How It Works</h3>
-
-  <ol className="smb-steps">
-    <li className="smb-step">
-      <div className="smb-step-title">Load & Reorient</div>
-      <div className="smb-step-desc">Load the DICOM or NIfTI volume with MONAI's <code>LoadImaged</code>, then reorient axes to standard RAS orientation with <code>Orientationd</code>.</div>
-    </li>
-    <li className="smb-step">
-      <div className="smb-step-title">Resample</div>
-      <div className="smb-step-desc">Resample voxels to isotropic spacing of 1.0 × 1.0 × 1.5 mm using <code>Spacingd</code> so every scan has a consistent physical scale.</div>
-    </li>
-    <li className="smb-step">
-      <div className="smb-step-title">Normalize Intensity</div>
-      <div className="smb-step-desc">Apply a Hounsfield Unit window of [–1000, 1000] and scale to [0.0, 1.0] with <code>ScaleIntensityRanged</code>.</div>
-    </li>
-    <li className="smb-step">
-      <div className="smb-step-title">Crop & Pad</div>
-      <div className="smb-step-desc">Crop to foreground with <code>CropForegroundd</code>, then pad to the target spatial size of 384 × 384 × 256 with <code>SpatialPadd</code>.</div>
-    </li>
-    <li className="smb-step">
-      <div className="smb-step-title">Encode</div>
-      <div className="smb-step-desc">Pass the preprocessed tensor through the encoder. The model returns <code>last_hidden_state</code> of shape <code>(batch, seq_len, 1024)</code>.</div>
-    </li>
-  </ol>
-
-  <h2 id="input-format" className="smb-h2">Input Format</h2>
-
-  <div className="smb-table-wrap">
-    <table className="smb-table">
-      <thead>
-        <tr><th>Field</th><th>Value</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>File formats</td><td>DICOM series, NIfTI (.nii / .nii.gz)</td></tr>
-        <tr><td>Tensor shape</td><td><code>(batch, num_slices, channels, H, W)</code> — e.g. <code>(1, 128, 1, 384, 384)</code></td></tr>
-        <tr><td>Voxel spacing</td><td>1.0 × 1.0 × 1.5 mm (after resampling)</td></tr>
-        <tr><td>Intensity range</td><td>[0.0, 1.0] (from HU window −1000 → 1000)</td></tr>
-        <tr><td>Spatial size</td><td>384 × 384 × 256</td></tr>
-        <tr><td>Output</td><td><code>last_hidden_state</code> — shape <code>(batch, seq_len, 1024)</code></td></tr>
-      </tbody>
-    </table>
+  <div className="smb-highlights">
+    <div className="smb-highlight">
+      <div className="smb-highlight-marker"></div>
+      <div className="smb-highlight-content">
+        <strong>3D-native</strong>
+        Full volumetric patch tubelets — no slice-by-slice approximation.
+      </div>
+    </div>
+    <div className="smb-highlight">
+      <div className="smb-highlight-marker"></div>
+      <div className="smb-highlight-content">
+        <strong>1M+ CT studies</strong>
+        Diverse anatomies and pathologies in pre-training.
+      </div>
+    </div>
+    <div className="smb-highlight">
+      <div className="smb-highlight-marker"></div>
+      <div className="smb-highlight-content">
+        <strong>Multimodal ready</strong>
+        Embeddings fuse into smb-v1 via projection layer.
+      </div>
+    </div>
   </div>
 
-  <h2 id="loading" className="smb-h2">Loading the Model</h2>
+  <h2 id="variants" className="smb-h2">Model Variants</h2>
 
-  <div className="smb-code-wrap">
-    <div className="smb-code-label">python</div>
-    <pre className="smb-code-block"><code>{`from transformers import AutoModel
+  <div className="smb-pill-tabs">
+    <div className="smb-pill-tab-labels">
+      <div className="smb-pill-tab-label smb-pill-tab-active" data-tab="v0">smb-vision-v0</div>
+      <div className="smb-pill-tab-label" data-tab="v1">smb-vision-v1</div>
+    </div>
+    <div className="smb-pill-tab-panel" data-panel="v0">
+
+Built on **V-JEPA2** with a ViT-L backbone. Processes 3D volumes as non-overlapping 16x16x16 patch tubelets with Rotary Position Encodings (RoPE). Multi-scale context captured via DeepStack layers that aggregate features at different resolutions.
+
+```python
+from transformers import AutoModel
 import torch
 
-# smb-vision-v0 (V-JEPA2 ViT-L backbone)
 model = AutoModel.from_pretrained(
     "standardmodelbio/smb-vision-vjepa2-vitl-384-256",
     torch_dtype=torch.float16,
     device_map="auto",
 )
-
-# smb-vision-v1 (Qwen3-VL init, 0.6B params) — same API
-# model = AutoModel.from_pretrained(
-#     "standardmodelbio/smb-vision-v1",
-#     torch_dtype=torch.float16,
-#     device_map="auto",
-# )
-
 model.eval()
-print("Model loaded.")`}</code></pre>
+```
+
+    </div>
+    <div className="smb-pill-tab-panel smb-hidden" data-panel="v1">
+
+Initializes from **Qwen3-VL**, scaling to 0.6B parameters with improved visual grounding. Shares the same preprocessing pipeline and output embedding format as v0 — the two variants are drop-in replaceable.
+
+```python
+from transformers import AutoModel
+import torch
+
+model = AutoModel.from_pretrained(
+    "standardmodelbio/smb-vision-v1",
+    torch_dtype=torch.float16,
+    device_map="auto",
+)
+model.eval()
+```
+
+    </div>
+  </div>
+
+  <h2 id="pipeline" className="smb-h2">Preprocessing Pipeline</h2>
+
+  <p className="smb-p">Every CT scan passes through five MONAI transforms before encoding.</p>
+
+  <div className="smb-pipeline">
+    <div className="smb-pipeline-progress">
+      <div className="smb-pipeline-progress-fill"></div>
+    </div>
+    <div className="smb-pipeline-dots">
+      <div className="smb-pipeline-dot smb-pipeline-dot-active">
+        <span className="smb-pipeline-dot-label">Load</span>
+      </div>
+      <div className="smb-pipeline-dot">
+        <span className="smb-pipeline-dot-label">Resample</span>
+      </div>
+      <div className="smb-pipeline-dot">
+        <span className="smb-pipeline-dot-label">Normalize</span>
+      </div>
+      <div className="smb-pipeline-dot">
+        <span className="smb-pipeline-dot-label">Crop</span>
+      </div>
+      <div className="smb-pipeline-dot">
+        <span className="smb-pipeline-dot-label">Encode</span>
+      </div>
+    </div>
+    <div className="smb-pipeline-viewport">
+      <div className="smb-pipeline-cards">
+        <div className="smb-pipeline-card">
+          <div className="smb-pipeline-card-step">Step 1</div>
+          <div className="smb-pipeline-card-title">Load and Reorient</div>
+          <div className="smb-pipeline-card-desc">Load the DICOM or NIfTI volume with MONAI's <code>LoadImaged</code>, then reorient axes to standard RAS orientation with <code>Orientationd</code>.</div>
+        </div>
+        <div className="smb-pipeline-card">
+          <div className="smb-pipeline-card-step">Step 2</div>
+          <div className="smb-pipeline-card-title">Resample</div>
+          <div className="smb-pipeline-card-desc">Resample voxels to isotropic spacing of 1.0 x 1.0 x 1.5 mm using <code>Spacingd</code> so every scan has a consistent physical scale.</div>
+        </div>
+        <div className="smb-pipeline-card">
+          <div className="smb-pipeline-card-step">Step 3</div>
+          <div className="smb-pipeline-card-title">Normalize Intensity</div>
+          <div className="smb-pipeline-card-desc">Apply a Hounsfield Unit window of [-1000, 1000] and scale to [0.0, 1.0] with <code>ScaleIntensityRanged</code>.</div>
+        </div>
+        <div className="smb-pipeline-card">
+          <div className="smb-pipeline-card-step">Step 4</div>
+          <div className="smb-pipeline-card-title">Crop and Pad</div>
+          <div className="smb-pipeline-card-desc">Crop to foreground with <code>CropForegroundd</code>, then pad to the target spatial size of 384 x 384 x 256 with <code>SpatialPadd</code>.</div>
+        </div>
+        <div className="smb-pipeline-card">
+          <div className="smb-pipeline-card-step">Step 5</div>
+          <div className="smb-pipeline-card-title">Encode</div>
+          <div className="smb-pipeline-card-desc">Pass the preprocessed tensor through the encoder. Returns <code>last_hidden_state</code> of shape <code>(batch, seq_len, 1024)</code>.</div>
+        </div>
+      </div>
+    </div>
+    <div className="smb-pipeline-controls">
+      <div className="smb-pipeline-btn smb-pipeline-prev">&#8592;</div>
+      <div className="smb-pipeline-counter">1 / 5</div>
+      <div className="smb-pipeline-btn smb-pipeline-next">&#8594;</div>
+    </div>
   </div>
 
   <h2 id="embeddings" className="smb-h2">Extracting Embeddings</h2>
 
-  <div className="smb-code-wrap">
-    <div className="smb-code-label">python</div>
-    <pre className="smb-code-block"><code>{`import torch
+```python
+import torch
 from monai.transforms import (
-    Compose,
-    LoadImaged,
-    Orientationd,
-    Spacingd,
-    ScaleIntensityRanged,
-    CropForegroundd,
-    SpatialPadd,
+    Compose, LoadImaged, Orientationd, Spacingd,
+    ScaleIntensityRanged, CropForegroundd, SpatialPadd,
 )
 from transformers import AutoModel
 
-# ----- 1. Preprocessing pipeline -----
+# 1. Preprocessing
 preprocess = Compose([
     LoadImaged(keys=["image"]),
     Orientationd(keys=["image"], axcodes="RAS"),
     Spacingd(keys=["image"], pixdim=(1.0, 1.0, 1.5), mode="bilinear"),
     ScaleIntensityRanged(
-        keys=["image"],
-        a_min=-1000, a_max=1000,
-        b_min=0.0,   b_max=1.0,
-        clip=True,
+        keys=["image"], a_min=-1000, a_max=1000,
+        b_min=0.0, b_max=1.0, clip=True,
     ),
     CropForegroundd(keys=["image"], source_key="image"),
     SpatialPadd(keys=["image"], spatial_size=(384, 384, 256)),
 ])
 
-# ----- 2. Load & preprocess a CT volume -----
+# 2. Load and preprocess a CT volume
 data = preprocess({"image": "/path/to/ct_scan.nii.gz"})
-volume = data["image"]                    # (C, H, W, D)
-volume = volume.unsqueeze(0)              # (1, C, H, W, D)
+volume = data["image"].unsqueeze(0)           # (1, C, H, W, D)
+volume = volume.permute(0, 4, 1, 2, 3)       # (1, 256, 1, 384, 384)
 
-# Reshape to model input: (batch, slices, channels, H, W)
-volume = volume.permute(0, 4, 1, 2, 3)  # (1, 256, 1, 384, 384)
-
-# ----- 3. Load encoder -----
+# 3. Encode
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model = AutoModel.from_pretrained(
     "standardmodelbio/smb-vision-vjepa2-vitl-384-256",
-    torch_dtype=torch.float16,
-    device_map="auto",
-)
-model.eval()
+    torch_dtype=torch.float16, device_map="auto",
+).eval()
 
-# ----- 4. Extract embeddings -----
 with torch.no_grad():
-    outputs = model(pixel_values=volume.to(device))
-    embeddings = outputs.last_hidden_state   # (1, seq_len, 1024)
+    out = model(pixel_values=volume.to(device))
+    embeddings = out.last_hidden_state          # (1, seq_len, 1024)
 
-# Pool over sequence to get a single scan-level vector
-scan_embedding = embeddings.mean(dim=1)     # (1, 1024)
-print(f"Scan embedding shape: {scan_embedding.shape}")`}</code></pre>
-  </div>
+scan_embedding = embeddings.mean(dim=1)         # (1, 1024)
+print(f"Scan embedding shape: {scan_embedding.shape}")
+```
 
   <h2 id="use-cases" className="smb-h2">Use Cases</h2>
 
@@ -198,12 +243,12 @@ print(f"Scan embedding shape: {scan_embedding.shape}")`}</code></pre>
     <div className="smb-card">
       <div className="smb-card-icon">📊</div>
       <div className="smb-card-title">Prognosis Prediction</div>
-      <div className="smb-card-desc">Use scan embeddings as features for survival models or treatment response prediction.</div>
+      <div className="smb-card-desc">Scan embeddings as features for survival models or treatment response prediction.</div>
     </div>
     <div className="smb-card">
       <div className="smb-card-icon">🔗</div>
       <div className="smb-card-title">Multimodal Fusion</div>
-      <div className="smb-card-desc">Concatenate with EHR or genomics embeddings as input to smb-v1 for integrated patient modeling.</div>
+      <div className="smb-card-desc">Concatenate with EHR or genomics embeddings for integrated patient modeling via smb-v1.</div>
     </div>
     <div className="smb-card">
       <div className="smb-card-icon">🗂️</div>
@@ -212,19 +257,57 @@ print(f"Scan embedding shape: {scan_embedding.shape}")`}</code></pre>
     </div>
   </div>
 
-  <h2 id="hardware" className="smb-h2">Hardware Requirements</h2>
+  <h2 id="reference" className="smb-h2">Reference</h2>
 
-  <div className="smb-table-wrap">
-    <table className="smb-table">
-      <thead>
-        <tr><th>Precision</th><th>VRAM</th><th>Recommended GPU</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>float32</td><td>32 GB</td><td>A100 80GB</td></tr>
-        <tr><td>float16</td><td>16 GB</td><td>A100 40GB, A6000</td></tr>
-        <tr><td>8-bit</td><td>8 GB</td><td>RTX 4090</td></tr>
-      </tbody>
-    </table>
+  <details className="smb-details">
+    <summary className="smb-details-summary">
+      <span className="smb-accordion-icon">📋</span>
+      <span>Input format specification</span>
+      <span className="smb-details-chevron"></span>
+    </summary>
+    <div className="smb-details-content">
+      <div className="smb-table-wrap">
+        <table className="smb-table">
+          <thead>
+            <tr><th>Field</th><th>Value</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>File formats</td><td>DICOM series, NIfTI (.nii / .nii.gz)</td></tr>
+            <tr><td>Tensor shape</td><td><code>(batch, slices, channels, H, W)</code></td></tr>
+            <tr><td>Voxel spacing</td><td>1.0 x 1.0 x 1.5 mm</td></tr>
+            <tr><td>Intensity range</td><td>[0.0, 1.0] from HU [-1000, 1000]</td></tr>
+            <tr><td>Spatial size</td><td>384 x 384 x 256</td></tr>
+            <tr><td>Output</td><td><code>last_hidden_state (batch, seq_len, 1024)</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </details>
+
+  <details className="smb-details">
+    <summary className="smb-details-summary">
+      <span className="smb-accordion-icon">🖥️</span>
+      <span>Hardware requirements</span>
+      <span className="smb-details-chevron"></span>
+    </summary>
+    <div className="smb-details-content">
+      <div className="smb-table-wrap">
+        <table className="smb-table">
+          <thead>
+            <tr><th>Precision</th><th>VRAM</th><th>Recommended GPU</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>float32</td><td>32 GB</td><td>A100 80GB</td></tr>
+            <tr><td>float16</td><td>16 GB</td><td>A100 40GB, A6000</td></tr>
+            <tr><td>8-bit</td><td>8 GB</td><td>RTX 4090</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </details>
+
+  <div className="smb-callout smb-callout-tip">
+    Read the technical report and benchmarks at our <a href="https://blog.standardmodel.bio">blog</a>.
   </div>
 
   <div className="smb-contact">

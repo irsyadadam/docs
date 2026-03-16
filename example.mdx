@@ -14,7 +14,7 @@ mode: "custom"
 </nav>
 
 <div className="smb-tracker">
-  <a href="/" className="smb-tracker-step smb-tracker-step-done">
+  <a href="/install" className="smb-tracker-step smb-tracker-step-done">
     <span className="smb-tracker-dot"></span>
     <span className="smb-tracker-label">Install</span>
   </a>
@@ -62,7 +62,7 @@ mode: "custom"
 
   {/* ==================== SECTION 1 ==================== */}
 
-  <h2 className="smb-h2">1. Events data (MEDS event stream)</h2>
+  <h2 id="events-data" className="smb-h2">1. Events data (MEDS event stream)</h2>
 
   <p className="smb-p">
     The events file is a long table of timestamped clinical events (e.g. diagnoses, medications, labs). Although the <a href="https://physionet.org/content/mimic-iv-demo-meds/">MIMIC-IV Clinical Database Demo</a> parquet file contains other columns, <code>prep_mimic_demo_data.py</code> reshapes it to focus only those listed below for this demo. The final demo parquet file contains ~916k rows for 100 subjects.
@@ -107,7 +107,7 @@ mode: "custom"
 
   {/* ==================== SECTION 2 ==================== */}
 
-  <h2 className="smb-h2">2. Labels data (one row per subject)</h2>
+  <h2 id="labels-data" className="smb-h2">2. Labels data (one row per subject)</h2>
 
   <p className="smb-p">
     The labels file contains columns recording the clinical outcomes for the four demo tasks we will predict, per subject. This will be used for training the classifiers and evaluating test prediction metrics.
@@ -155,7 +155,7 @@ mode: "custom"
 
   {/* ==================== RUNNING VIA AI ==================== */}
 
-  <h2 className="smb-h2">Running the demo via AI coding agent</h2>
+  <h2 id="running-via-ai" className="smb-h2">Running the demo via AI coding agent</h2>
 
   <p className="smb-p">
     Copy and paste the prompt below into your coding assistant of choice (i.e., Claude Code, Codex, Gemini). Runtime from prompt through model download, inference, and classifier train/test to results should take ~5m.
@@ -172,7 +172,7 @@ mode: "custom"
 
   {/* ==================== RUNNING MANUALLY ==================== */}
 
-  <h2 className="smb-h2">Running the demo manually</h2>
+  <h2 id="running-manually" className="smb-h2">Running the demo manually</h2>
 
   <p className="smb-p">
     Running <code>demo.py</code> loads both pre-configured data files from the <a href="https://github.com/standardmodelbio/quickstart">quickstart repo</a> (main branch) into memory, then:
@@ -230,7 +230,7 @@ generation_config.json: 100%|██████████████| 127/127
 
   {/* ==================== NEXT STEPS ==================== */}
 
-  <h2 className="smb-h2">Next Steps</h2>
+  <h2 id="next-steps" className="smb-h2">Next Steps</h2>
 
   <div className="smb-card-grid smb-card-grid-2">
     <a href="/your-own-data" className="smb-card">
