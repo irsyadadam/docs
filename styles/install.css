@@ -1,0 +1,328 @@
+/* ==========================================================
+   INSTALL PAGE — Hero, Terminal, Pipeline
+   ========================================================== */
+
+/* --- Install hero --- */
+.smb-install-hero {
+  position: relative;
+  text-align: center;
+  padding: 20px 0 48px;
+  overflow: hidden;
+}
+
+.smb-install-hero-glow {
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 300px;
+  background: radial-gradient(ellipse, rgba(232,87,58,0.06) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.smb-install-hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.smb-install-hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--smb-orange);
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+.smb-install-hero-title {
+  font-family: var(--font-serif, var(--font-display)) !important;
+  font-size: clamp(28px, 4vw, 42px) !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.03em !important;
+  color: var(--smb-navy) !important;
+  line-height: 1.15 !important;
+  margin: 0 0 16px 0 !important;
+  border: none !important;
+}
+
+.smb-install-hero-sub {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--smb-text-muted);
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* --- Terminal window --- */
+.smb-terminal {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow:
+    0 4px 6px rgba(18,28,39,0.04),
+    0 12px 40px rgba(18,28,39,0.12),
+    0 0 0 1px rgba(255,255,255,0.04) inset;
+  margin: 0 0 28px;
+  transition: box-shadow 0.4s ease, transform 0.4s ease;
+}
+
+.smb-terminal:hover {
+  box-shadow:
+    0 8px 16px rgba(18,28,39,0.06),
+    0 24px 64px rgba(18,28,39,0.16),
+    0 0 0 1px rgba(255,255,255,0.06) inset;
+  transform: translateY(-2px);
+}
+
+.smb-terminal-chrome {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: #1a1f2e;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  gap: 12px;
+}
+
+.smb-terminal-chrome-dark {
+  background: #13161f;
+}
+
+.smb-terminal-dots {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.smb-terminal-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  transition: opacity 0.2s ease;
+}
+
+.smb-terminal-dot-red    { background: #ff5f57; }
+.smb-terminal-dot-yellow { background: #febc2e; }
+.smb-terminal-dot-green  { background: #28c840; }
+
+.smb-terminal:hover .smb-terminal-dot { opacity: 1; }
+
+.smb-terminal-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: rgba(255,255,255,0.25);
+  letter-spacing: 0.03em;
+  flex: 1;
+  text-align: center;
+}
+
+.smb-terminal-copy-area {
+  flex-shrink: 0;
+}
+
+.smb-terminal-copy {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.03em;
+  color: rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 5px;
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.smb-terminal-copy:hover {
+  color: rgba(255,255,255,0.7);
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.14);
+}
+
+.smb-terminal-body {
+  background: var(--smb-navy-deep);
+  padding: 24px 28px;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  line-height: 1.7;
+  margin: 0;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.smb-terminal-body code {
+  font-family: var(--font-mono) !important;
+  color: #d4dce6 !important;
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  font-size: 13.5px !important;
+}
+
+.smb-terminal-line {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.smb-terminal-prompt {
+  color: var(--smb-orange);
+  font-weight: 500;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.smb-terminal-cmd {
+  color: #d4dce6;
+  word-break: break-all;
+}
+
+/* --- Terminal output --- */
+.smb-terminal-output {
+  margin-bottom: 48px;
+}
+
+.smb-terminal-body-output {
+  padding: 20px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.smb-terminal-output-line {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.8;
+  color: rgba(212,220,230,0.5);
+}
+
+.smb-terminal-output-phase {
+  color: #82aaff;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.smb-terminal-output-phase:first-child {
+  margin-top: 0;
+}
+
+.smb-terminal-output-dim {
+  color: rgba(212,220,230,0.3);
+}
+
+.smb-terminal-output-bar {
+  color: var(--smb-green);
+}
+
+.smb-terminal-output-result {
+  color: #c3e88d;
+  letter-spacing: 0.02em;
+}
+
+/* --- Pipeline visualization --- */
+.smb-install-pipeline {
+  position: relative;
+  padding: 48px 0;
+  margin: 0 auto;
+  max-width: 800px;
+}
+
+.smb-install-pipeline-line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    rgba(30,45,61,0.04) 0%,
+    rgba(232,87,58,0.15) 20%,
+    rgba(232,87,58,0.15) 80%,
+    rgba(30,45,61,0.04) 100%
+  );
+  transform: translateY(-50%);
+  z-index: 0;
+}
+
+.smb-install-pipeline-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.smb-install-pipeline-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+}
+
+.smb-install-pipeline-node {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--smb-navy);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 0 0 4px var(--smb-surface),
+    0 0 0 5px rgba(30,45,61,0.08);
+  transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+}
+
+.smb-install-pipeline-step:hover .smb-install-pipeline-node {
+  background: var(--smb-orange);
+  box-shadow:
+    0 0 0 4px var(--smb-surface),
+    0 0 0 5px rgba(232,87,58,0.15),
+    0 4px 16px rgba(232,87,58,0.12);
+  transform: scale(1.1);
+}
+
+.smb-install-pipeline-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--smb-navy);
+  font-weight: 500;
+}
+
+.smb-install-pipeline-detail {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--smb-text-muted);
+  max-width: 160px;
+}
+
+/* --- Pipeline responsive --- */
+@media (max-width: 700px) {
+  .smb-install-pipeline-steps {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .smb-install-pipeline-line {
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    right: auto;
+    width: 2px;
+    height: 100%;
+    transform: translateX(-50%);
+    background: linear-gradient(180deg,
+      rgba(30,45,61,0.04) 0%,
+      rgba(232,87,58,0.15) 20%,
+      rgba(232,87,58,0.15) 80%,
+      rgba(30,45,61,0.04) 100%
+    );
+  }
+}

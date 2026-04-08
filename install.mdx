@@ -1,225 +1,225 @@
 ---
-title: "Install the Standard Model"
+title: "Install"
 icon: "download"
-description: "Set up your environment and download our flagship JEPA-based multimodal foundation model."
+description: "Get the Standard Model running in under a minute."
 mode: "custom"
 ---
 
+<div className="smb-tracker">
+  <a href="/install" className="smb-tracker-step smb-tracker-step-active">
+    <span className="smb-tracker-dot"></span>
+    <span className="smb-tracker-label">Install</span>
+  </a>
+  <div className="smb-tracker-line"></div>
+  <a href="/example" className="smb-tracker-step">
+    <span className="smb-tracker-dot"></span>
+    <span className="smb-tracker-label">Example</span>
+  </a>
+  <div className="smb-tracker-line"></div>
+  <a href="/your-own-data" className="smb-tracker-step">
+    <span className="smb-tracker-dot"></span>
+    <span className="smb-tracker-label">Your Data</span>
+  </a>
+  <div className="smb-tracker-line"></div>
+  <a href="/model" className="smb-tracker-step">
+    <span className="smb-tracker-dot"></span>
+    <span className="smb-tracker-label">Architecture</span>
+  </a>
+</div>
+
 <div className="smb-page">
 
-  <div className="smb-tracker">
-    <a href="/install" className="smb-tracker-step smb-tracker-step-active">
-      <span className="smb-tracker-dot"></span>
-      <span className="smb-tracker-label">Install</span>
-    </a>
-    <div className="smb-tracker-line"></div>
-    <a href="/example" className="smb-tracker-step">
-      <span className="smb-tracker-dot"></span>
-      <span className="smb-tracker-label">Example</span>
-    </a>
-    <div className="smb-tracker-line"></div>
-    <a href="/your-own-data" className="smb-tracker-step">
-      <span className="smb-tracker-dot"></span>
-      <span className="smb-tracker-label">Your Data</span>
-    </a>
-    <div className="smb-tracker-line"></div>
-    <a href="/model" className="smb-tracker-step">
-      <span className="smb-tracker-dot"></span>
-      <span className="smb-tracker-label">Architecture</span>
-    </a>
+  {/* ==================== HERO INSTALL ==================== */}
+
+  <div className="smb-install-hero">
+    <div className="smb-install-hero-glow"></div>
+    <div className="smb-install-hero-content">
+      <div className="smb-install-hero-eyebrow">Ready in 60 seconds</div>
+      <h1 className="smb-install-hero-title">Install the Standard Model</h1>
+      <p className="smb-install-hero-sub">
+        One command. Open-weight JEPA model for longitudinal EHR.
+        <br/>1.7B parameters. 100 patients embedded in under a minute.
+      </p>
+    </div>
   </div>
 
-  <div className="smb-page-header">
-    <div className="smb-page-icon">⚡</div>
-    <h1 className="smb-page-title">Install the Standard Model</h1>
-    <p className="smb-page-desc">
-      This guide walks you through how to set up your environment and download our flagship JEPA-based multimodal foundation model.
-    </p>
+  {/* ==================== THE TERMINAL ==================== */}
+
+<div className="smb-terminal">
+  <div className="smb-terminal-chrome">
+    <div className="smb-terminal-dots">
+      <span className="smb-terminal-dot smb-terminal-dot-red"></span>
+      <span className="smb-terminal-dot smb-terminal-dot-yellow"></span>
+      <span className="smb-terminal-dot smb-terminal-dot-green"></span>
+    </div>
+    <div className="smb-terminal-title">terminal</div>
+    <div className="smb-terminal-copy-area">
+      <button className="smb-terminal-copy" id="smb-terminal-copy" aria-label="Copy install command">Copy</button>
+    </div>
   </div>
+  <pre className="smb-terminal-body"><code>{`$ bash -c "$(curl -fsSL https://docs.standardmodel.bio/quickstart.sh)"`}</code></pre>
+</div>
 
-  <h2 id="quickstart" className="smb-h2">Quickstart (Recommended)</h2>
-
-  <div className="smb-code-wrap">
-    <div className="smb-code-label">bash</div>
-    <pre className="smb-code-block"><code>bash -c "$(curl -fsSL https://docs.standardmodel.bio/quickstart.sh)"</code></pre>
-  </div>
-
-  <p className="smb-p">This script will:</p>
-
-  <p className="smb-p">
-    1. Clone the <a href="https://github.com/standardmodelbio/quickstart">quickstart repo</a> with demo.py and all dependencies.<br/>
-    2. Install <a href="https://docs.astral.sh/uv/">uv</a> if not already present.<br/>
-    3. Run uv sync to install the exact locked dependency set (PyTorch, transformers, smb_utils, etc.).
+  <p className="smb-p" style={{textAlign: 'center', color: 'var(--smb-text-muted)', marginTop: '-8px', marginBottom: '36px', fontSize: '13.5px'}}>
+    Installs <a href="https://docs.astral.sh/uv/">uv</a>, clones the <a href="https://github.com/standardmodelbio/quickstart">quickstart repo</a>, and syncs all dependencies.
   </p>
 
-  <div className="smb-callout smb-callout-info">
-    GPU support is strongly recommended. smb-v1-1.7b has 1.7B parameters and requires approximately 16 GB GPU memory for inference.
+  {/* ==================== LIVE OUTPUT SIMULATION ==================== */}
+
+  <div className="smb-terminal smb-terminal-output">
+    <div className="smb-terminal-chrome smb-terminal-chrome-dark">
+      <div className="smb-terminal-dots">
+        <span className="smb-terminal-dot smb-terminal-dot-red"></span>
+        <span className="smb-terminal-dot smb-terminal-dot-yellow"></span>
+        <span className="smb-terminal-dot smb-terminal-dot-green"></span>
+      </div>
+      <div className="smb-terminal-title">cd quickstart && uv run python demo.py</div>
+    </div>
+    <div className="smb-terminal-body smb-terminal-body-output">
+      <div className="smb-terminal-output-line smb-terminal-output-phase">[1/4] Loading MIMIC-IV demo data</div>
+      <div className="smb-terminal-output-line smb-terminal-output-dim">      916,166 events · 100 subjects</div>
+      <div className="smb-terminal-output-line smb-terminal-output-phase">[2/4] Loading smb-v1-1.7b</div>
+      <div className="smb-terminal-output-line smb-terminal-output-bar">      model.safetensors ████████████████████ 3.66G</div>
+      <div className="smb-terminal-output-line smb-terminal-output-phase">[3/4] Generating embeddings</div>
+      <div className="smb-terminal-output-line smb-terminal-output-dim">      100/100 patients · last-token pooling</div>
+      <div className="smb-terminal-output-line smb-terminal-output-phase">[4/4] Clinical Task Heads</div>
+      <div className="smb-terminal-output-line smb-terminal-output-result">      Readmission    ROC-AUC    0.xxx</div>
+      <div className="smb-terminal-output-line smb-terminal-output-result">      Phenotype      Accuracy   0.xxx</div>
+      <div className="smb-terminal-output-line smb-terminal-output-result">      Survival       MAE        x.xx months</div>
+      <div className="smb-terminal-output-line smb-terminal-output-result">      Cox PH         C-Index    0.xxx</div>
+    </div>
   </div>
 
-  <h2 id="manual-installation" className="smb-h2">Manual Installation</h2>
+  {/* ==================== WHAT YOU JUST DID ==================== */}
 
-  <div className="smb-callout smb-callout-note">
-    <strong>Requirements:</strong> Python 3.11+, Git, and <a href="https://docs.astral.sh/uv/">uv</a>.<br/><br/>
-    The quickstart uses <a href="https://docs.astral.sh/uv/">uv</a> for dependency management. If you prefer a different tool (conda, pip, etc.), refer to pyproject.toml in the <a href="https://github.com/standardmodelbio/quickstart">quickstart repo</a> for the list of dependencies.
+  <div className="smb-install-pipeline">
+    <div className="smb-install-pipeline-line"></div>
+    <div className="smb-install-pipeline-steps">
+      <div className="smb-install-pipeline-step">
+        <div className="smb-install-pipeline-node">1</div>
+        <div className="smb-install-pipeline-label">MEDS Events</div>
+        <div className="smb-install-pipeline-detail">916k timestamped clinical events across 100 patients</div>
+      </div>
+      <div className="smb-install-pipeline-step">
+        <div className="smb-install-pipeline-node">2</div>
+        <div className="smb-install-pipeline-label">Serialize</div>
+        <div className="smb-install-pipeline-detail">smb_utils converts events to causal token streams</div>
+      </div>
+      <div className="smb-install-pipeline-step">
+        <div className="smb-install-pipeline-node">3</div>
+        <div className="smb-install-pipeline-label">Embed</div>
+        <div className="smb-install-pipeline-detail">smb-v1 encodes each patient into a 2048-dim vector</div>
+      </div>
+      <div className="smb-install-pipeline-step">
+        <div className="smb-install-pipeline-node">4</div>
+        <div className="smb-install-pipeline-label">Predict</div>
+        <div className="smb-install-pipeline-detail">Linear probes trained on 4 clinical outcomes</div>
+      </div>
+    </div>
   </div>
 
-  <ol className="smb-steps">
-    <li className="smb-step">
-      <div className="smb-step-title">Install uv</div>
-      <div className="smb-step-desc">
-        <div className="smb-code-wrap">
-          <div className="smb-code-label">bash</div>
-          <pre className="smb-code-block"><code>curl -LsSf https://astral.sh/uv/install.sh | sh</code></pre>
-        </div>
-      </div>
-    </li>
-    <li className="smb-step">
-      <div className="smb-step-title">Clone and install</div>
-      <div className="smb-step-desc">
-        <div className="smb-code-wrap">
-          <div className="smb-code-label">bash</div>
-          <pre className="smb-code-block"><code>git clone https://github.com/standardmodelbio/quickstart.git
-cd quickstart
-uv sync</code></pre>
-        </div>
-        <p className="smb-p" style={{marginTop: '12px'}}>
-          All dependencies (PyTorch, transformers, smb_utils, etc.) are installed from the lockfile, ensuring a reproducible environment.
-        </p>
-      </div>
-    </li>
-    <li className="smb-step">
-      <div className="smb-step-title">Run the demo</div>
-      <div className="smb-step-desc">
-        <div className="smb-code-wrap">
-          <div className="smb-code-label">bash</div>
-          <pre className="smb-code-block"><code>cd quickstart
-uv run python demo.py</code></pre>
-        </div>
-      </div>
-    </li>
-  </ol>
+  <div style={{textAlign: 'center', margin: '40px 0 56px'}}>
+    <a href="/example" className="smb-btn smb-btn-primary">
+      See the full example <span className="smb-btn-arrow">→</span>
+    </a>
+  </div>
 
-  <h3 id="verify-installation" className="smb-h3">Verify Your Installation</h3>
+  <hr className="smb-divider" />
 
-  <p className="smb-p">
-    From the quickstart/ directory, verify that everything is working:
-  </p>
+  {/* ==================== EXPANDABLE DETAILS ==================== */}
 
-```python
-uv run python -c "
+  <h2 id="setup-details" className="smb-h2">Reference</h2>
+
+  <details className="smb-details">
+    <summary className="smb-details-summary">
+      Manual installation
+      <span className="smb-details-chevron"></span>
+    </summary>
+    <div className="smb-details-content">
+      <p className="smb-p"><strong>Requirements:</strong> Python 3.11+, Git.</p>
+      <div className="smb-code-wrap">
+        <div className="smb-code-label">bash</div>
+        <pre className="smb-code-block"><code>{`curl -LsSf https://astral.sh/uv/install.sh | sh
+git clone https://github.com/standardmodelbio/quickstart.git
+cd quickstart && uv sync
+uv run python demo.py`}</code></pre>
+      </div>
+      <p className="smb-p">
+        Prefer conda or pip? See <code>pyproject.toml</code> in the <a href="https://github.com/standardmodelbio/quickstart">repo</a>.
+      </p>
+    </div>
+  </details>
+
+  <details className="smb-details">
+    <summary className="smb-details-summary">
+      Verify installation
+      <span className="smb-details-chevron"></span>
+    </summary>
+    <div className="smb-details-content">
+      <div className="smb-code-wrap">
+        <div className="smb-code-label">python</div>
+        <pre className="smb-code-block"><code>{`uv run python -c "
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-print(f'PyTorch version: {torch.__version__}')
-print(f'CUDA available: {torch.cuda.is_available()}')
+print(f'PyTorch: {torch.__version__}')
+print(f'CUDA: {torch.cuda.is_available()}')
 
-model_id = 'standardmodelbio/smb-v1-1.7b'
-tokenizer = AutoTokenizer.from_pretrained(model_id)
 model = AutoModelForCausalLM.from_pretrained(
-    model_id,
+    'standardmodelbio/smb-v1-1.7b',
     trust_remote_code=True,
     device_map='auto'
 )
-
-print('smb-v1-1.7b loaded successfully!')
-"
-```
-
-  <h2 id="next-steps" className="smb-h2">Next Steps</h2>
-
-  <div className="smb-card-grid smb-card-grid-2">
-    <a href="/example" className="smb-card">
-      <div className="smb-card-icon">🧪</div>
-      <div className="smb-card-title">Try a full example with synthetic data</div>
-      <div className="smb-card-desc">Load MIMIC-IV demo data, extract embeddings, and train four classifiers — readmission, phenotyping, survival regression, and Cox PH.</div>
-    </a>
-    <a href="/your-own-data" className="smb-card">
-      <div className="smb-card-icon">📂</div>
-      <div className="smb-card-title">Use the model on your own data</div>
-      <div className="smb-card-desc">Format EHR data in MEDS, tokenize with smb_utils, extract embeddings, and train custom task heads on your cohort.</div>
-    </a>
-  </div>
-
-  <h2 id="troubleshooting" className="smb-h2">Troubleshooting</h2>
-
-  <div className="smb-card-grid smb-card-grid-2">
-    <div className="smb-card">
-      <div className="smb-card-icon">🖥️</div>
-      <div className="smb-card-title">CUDA Not Detected</div>
-      <div className="smb-card-desc">Ensure NVIDIA drivers are up to date. Run nvidia-smi to verify GPU is accessible.</div>
+print('Model loaded.')
+"`}</code></pre>
+      </div>
     </div>
-    <div className="smb-card">
-      <div className="smb-card-icon">💾</div>
-      <div className="smb-card-title">Out of Memory</div>
-      <div className="smb-card-desc">Reduce memory use via torch.float16 or quantization (see memory optimization below).</div>
+  </details>
+
+  <details className="smb-details">
+    <summary className="smb-details-summary">
+      GPU memory & quantization
+      <span className="smb-details-chevron"></span>
+    </summary>
+    <div className="smb-details-content">
+      <div className="smb-table-wrap">
+        <table className="smb-table">
+          <thead>
+            <tr><th>Precision</th><th>VRAM</th><th>GPU</th><th>Code</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>float32</td><td>16 GB</td><td>A100</td><td>default</td></tr>
+            <tr><td>float16</td><td>8 GB</td><td>RTX 4090</td><td><code>torch_dtype=torch.float16</code></td></tr>
+            <tr><td>8-bit</td><td>4 GB</td><td>T4</td><td><code>load_in_8bit=True</code></td></tr>
+            <tr><td>4-bit</td><td>2 GB</td><td>RTX 3060</td><td><code>load_in_4bit=True</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p className="smb-p">
+        8/4-bit requires <code>bitsandbytes</code>. Full examples on the <a href="/model#memory-optimization">architecture page</a>.
+      </p>
     </div>
-    <div className="smb-card">
-      <div className="smb-card-icon">🔒</div>
-      <div className="smb-card-title">Model Access Denied</div>
-      <div className="smb-card-desc">Some models may require authentication. Run huggingface-cli login with your token.</div>
+  </details>
+
+  <details className="smb-details">
+    <summary className="smb-details-summary">
+      Troubleshooting
+      <span className="smb-details-chevron"></span>
+    </summary>
+    <div className="smb-details-content">
+      <p className="smb-p"><strong>CUDA not detected</strong> — Run <code>nvidia-smi</code>. Update NVIDIA drivers if needed.</p>
+      <p className="smb-p"><strong>Out of memory</strong> — Use float16 or quantization (above).</p>
+      <p className="smb-p"><strong>Access denied</strong> — <code>huggingface-cli login</code> with a valid token.</p>
+      <p className="smb-p"><strong>Slow download</strong> — Model is ~3.7 GB. Ensure stable connection.</p>
     </div>
-    <div className="smb-card">
-      <div className="smb-card-icon">🌐</div>
-      <div className="smb-card-title">Slow Download</div>
-      <div className="smb-card-desc">Model downloads can be large (several GB). Ensure stable connection and sufficient disk space.</div>
-    </div>
-  </div>
+  </details>
 
-  <h2 id="memory-optimization" className="smb-h2">Memory Optimization</h2>
-
-  <p className="smb-p">
-    For large cohorts and/or limited GPU memory, use half-precision or quantization:
-  </p>
-
-  <div className="smb-pill-tabs">
-    <div className="smb-pill-tab-labels">
-      <div className="smb-pill-tab-label smb-pill-tab-active" data-tab="fp16">Float16</div>
-      <div className="smb-pill-tab-label" data-tab="int8">8-bit Quantization</div>
-    </div>
-    <div className="smb-pill-tab-panel" data-panel="fp16">
-
-```python
-model = AutoModelForCausalLM.from_pretrained(
-    model_id,
-    trust_remote_code=True,
-    torch_dtype=torch.float16,
-    device_map="auto"
-)
-```
-
-    </div>
-    <div className="smb-pill-tab-panel smb-hidden" data-panel="int8">
-
-```python
-model = AutoModelForCausalLM.from_pretrained(
-    model_id,
-    trust_remote_code=True,
-    load_in_8bit=True,
-    device_map="auto"
-)
-```
-
-    </div>
-  </div>
-
-  <div className="smb-table-wrap">
-    <table className="smb-table">
-      <thead>
-        <tr><th>Precision</th><th>GPU Memory</th><th>Recommended GPU</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>float32</td><td>16 GB</td><td>A100, A6000</td></tr>
-        <tr><td>float16</td><td>8 GB</td><td>RTX 4090, A10</td></tr>
-        <tr><td>8-bit</td><td>4 GB</td><td>RTX 3080, T4</td></tr>
-        <tr><td>4-bit</td><td>2 GB</td><td>RTX 3060</td></tr>
-      </tbody>
-    </table>
-  </div>
+  {/* ==================== CONTACT ==================== */}
 
   <div className="smb-contact">
-    <div className="smb-contact-title">Contact Us</div>
+    <div className="smb-contact-title">Need help?</div>
     <div className="smb-contact-desc">
-      Having trouble, or just want to talk about your project? Send an email to <a href="mailto:erik@standardmodel.bio">erik@standardmodel.bio</a>
+      Email <a href="mailto:erik@standardmodel.bio">erik@standardmodel.bio</a>
     </div>
   </div>
 

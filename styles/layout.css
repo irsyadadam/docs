@@ -137,10 +137,25 @@
   align-items: center;
   justify-content: center;
   gap: 0;
-  padding: 32px 24px 40px;
+  padding: 28px 24px 36px;
   margin-bottom: 12px;
   font-family: var(--font-display);
+  background: linear-gradient(180deg, rgba(30,45,61,0.015) 0%, transparent 100%);
+  border-bottom: 1px solid rgba(30,45,61,0.04);
+  position: fixed;
+  top: 60px;
+  left: 0;
+  right: 0;
+  z-index: 90;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
+
+.smb-page {
+  padding-top: 80px;
+}
+
 
 .smb-tracker-step {
   display: flex;
@@ -150,40 +165,73 @@
 }
 
 .smb-tracker-dot {
-  width: 12px;
-  height: 12px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: rgba(30,45,61,0.1);
-  border: 2px solid rgba(30,45,61,0.12);
+  background: rgba(30,45,61,0.12);
+  border: none;
   transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
   flex-shrink: 0;
 }
 
 .smb-tracker-label {
   font-family: var(--font-mono);
-  font-size: 11.5px;
-  letter-spacing: 0.08em;
+  font-size: 11px;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(30,45,61,0.3);
+  color: rgba(30,45,61,0.25);
   margin-left: 10px;
   transition: color 0.3s ease;
   white-space: nowrap;
+  font-weight: 400;
 }
 
 .smb-tracker-line {
-  width: 56px;
-  height: 2px;
-  background: rgba(30,45,61,0.08);
-  margin: 0 16px;
+  width: 48px;
+  height: 1px;
+  background: rgba(30,45,61,0.06);
+  margin: 0 14px;
   flex-shrink: 0;
+  position: relative;
 }
-.smb-tracker-step-active .smb-tracker-dot { background: var(--smb-orange); border-color: var(--smb-orange); box-shadow: 0 0 0 4px rgba(232,87,58,0.1); }
-.smb-tracker-step-active .smb-tracker-label { color: var(--smb-orange); font-weight: 500; }
-.smb-tracker-step-done .smb-tracker-dot { background: var(--smb-navy); border-color: var(--smb-navy); }
-.smb-tracker-step-done .smb-tracker-label { color: var(--smb-navy); }
-.smb-tracker-step:hover .smb-tracker-dot { transform: scale(1.2); border-color: var(--smb-orange); }
-.smb-tracker-step:hover .smb-tracker-label { color: var(--smb-orange); }
-.smb-tracker-line-done { background: var(--smb-navy); }
+
+.smb-tracker-step-active .smb-tracker-dot {
+  background: var(--smb-orange);
+  box-shadow: 0 0 0 3px rgba(232,87,58,0.1), 0 0 12px rgba(232,87,58,0.08);
+  width: 10px;
+  height: 10px;
+}
+
+.smb-tracker-step-active .smb-tracker-label {
+  color: var(--smb-navy);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.smb-tracker-step-done .smb-tracker-dot {
+  background: var(--smb-navy);
+}
+
+.smb-tracker-step-done .smb-tracker-label {
+  color: var(--smb-navy);
+  font-weight: 500;
+}
+
+
+/* Hover — hint of interactivity */
+.smb-tracker-step:hover .smb-tracker-dot {
+  transform: scale(1.3);
+  background: rgba(232,87,58,0.4);
+}
+
+.smb-tracker-step:hover .smb-tracker-label {
+  color: var(--smb-orange);
+}
+
+.smb-tracker-line-done {
+  background: var(--smb-navy);
+  height: 2px;
+}
 
 /* Encoder-specific tracker */
 .smb-tracker-encoder .smb-tracker-step-active .smb-tracker-dot {
