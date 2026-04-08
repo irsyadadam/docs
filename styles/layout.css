@@ -22,8 +22,8 @@
   max-width: 900px;
   margin: 0 auto;
   padding: 0 24px 80px;
-  position: relative;
-  left: 350px;
+  position: center;
+  left: 600px;
 }
 
 /* --- Page header --- */
@@ -454,3 +454,9 @@ a.smb-breadcrumb-item:hover { color: var(--smb-orange); }
 
 .smb-doc-toc-item-sub .smb-doc-toc-link::before { width: 4px; height: 4px; }
 .smb-doc-toc-item-sub .smb-doc-toc-active { color: var(--smb-navy) !important; }
+
+html:not(:has(.smb-landing)),
+html:not(:has(.smb-landing)) body {
+  overflow: visible !important;
+  height: auto !important;
+}

@@ -21,3 +21,4 @@
     u.waitForElement('smb-copy-btn', init);
   }
 })();
+

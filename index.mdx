@@ -21,10 +21,20 @@ mode: "custom"
     </p>
     <div className="smb-hero-install">
       <div className="smb-hero-install-label">Quickstart</div>
-      <div className="smb-hero-install-code" id="smb-install-block">
-        <code className="smb-hero-install-cmd">bash -c "$(curl -fsSL https://docs.standardmodel.bio/quickstart.sh)"</code>
-        <button className="smb-copy-btn" id="smb-copy-btn" aria-label="Copy to clipboard">Copy</button>
-      </div>
+        <div className="smb-terminal">
+          <div className="smb-terminal-chrome">
+            <div className="smb-terminal-dots">
+              <span className="smb-terminal-dot smb-terminal-dot-red"></span>
+              <span className="smb-terminal-dot smb-terminal-dot-yellow"></span>
+              <span className="smb-terminal-dot smb-terminal-dot-green"></span>
+            </div>
+            <div className="smb-terminal-title">terminal</div>
+            <div className="smb-terminal-copy-area">
+              <button className="smb-terminal-copy" id="smb-terminal-copy" aria-label="Copy install command">Copy</button>
+            </div>
+          </div>
+          <pre className="smb-terminal-body"><code>{`$ bash -c "$(curl -fsSL https://docs.standardmodel.bio/quickstart.sh)"`}</code></pre>
+        </div>
       <a href="/example" className="smb-btn smb-btn-primary smb-hero-example-below">
         End-to-end example <span className="smb-btn-arrow">→</span>
       </a>

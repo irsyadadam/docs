@@ -8,6 +8,9 @@
   text-align: center;
   padding: 20px 0 48px;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .smb-install-hero-glow {
@@ -327,3 +330,63 @@
   }
 }
 
+.smb-terminal-body {
+  background: var(--smb-navy-deep);
+  padding: 24px 28px;
+  margin: 0;
+  overflow-x: auto;
+  white-space: pre;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  line-height: 1.7;
+  border-radius: 0 0 12px 12px;
+  border: 1px solid rgba(255,255,255,0.04);
+  border-top: none;
+}
+
+.smb-terminal-body code {
+  font-family: var(--font-mono) !important;
+  color: #e8e8e8 !important;
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  font-size: 13.5px !important;
+}
+
+.smb-terminal-body {
+  background: var(--smb-navy-deep);
+  padding: 24px 28px;
+  margin: 0;
+  overflow-x: auto;
+  white-space: pre;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  line-height: 1.7;
+  border-radius: 0 0 12px 12px;
+  border: 1px solid rgba(255,255,255,0.04);
+  border-top: none;
+}
+
+html body .smb-terminal .smb-terminal-body,
+html body .smb-terminal .smb-terminal-body *:not(.smb-terminal-dot) {
+  color: #f0f0f0 !important;
+  text-decoration: none !important;
+  border-color: transparent !important;
+  background: transparent !important;
+  font-family: var(--font-mono) !important;
+  font-size: 13.5px !important;
+  -webkit-text-fill-color: #f0f0f0 !important;
+}
+
+html body .smb-terminal .smb-terminal-body {
+  background: var(--smb-navy-deep) !important;
+  -webkit-text-fill-color: #f0f0f0 !important;
+}
+}
+/* Prevent Mintlify from auto-linking URLs inside terminal */
+.smb-terminal-body a {
+  color: #e8e8e8 !important;
+  text-decoration: none !important;
+  pointer-events: none;
+  border: none !important;
+}

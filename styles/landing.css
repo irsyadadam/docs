@@ -122,11 +122,12 @@
 
 .smb-hero-install-label {
   font-family: var(--font-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.1em;
+  font-size: 14px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--smb-text-muted);
-  margin-bottom: 14px;
+  color: var(--smb-navy);
+  margin-bottom: 18px;
+  font-weight: 600;
 }
 
 .smb-hero-install-code {
@@ -544,14 +545,20 @@ html:has(.smb-landing) {
   height: 100dvh !important;
 }
 
-html:has(.smb-landing) body {
-  overflow: hidden !important;
-  height: 100dvh !important;
-}
-
 .smb-landing {
   height: 100dvh;
   overflow-y: auto;
   overflow-x: hidden;
   padding-bottom: 60px;
+}
+
+/* Make sure these ONLY target landing page */
+html:has(.smb-landing) {
+  overflow: hidden !important;
+  height: 100dvh !important;
+}
+
+html:has(.smb-landing) body {
+  overflow: hidden !important;
+  height: 100dvh !important;
 }
