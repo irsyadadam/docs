@@ -45,20 +45,20 @@ mode: "custom"
 
   {/* ==================== THE TERMINAL ==================== */}
 
-<div className="smb-terminal">
-  <div className="smb-terminal-chrome">
-    <div className="smb-terminal-dots">
-      <span className="smb-terminal-dot smb-terminal-dot-red"></span>
-      <span className="smb-terminal-dot smb-terminal-dot-yellow"></span>
-      <span className="smb-terminal-dot smb-terminal-dot-green"></span>
+  <div className="smb-terminal">
+    <div className="smb-terminal-chrome">
+      <div className="smb-terminal-dots">
+        <span className="smb-terminal-dot smb-terminal-dot-red"></span>
+        <span className="smb-terminal-dot smb-terminal-dot-yellow"></span>
+        <span className="smb-terminal-dot smb-terminal-dot-green"></span>
+      </div>
+      <div className="smb-terminal-title">terminal</div>
+      <div className="smb-terminal-copy-area">
+        <button className="smb-terminal-copy" id="smb-terminal-copy" aria-label="Copy install command">Copy</button>
+      </div>
     </div>
-    <div className="smb-terminal-title">terminal</div>
-    <div className="smb-terminal-copy-area">
-      <button className="smb-terminal-copy" id="smb-terminal-copy" aria-label="Copy install command">Copy</button>
-    </div>
+    <pre className="smb-terminal-body"><code>{`$ bash -c "$(curl -fsSL https://docs.standardmodel.bio/quickstart.sh)"`}</code></pre>
   </div>
-  <pre className="smb-terminal-body"><code>{`$ bash -c "$(curl -fsSL https://docs.standardmodel.bio/quickstart.sh)"`}</code></pre>
-</div>
 
   <p className="smb-p" style={{textAlign: 'center', color: 'var(--smb-text-muted)', marginTop: '-8px', marginBottom: '36px', fontSize: '13.5px'}}>
     Installs <a href="https://docs.astral.sh/uv/">uv</a>, clones the <a href="https://github.com/standardmodelbio/quickstart">quickstart repo</a>, and syncs all dependencies.
