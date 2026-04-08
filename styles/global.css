@@ -1,0 +1,125 @@
+/* ==========================================================
+   GLOBAL RESETS & OVERRIDES
+   Body defaults, Mintlify framework overrides, sidebar.
+   ========================================================== */
+
+body, .mdx-content, #content-area {
+  font-family: var(--font-display) !important;
+  color: var(--smb-text-dark) !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- Mintlify container width overrides --- */
+#content-area,
+#content-container,
+#content-side-layout,
+#body-content,
+.mdx-content {
+  max-width: 1200px !important;
+}
+
+/* --- Sidebar --- */
+#sidebar,
+nav[class*="sidebar"],
+aside[class*="sidebar"],
+div[class*="sidebar-container"],
+[data-testid="sidebar"] {
+  width: 260px !important;
+  min-width: 260px !important;
+  max-width: 260px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  position: sticky !important;
+  top: 0 !important;
+  height: 100vh !important;
+  z-index: 100 !important;
+  border-right: 1px solid rgba(30,45,61,0.06) !important;
+  background: var(--smb-surface) !important;
+  padding: 12px 0 32px !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(30,45,61,0.08) transparent !important;
+}
+
+#sidebar a span,
+#sidebar a > *:not(svg),
+nav[class*="sidebar"] a span,
+aside[class*="sidebar"] a span {
+  opacity: 1 !important;
+  transition: none !important;
+  white-space: normal !important;
+}
+
+#sidebar::after,
+nav[class*="sidebar"]::after,
+aside[class*="sidebar"]::after,
+div[class*="sidebar-container"]::after,
+[data-testid="sidebar"]::after {
+  display: none !important;
+  content: none !important;
+}
+
+#sidebar a,
+nav[class*="sidebar"] a,
+aside[class*="sidebar"] a {
+  font-family: var(--font-display) !important;
+  font-size: 13.5px !important;
+  font-weight: 400 !important;
+  color: var(--smb-text-muted) !important;
+  padding: 6px 14px !important;
+  border-radius: 7px !important;
+  margin: 1px 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  text-decoration: none !important;
+  transition: color 0.15s ease, background 0.15s ease !important;
+  line-height: 1.45 !important;
+}
+
+#sidebar a:hover,
+nav[class*="sidebar"] a:hover,
+aside[class*="sidebar"] a:hover {
+  color: var(--smb-navy) !important;
+  background: rgba(30,45,61,0.045) !important;
+}
+
+#sidebar [class*="group"] p,
+#sidebar [class*="group"] span,
+#sidebar [class*="section"] p,
+#sidebar [class*="section"] span,
+nav[class*="sidebar"] [class*="group"] p,
+nav[class*="sidebar"] [class*="group"] span {
+  font-family: var(--font-mono) !important;
+  font-size: 10px !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  color: rgba(30,45,61,0.4) !important;
+  font-weight: 500 !important;
+  padding: 20px 14px 6px !important;
+  display: block !important;
+}
+
+#sidebar [class*="group"],
+nav[class*="sidebar"] [class*="group"] {
+  padding-top: 4px !important;
+}
+
+#sidebar [class*="group"] + [class*="group"],
+nav[class*="sidebar"] [class*="group"] + [class*="group"] {
+  border-top: 1px solid rgba(30,45,61,0.05) !important;
+  margin-top: 8px !important;
+  padding-top: 8px !important;
+}
+
+#sidebar a[aria-current="page"],
+#sidebar a.active,
+nav[class*="sidebar"] a[aria-current="page"],
+aside[class*="sidebar"] a[aria-current="page"] {
+  color: var(--smb-orange) !important;
+  font-weight: 600 !important;
+  background: rgba(232,87,58,0.07) !important;
+}
+
+#table-of-contents a[aria-current="true"],
+#table-of-contents a.active {
+  color: var(--smb-orange) !important;
+}

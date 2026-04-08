@@ -1,0 +1,65 @@
+/* ==========================================================
+   RESPONSIVE
+   All media queries consolidated in one place.
+   ========================================================== */
+
+/* --- Hide doc TOC on smaller screens --- */
+@media (max-width: 1500px) {
+  .smb-doc-toc { display: none; }
+}
+
+/* --- Hide floating nav on smaller screens --- */
+@media (max-width: 900px) {
+  .smb-floating-nav { display: none; }
+}
+
+/* --- Tablet breakpoint --- */
+@media (max-width: 900px) {
+  /* Doc pages */
+  .smb-card-grid-2,
+  .smb-card-grid-3 { grid-template-columns: 1fr; }
+  .smb-page { padding: 0 16px 60px; }
+
+  /* Landing page */
+  .smb-model-grid { grid-template-columns: 1fr; }
+  .smb-hero-models .smb-model-grid { grid-template-columns: 1fr; }
+  .smb-usecase-grid { grid-template-columns: 1fr; }
+  .smb-next-grid,
+  .smb-next-grid-4 { grid-template-columns: 1fr; }
+  .smb-section { padding: 80px 24px; }
+  .smb-hero { padding: 100px 24px 80px; min-height: auto; }
+  .smb-footer-bar { padding: 28px 24px; flex-direction: column; text-align: center; }
+  .smb-hero-install-code { font-size: 12px; padding: 14px 20px; }
+  .smb-tracker { gap: 0; flex-wrap: wrap; }
+  .smb-tracker-label { font-size: 9px; }
+  .smb-tracker-line { width: 20px; margin: 0 6px; }
+  .smb-hero-papers { margin: 36px auto; }
+  .smb-hero-models { margin: 36px auto; }
+}
+
+/* --- Model banner stacking --- */
+@media (max-width: 700px) {
+  .smb-model-banner-specs { flex-direction: column; gap: 16px; }
+  .smb-model-banner-spec { padding: 0 !important; }
+  .smb-model-banner-spec::after { display: none; }
+}
+
+/* --- Mobile breakpoint --- */
+@media (max-width: 600px) {
+  /* Doc pages */
+  .smb-page-title { font-size: 26px !important; }
+  .smb-step { padding-left: 60px; }
+  .smb-step::before { left: 16px; width: 28px; height: 28px; font-size: 12px; }
+  .smb-tracker-label { display: none; }
+  .smb-tracker-line { width: 24px; }
+  .smb-encoder-switcher { width: 100%; }
+  .smb-encoder-switcher a { flex: 1; justify-content: center; padding: 8px 10px; font-size: 12px; }
+
+  /* Landing page */
+  .smb-hero-title { font-size: 34px !important; }
+  .smb-model-card { padding: 32px 24px 28px; }
+  .smb-usecase-card { padding: 28px 24px; }
+  .smb-hero-install-code { font-size: 11px; padding: 12px 16px; gap: 10px; }
+  .smb-hero-install-cmd { font-size: 11px !important; }
+  .smb-copy-btn { font-size: 10px; padding: 5px 10px; }
+}
